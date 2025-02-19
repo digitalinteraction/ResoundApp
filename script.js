@@ -5,7 +5,7 @@ let savedNetworked = false;
 
 const maxWifiNetworks = 16;
 
-let statuscode = 0x00;
+let statuscode = 0x80;
 
 const frameRate = 20;
 let volume = 0;
