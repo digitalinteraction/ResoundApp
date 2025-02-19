@@ -548,7 +548,7 @@ function manageWebSocket() {
 function parseLocalMessage(json) {
     if(json) {
         if(json['status']) {
-            const s = json['status'];
+            let s = json['status'];
             s = webSocketConnected ? s | 0x08 : s;
             if (s !== statuscode) {
                 onStatus(s);
