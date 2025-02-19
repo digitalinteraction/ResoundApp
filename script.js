@@ -453,7 +453,7 @@ async function populateWiFiForm(config) {
                 networks.appendChild(option);
                 if(ssid === savedNetworked) {
                     option.setAttribute('selected', true);
-                    document.getElementById('wifi_secret').value = config?.wifi?.secret = '';
+                    document.getElementById('wifi_secret').value = config?.wifi?.secret || '';
                 }
             });
 
