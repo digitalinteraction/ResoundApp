@@ -86,6 +86,7 @@ async function getStatus() {
         if (response.ok) {
             const json = await response.json();
             s = Number(json.statuscode);
+            s = webSocketConnected ? s | 0x08 : s;
         }
     }
     catch (e) {
@@ -164,7 +165,9 @@ async function getConfiguration() {
         if (response.ok) {
             const json = await response.json();
             if(json.statuscode) {
-                onStatus(Number(json.statuscode));
+                let s = Number(json.statuscode);
+                s = webSocketConnected ? s | 0x08 : s;
+                onStatus(s);
                 delete json.statuscode;
             }
             setConfiguration(json, false);
@@ -546,6 +549,7 @@ function parseLocalMessage(json) {
     if(json) {
         if(json['status']) {
             const s = json['status'];
+            s = webSocketConnected ? s | 0x08 : s;
             if (s !== statuscode) {
                 onStatus(s);
             }
