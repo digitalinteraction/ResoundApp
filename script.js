@@ -511,13 +511,17 @@ function webSocketConnect() {
     console.log('Attempting to open ' + webSocketURL);
 
     webSocket = new WebSocket(webSocketURL);
+
+    webSocket.onopen = function() {
+        console.debug('webSocket connected');
+        webSocketConnected = true;
+    };
+
     webSocket.onmessage = async function(event) {
-        if(!webSocketConnected) {
-            webSocketConnected = true;
-        }
+        webSocketConnected = true;
         parseLocalMessage(JSON.parse(event.data));
     }
-
+    
     webSocket.onclose = function(e) {
         webSocketConnected = false;
     };
