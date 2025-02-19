@@ -43,8 +43,8 @@ function init() {
 
         setInterval(() => { draw(); }, 1000/frameRate);
 
-        preloadImage("/img/sphere-down.png");
-        preloadImage("/img/sphere-up.png");
+        preloadImage("img/sphere-down.png");
+        preloadImage("img/sphere-up.png");
 
         manageWebSocket();
         setInterval(() => { onTick(); }, 10000);

@@ -1,13 +1,13 @@
 const version = "resound-003";
 const assets = [
 	"/",
-	"/index.html",
-	"/script.js",
-	"/img/icon.png",
-	"/img/sphere-down.png",
-	"/img/sphere-up.png",
-	"/splide/splide.min.css",
-	"/splide/splide.min.js",
+	"index.html",
+	"script.js",
+	"img/icon.png",
+	"img/sphere-down.png",
+	"img/sphere-up.png",
+	"splide/splide.min.css",
+	"splide/splide.min.js",
 ];
 
 self.addEventListener("install", (e) => e.waitUntil(install()));

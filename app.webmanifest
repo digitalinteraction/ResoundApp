@@ -6,5 +6,5 @@
 	"scope": "/",
 	"display": "standalone",
 	"theme_color": "#3e8137",
-	"icons": [{ "src": "/img/icon.png", "type": "image/png", "sizes": "192x192" }]
+	"icons": [{ "src": "img/icon.png", "type": "image/png", "sizes": "192x192" }]
 }
