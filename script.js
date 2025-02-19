@@ -109,8 +109,12 @@ function captivePortalRunning(s = statuscode) {
     return (s & 0x04) == 0x04;
 }
 
-function serverConnected(s = statuscode) {
+function localConnected(s = statuscode) {
     return (s & 0x08) == 0x08;
+}
+
+function remoteConnected(s = statuscode) {
+    return (s & 0x10) == 0x10;
 }
 
 let onSphereUp = undefined, onSphereDown = undefined;
