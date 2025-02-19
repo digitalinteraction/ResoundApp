@@ -290,9 +290,9 @@ async function onSlideChange() {
             break;
 
         case 'server':
-            document.getElementById('server_name').value = config.server.name;
-            document.getElementById('server_host').value = config.server.host;
-            document.getElementById('server_channel').value = config.server.room.channel;
+            document.getElementById('server_name').value = config?.server?.name || '';
+            document.getElementById('server_host').value = config?.server?.host || '';
+            document.getElementById('server_channel').value = config?.server?.room?.channel || '';
 
             document.getElementById('server_button').addEventListener('click', function(e) {onServerSaveEvent(e);});
             break;
@@ -445,7 +445,7 @@ async function populateWiFiForm(config) {
                 return i.SSID;
             });
     
-            const savedNetworked = config.wifi.ssid;
+            const savedNetworked = config?.wifi?.ssid || '';
             ssidList.forEach((ssid) => {
                 let option = document.createElement("option");
                 option.setAttribute('value', ssid);
@@ -453,7 +453,7 @@ async function populateWiFiForm(config) {
                 networks.appendChild(option);
                 if(ssid === savedNetworked) {
                     option.setAttribute('selected', true);
-                    document.getElementById('wifi_secret').value = config.wifi.secret;
+                    document.getElementById('wifi_secret').value = config?.wifi?.secret = '';
                 }
             });
 
