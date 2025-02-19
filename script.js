@@ -120,12 +120,12 @@ function onStatus(s) {
         const sphereImage = document.querySelector('#sphereImage');
 
         if(sphereIsUp(s)) {
-            sphereImage.src = '/img/sphere-up.png';
+            sphereImage.src = 'img/sphere-up.png';
             if(onSphereUp && typeof onSphereUp === 'function') onSphereUp();
             onSphereUp = undefined; //one time event
         }
         else {
-            sphereImage.src = '/img/sphere-down.png';
+            sphereImage.src = 'img/sphere-down.png';
             if(onSphereDown && typeof onSphereDown === 'function') onSphereDown();
             onSphereDown = undefined; //one time event
         }
@@ -165,6 +165,7 @@ async function getConfiguration() {
             }
             setConfiguration(json, false);
         }
+        else onStatus(0x00); // offline
     }
     catch (e) {
         onStatus(0x00); // offline
