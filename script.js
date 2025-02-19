@@ -1,0 +1,697 @@
+let webSocket;
+let webSocketConnected = false;
+let config = {};
+let savedNetworked = false;
+
+const maxWifiNetworks = 16;
+
+let statuscode = 0x00;
+
+const frameRate = 20;
+let volume = 0;
+let targetVolume = 0;
+let tuning = false;
+
+const defaultFilterFrequencyHz = 150;
+const defaultFilterBandwidthHz = 100;
+
+let filter = {
+    frequency: defaultFilterFrequencyHz,
+    bandwidth: defaultFilterBandwidthHz
+};
+
+let audioCtx = undefined;
+
+let webSocketReconnect = undefined;
+
+function init() {
+    document.addEventListener( 'DOMContentLoaded', async function () {
+        splide = new Splide( '#carousel' ).mount();
+
+        splide.on('active', (slideElement) => {
+            onSlideChange();
+        });
+
+        document.addEventListener('pointerdown', function (event) {
+            if (
+                event.target.matches('input, select, textarea, button') &&
+                event.target.closest('.splide__slide')
+            ) {
+                event.stopPropagation(); // Prevent Splide from triggering
+            }
+        });
+
+        setInterval(() => { draw(); }, 1000/frameRate);
+
+        preloadImage("/img/sphere-down.png");
+        preloadImage("/img/sphere-up.png");
+
+        manageWebSocket();
+        setInterval(() => { onTick(); }, 10000);
+        await getConfiguration();
+    } );
+}
+
+function preloadImage(url) {
+    const img = new Image();
+    img.src = url;
+}
+
+function draw() {
+    const id = getSlideIdByIndex(splide.index);
+
+    if(((tuning && id === 'filter') || id === 'webapp') && sphereIsUp()) {
+        const dv = targetVolume - volume;
+        volume = volume + (dv * 0.1);
+        setBackgroundFromValue(volume * 255);
+    }
+    else {
+        setBackgroundFromValue(0);
+    }
+}
+
+function onTick() {
+    getStatus();
+}
+
+async function getStatus() {
+    let s = statuscode & 0xfe; // offline - turn off least sign bit
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // Set timeout to abort fetch
+
+    try {
+        const response = await fetch('/yoyo/status', { signal: controller.signal });
+        clearTimeout(timeout); // Clear timeout if fetch completes
+
+        if (response.ok) {
+            const json = await response.json();
+            s = Number(json.statuscode);
+        }
+    }
+    catch (e) {
+    }
+
+    // Update status if it changed
+    if (s !== statuscode) {
+        onStatus(s);
+    }
+}
+
+function sphereIsOnline(s = statuscode) {
+    return (s & 0x01) == 0x01;
+}
+
+function sphereIsUp(s = statuscode) {
+    return (s & 0x02) == 0x02;
+}
+
+function captivePortalRunning(s = statuscode) {
+    return (s & 0x04) == 0x04;
+}
+
+function serverConnected(s = statuscode) {
+    return (s & 0x08) == 0x08;
+}
+
+let onSphereUp = undefined, onSphereDown = undefined;
+function onStatus(s) {
+    console.log('onStatus', s);
+    if(statuscode != s) {
+        const sphereImage = document.querySelector('#sphereImage');
+
+        if(sphereIsUp(s)) {
+            sphereImage.src = '/img/sphere-up.png';
+            if(onSphereUp && typeof onSphereUp === 'function') onSphereUp();
+            onSphereUp = undefined; //one time event
+        }
+        else {
+            sphereImage.src = '/img/sphere-down.png';
+            if(onSphereDown && typeof onSphereDown === 'function') onSphereDown();
+            onSphereDown = undefined; //one time event
+        }
+
+        if(sphereIsOnline(s) && webSocketConnected) sphereImage.style.filter = 'none';
+        else sphereImage.style.filter = 'invert(30%)';
+
+        if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
+        if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
+
+        statuscode = s;
+    }
+}
+
+function onOnline() {
+    console.log("onOnline");
+}   
+
+function onOffline() {
+    console.log("onOffline");
+    webSocketConnected = false;
+}
+
+async function getConfiguration() {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // Set timeout to abort fetch
+
+    try {
+        const response = await fetch('/yoyo/config', { signal: controller.signal });
+        clearTimeout(timeout); // Clear timeout if fetch completes
+
+        if (response.ok) {
+            const json = await response.json();
+            if(json.statuscode) {
+                onStatus(Number(json.statuscode));
+                delete json.statuscode;
+            }
+            setConfiguration(json, false);
+        }
+    }
+    catch (e) {
+        onStatus(0x00); // offline
+    }
+}
+
+async function postConfiguration() {
+    let success = true;
+
+    try {
+        const response = await fetch('/yoyo/config', {
+            method: 'POST',
+            headers: {
+                "Accept": "application/json; charset=utf-8",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(config)
+        });
+
+        if(response.ok) {
+            success = true;
+        }
+        else {
+            success = false;
+            console.log(response.statusText);
+        }
+    }
+    catch(e) {
+        success = false;
+        console.log(e);
+    }
+    
+    return success;
+}
+
+async function setConfiguration(json, post = true, rebootDelayMs = -1) {
+    let success = true;
+    console.log("setConfiguration", json);
+    config = { ...config, ...json };
+
+    console.log(JSON.stringify(config));
+
+    if(post) {
+        success = postConfiguration();
+    }
+
+    if(success) {
+        if(post && rebootDelayMs >= 0) {
+            const reboot = function () {
+                showSlide('default');   //TODO: explain reboot
+                setTimeout(function() {
+                    fetch('/yoyo/reboot', {method: 'POST'});
+                }, rebootDelayMs);
+            };
+
+            if(sphereIsUp()) onSphereDown = reboot;
+            else reboot();
+        }
+        else {
+            onConfiguration();
+        }
+    }
+}
+
+function onConfiguration() {
+    console.log("onConfiguration", config);
+
+    if(!config?.filter?.frequency) {
+        showSlide('filter');
+    }
+    else {
+        console.log(config.filter);
+        if(!config?.server?.host) {
+            showSlide('server');
+        }
+        else {
+            console.log(config.server);
+            if(!config?.wifi?.ssid) {
+                showSlide('wifi');
+            }
+            else {
+                console.log(config.wifi);
+                showSlide('webapp');
+            }
+        }
+    }
+}
+
+async function onSlideMoved() {
+    console.log('onSlideMoved');
+}
+
+async function onSlideChange() {
+    playTone(180, 1, 0.5);
+
+    const id = getSlideIdByIndex(splide.index);
+    switch (id) {
+        case 'filter':
+            document.getElementById('filter_button').addEventListener('click', function (e) {
+                const button = e.target; // Get the clicked button
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active'); // Remove the active class
+                    tuning = false; // Set tuning to false
+                } else {
+                    button.classList.add('active'); // Add the active class
+                    tuning = true; // Set tuning to true
+                    filter = {
+                        frequency: defaultFilterFrequencyHz,
+                        bandwidth: defaultFilterBandwidthHz
+                    };
+                    tune(filter.frequency,filter.bandwidth);
+                    tuneSphere();
+                }
+            });
+            break;
+
+        case 'server':
+            document.getElementById('server_name').value = config.server.name;
+            document.getElementById('server_host').value = config.server.host;
+            document.getElementById('server_channel').value = config.server.room.channel;
+
+            document.getElementById('server_button').addEventListener('click', function(e) {onServerSaveEvent(e);});
+            break;
+
+        case 'wifi':
+            document.getElementById('wifi_ssid').setAttribute('disabled', true);
+            document.getElementById('wifi_secret').setAttribute('disabled', true);
+            await populateWiFiForm(config);
+            // document.getElementById('wifi_ssid').value = config.server.name;
+            //document.getElementById('wifi_secret').value = config.wifi.secret;
+
+            document.getElementById('wifi_button').addEventListener('click', function(e) {
+                if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                //onWiFiSaveEvent(e);
+            });
+            document.getElementById('wifi_secret').addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
+            break;
+        
+        case 'webapp':
+            break;
+
+        default:
+            console.log("no rule for: " + id);
+    }
+}
+
+function tuneSphere() {
+    console.log('tuneSphere', tuning);
+    const peakFrequency = getGoodHistogramPeak(histogram);
+    console.log('histogram', histogram, peakFrequency);
+
+    if(tuning) {
+        clearHistogram(histogram);
+
+        if(peakFrequency == -1) {
+            setTimeout(() => {
+                tuneSphere();
+            }, 5000);
+        }
+        else {
+            tuning = false;
+            filter = {
+                "frequency": peakFrequency,
+                "bandwidth": filter.bandwidth / histogram.length,
+            };
+
+            console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
+            tune(filter.frequency, filter.bandwidth);
+            setConfiguration({
+                "filter": filter
+            });
+            //playTone(peak,1000,1);
+        }
+    }
+}
+
+function showSlide(id) {
+    console.log('showSlide', id);
+    if(splide) {
+        const i = getSlideIndexById(id);
+        if(i >= 0 && i != splide.index) splide.go(i);
+    }
+}
+
+function getSlideIndexById(id) {
+    const track = document.querySelector('.splide__track'); // Select the track container
+    const slides = track.querySelectorAll('.splide__slide'); // Get all slides within the track
+    let index = -1; // Default to -1 in case the slide ID is not found
+
+    slides.forEach((slide, idx) => {
+        if (slide.getAttribute('data-id') === id) {
+        index = idx;
+        }
+    });
+
+    return index;
+}
+
+function getSlideIdByIndex(index) {
+    const track = document.querySelector('.splide__track'); // Select the track container
+    const slides = track.querySelectorAll('.splide__slide'); // Get all slides within the track
+    
+    if (index >= 0 && index < slides.length) {
+      return slides[index].getAttribute('data-id');
+    }
+    
+    return null;
+}
+
+async function tune(f, bw) {
+    try {
+        const response = await fetch('/yoyo/tune', {
+            method: 'POST',
+            headers: {
+                "Accept": "application/json; charset=utf-8",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({f:f, bw:bw})
+        });
+
+        if(response.ok) {
+            console.log(response);
+        }
+    }
+    catch(e) {
+        console.log(e);
+    }
+}
+
+async function startWebApp() {
+    let response = await fetch('/yoyo/getwebapp').catch();
+    if(response.ok) {
+        const json = await response.json();
+        if(json.connected == true) {
+            //redirect('/webapp.html');
+        }
+        //else connection with server failed
+    }
+    //else connection with sphere failed
+}
+
+function redirect(url) {
+    location.href = url;
+}
+
+async function populateWiFiForm(config) {
+    let networks = document.getElementById('wifi_ssid');
+    // networks.addEventListener("change", (event) => {
+    //     if(savedNetworked && event.target.selectedIndex == 0) document.getElementById('wifi_secret').value = config.wifi.secret;
+    //     else document.getElementById('wifi_secret').value = "";
+    // });
+
+    let ssidList = [];
+    let response = await fetch('/yoyo/networks');
+    if(response.ok) {
+        const json = await response.json();
+        if(json.length > 0) {
+            //empty the existing list:
+            while (networks.firstChild) networks.removeChild(networks.firstChild);
+
+            ssidList = ssidList.concat(Object.values(
+                json.reduce((acc, network) => {
+                    if (!acc[network.SSID] || network.RSSI > acc[network.SSID].RSSI) {
+                        acc[network.SSID] = network;
+                    }
+                    return acc;
+                }, {})
+            ));
+            ssidList = ssidList.slice(0, maxWifiNetworks).map(i => {
+                return i.SSID;
+            });
+    
+            const savedNetworked = config.wifi.ssid;
+            ssidList.forEach((ssid) => {
+                let option = document.createElement("option");
+                option.setAttribute('value', ssid);
+                option.textContent=ssid;
+                networks.appendChild(option);
+                if(ssid === savedNetworked) {
+                    option.setAttribute('selected', true);
+                    document.getElementById('wifi_secret').value = config.wifi.secret;
+                }
+            });
+
+            if(!ssidList.includes(savedNetworked)) {
+                let option = document.createElement("option");
+                option.setAttribute('value', savedNetworked);
+                option.textContent = savedNetworked;
+                option.setAttribute('disabled', true);
+                networks.insertBefore(option, networks.firstChild);
+            }
+
+            if(networks.length ==0) {
+                networks.append('<option>No Networks Found</option>');
+            }
+            else {
+                document.getElementById('wifi_secret').removeAttribute("disabled");
+                document.getElementById('wifi_ssid').removeAttribute("disabled");
+            }
+        }
+    }
+}
+
+async function onWiFiSaveEvent(event) {
+    console.log("onWiFiSaveEvent");
+    event.preventDefault();
+
+    const ssid = document.getElementById('wifi_ssid').value;
+    const secret = document.getElementById('wifi_secret').value;
+
+    if(ssid && ssid.length > 0) {
+        setConfiguration({
+            "wifi": {
+                "ssid": ssid,
+                "secret": secret,
+            },
+        }, true, 5000);
+    }
+}
+
+async function onServerSaveEvent(event) {
+    console.log("onServerSaveEvent");
+    event.preventDefault();
+
+    const name = document.getElementById('server_name').value;
+    const host = document.getElementById('server_host').value;
+    const channel = document.getElementById('server_channel').value;
+
+    setConfiguration({
+        "server": {
+            "name": name,
+            "host": host,
+            "channel": {
+                "room": channel
+            }
+        }
+    });
+}
+
+//---
+function webSocketConnect() {
+    let webSocketURL = 'ws://' + getHost() + ':81/';
+    console.log('Attempting to open ' + webSocketURL);
+
+    webSocket = new WebSocket(webSocketURL);
+    webSocket.onmessage = async function(event) {
+        if(!webSocketConnected) {
+            webSocketConnected = true;
+        }
+        parseLocalMessage(JSON.parse(event.data));
+    }
+
+    webSocket.onclose = function(e) {
+        webSocketConnected = false;
+    };
+
+    webSocket.onerror = function(event) {
+        console.debug('webSocket.onerror', event);
+    };
+}
+
+function manageWebSocket() {
+    if(!webSocketReconnect) {
+        webSocketReconnect = function() { if(!webSocketConnected && sphereIsOnline()) webSocketConnect(); };
+        setInterval(webSocketReconnect, 10000);
+    }
+}
+
+function parseLocalMessage(json) {
+    if(json) {
+        if(json['status']) {
+            const s = json['status'];
+            if (s !== statuscode) {
+                onStatus(s);
+            }
+        }
+
+        if(json['type'] === 'peer') console.log('peer', json);
+        if(json['type'] === 'debug') console.log("DEBUG", json['text']);
+        if(json['type'] === 'sound') {
+            const f = json['f'];
+            const v = json['v'];
+            
+            targetVolume = v;
+            if(v > 0.2 && tuning) {
+                addSampleToHistogram(f,v);
+            }
+        }
+        if(json['type'] === 'touch') {
+            console.log(json);
+        }
+    }
+}
+
+function getHost() {
+    let host = window.location.host;
+    if(host.length > 0) {
+        //Take off any port number:
+        let i = host.indexOf(":");
+        if(i >= 0) host = host.slice(0, i);
+
+        //Make sure this is an IP address (can be captive.apple.com etc):
+        let ipAddress = host.split('.');
+        if(ipAddress.length == 4 && parseInt(ipAddress[0]) != NaN) {
+            //IP address looks OK
+        }
+        else {
+            host = '192.168.4.1';
+        }
+    }
+    else host = '192.168.4.1';
+
+    return(host);
+}
+
+function setBackgroundFromValue(value) {
+    // Clamp the value between 0 and 255
+    value = Math.max(0, Math.min(255, value));
+    
+    // Calculate the color components for the gradient
+    const startColor = { r: 245, g: 245, b: 245 }; // #f5f5f5
+    const endColor = { r: 255, g: 215, b: 0 };     // #ffd700
+    
+    const r = Math.round(startColor.r + (endColor.r - startColor.r) * (value / 255));
+    const g = Math.round(startColor.g + (endColor.g - startColor.g) * (value / 255));
+    const b = Math.round(startColor.b + (endColor.b - startColor.b) * (value / 255));
+    
+    // Set the background color
+    document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+}
+
+let histogram = [0,0,0,0,0,0,0,0];
+function addSampleToHistogram(f, v) {
+    const fl = filter.frequency - filter.bandwidth/2;
+    const fh = filter.frequency + filter.bandwidth/2;
+    const binSize = filter.bandwidth/histogram.length;
+
+    const n = Math.floor((f - fl)/binSize);
+    if(n >= 0 && n < histogram.length){
+        histogram[n] += v;
+    }
+}
+
+function clearHistogram(histogram) {
+    for (let i = 0; i < histogram.length; i++) histogram[i] = 0;
+}
+
+function findHistogramPeak(histogram) {
+    if (histogram.length === 0) return { value: null, position: -1 };
+    
+    let peakValue = Math.max(...histogram);
+    let peakIndex = histogram.indexOf(peakValue);
+    
+    return { value: peakValue, position: peakIndex };
+}
+
+function calculateHistogramStats(histogram) {
+    if (histogram.length === 0) return { mean: null, sd: null };
+
+    const sum = histogram.reduce((acc, value) => acc + value, 0);
+    const mean = sum / histogram.length;
+
+    const variance = histogram.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) / histogram.length;
+    const sd = Math.sqrt(variance);
+
+    return { mean, sd };
+}
+
+function getGoodHistogramPeak(histogram) {
+    let result = -1;
+
+    if (histogram.length === 0) return -1;
+
+    const { mean, sd } = calculateHistogramStats(histogram);
+    const peak = findHistogramPeak(histogram);
+
+    console.log(peak.value, mean, sd, mean + 2 * sd);
+
+    if (peak.value > mean + (2 * sd)) {
+        const binWidth = filter.bandwidth / histogram.length;
+        result = filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2);
+    }
+
+    return result;
+}
+
+// Function to play a tone
+function playTone(frequency, duration, volume) {
+    if(audioCtx === undefined) return;
+
+    // Ensure the context is resumed after a user interaction
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    // Create an oscillator node for the tone
+    const oscillator = audioCtx.createOscillator();
+    oscillator.type = 'sine'; // 'sine', 'square', 'sawtooth', or 'triangle'
+    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); // Set frequency
+  
+    // Create a GainNode for volume control
+    const gainNode = audioCtx.createGain();
+  
+    // Connect the oscillator to the GainNode, then to the destination (speakers)
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+  
+    // Add fade-in and fade-out
+    const fadeTime = duration * 0.2; // Fade duration (seconds)
+    const startTime = audioCtx.currentTime; // Current audio context time
+    const endTime = startTime + duration;
+  
+    // Set initial gain to 0 (silent)
+    gainNode.gain.setValueAtTime(0, startTime);
+  
+    // Fade in
+    gainNode.gain.linearRampToValueAtTime(volume, startTime + fadeTime);
+  
+    // Sustain volume for the middle of the tone
+    gainNode.gain.setValueAtTime(volume, endTime - fadeTime);
+  
+    // Fade out
+    gainNode.gain.linearRampToValueAtTime(0, endTime);
+  
+    // Start and stop the oscillator
+    oscillator.start(startTime); // Start immediately
+    oscillator.stop(endTime); // Stop after the specified duration
+  }
+
+init();

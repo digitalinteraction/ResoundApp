@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width" />
+      <link rel="manifest" href="app.webmanifest" />
+      <link rel="icon" href="/img/icon.png" />
+
+      <link href="style.css" rel="stylesheet" type="text/css">
+      <link href="splide/splide.min.css" rel="stylesheet" type="text/css">
+      <script src="splide/splide.min.js"></script>
+
+      <script src="script.js" onerror="location.reload()"></script>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header"><img src="/img/resound_logo.svg" width="100" height="40"></div>
+        <div class="background-image"> 
+          <img id="sphereImage">
+        </div>
+
+        <section id="carousel" class="splide">
+          <div class="splide__track">
+                <ul class="splide__list">
+                    <li class="splide__slide" data-id="default"></li>
+                    <li class="splide__slide" data-id="webapp">
+                      <div class="slide-content">
+                        <div class="row">Webapp</div>
+                        <div class="row"></div>
+                        <div class="row">...</div>
+                    </div>
+                    </li>
+                    <li class="splide__slide" data-id="filter">
+                      <div class="slide-content">
+                          <div class="row">Filter!</div>
+                          <div class="row">
+                            <form class="yo-yo-form">
+                              <button id="filter_button" type="button">Tune</button>
+                            </form>
+                          </div>
+                          <div class="row">Turn on, tune in, drop out</div>
+                      </div>
+                    </li>
+                    <li class="splide__slide" data-id="server">
+                      <div class="slide-content">
+                        <div class="row"></div>
+                        <div class="row">
+                          <form class="yo-yo-form">
+                            <input id="server_host" class="form-control" placeholder="Server" type="text">
+                            <input id="server_channel" class="form-control" placeholder="Channel" type="text">
+                            <input id="server_name" class="form-control" placeholder="Name" type="text">
+                            <button id="server_button" type="button">Save</button>
+                          </form>
+                        </div>
+                        <div class="row"></div>
+                      </div>
+                    </li>
+                    <li class="splide__slide" data-id="wifi">
+                      <div class="slide-content">
+                          <div class="row">
+                            <form class="yo-yo-form">
+                                  <select class="form-control" id="wifi_ssid">
+                                    <option value="" disabled selected>Network Name</option>
+                                  </select>
+                                  <input id="wifi_secret" class="form-control" placeholder="Password" type="password">
+                                  <button id="wifi_button" type="button">Save</button>
+                            </form>
+                          </div>
+                      </div>
+                    </li>
+                </ul>
+          </div>
+      </section>
+
+      <div class="footer"><p>Open Lab 2025</p></div>
+    </div>
+
+    <!-- <p id="ssid"></p> -->
+
+    <script type="module">
+      async function registerServiceWorker() {
+        console.log('registerServiceWorker');
+        try {
+          const registration = await navigator.serviceWorker.register(
+            "service-worker.js",
+            { scope: "/" }
+          );
+          console.log(registration);
+        } catch (error) {
+          console.error("service worker", error);
+        }
+      }
+      if ("serviceWorker" in navigator) registerServiceWorker();
+      else console.log('no serviceWorker');
+    </script>
+  </body>
+</html>

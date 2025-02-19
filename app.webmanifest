@@ -1,0 +1,10 @@
+{
+	"$schema": "https://json.schemastore.org/web-manifest.json",
+	"name": "Resound",
+	"short_name": "Resound",
+	"start_url": ".",
+	"scope": "/",
+	"display": "standalone",
+	"theme_color": "#3e8137",
+	"icons": [{ "src": "/img/icon.png", "type": "image/png", "sizes": "192x192" }]
+}
