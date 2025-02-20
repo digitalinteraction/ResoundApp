@@ -8,8 +8,8 @@ const maxWifiNetworks = 16;
 let statuscode = 0x80;
 
 const frameRate = 20;
-let volume = 0;
-let targetVolume = 0;
+let energy = 0;
+let targetEnergy = 0;
 let tuning = false;
 
 const defaultFilterFrequencyHz = 150;
@@ -61,9 +61,9 @@ function draw() {
     const id = getSlideIdByIndex(splide.index);
 
     if(((tuning && id === 'filter') || id === 'webapp') && sphereIsUp()) {
-        const dv = targetVolume - volume;
-        volume = volume + (dv * 0.1);
-        setBackgroundFromValue(volume * 255);
+        const de = targetEnergy - energy;
+        energy = energy + (de * 0.1);
+        setBackgroundFromValue(Math.min(Math.max(energy, 0.0), 1.0) * 255);
     }
     else {
         setBackgroundFromValue(0);
@@ -561,8 +561,9 @@ function parseLocalMessage(json) {
         if(json['type'] === 'sound') {
             const f = json['f'];
             const v = json['v'];
+            const e = json['e'];
             
-            targetVolume = v;
+            targetEnergy = e;
             if(v > 0.2 && tuning) {
                 addSampleToHistogram(f,v);
             }
