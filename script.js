@@ -596,18 +596,20 @@ function getHost() {
 }
 
 function setBackgroundFromValue(value) {
-    // Clamp the value between 0 and 255
-    value = Math.max(0, Math.min(255, value));
-    
-    // Calculate the color components for the gradient
+    const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+    const lerp = (start, end, t) => start + (end - start) * t;
+
+    // Clamp value and apply quadratic ease-in
+    value = clamp(value, 0, 255) / 255;
+    value = value * value; // Quadratic easing (slow start, faster towards the end)
+
     const startColor = { r: 245, g: 245, b: 245 }; // #f5f5f5
     const endColor = { r: 255, g: 215, b: 0 };     // #ffd700
-    
-    const r = Math.round(startColor.r + (endColor.r - startColor.r) * (value / 255));
-    const g = Math.round(startColor.g + (endColor.g - startColor.g) * (value / 255));
-    const b = Math.round(startColor.b + (endColor.b - startColor.b) * (value / 255));
-    
-    // Set the background color
+
+    const r = Math.round(lerp(startColor.r, endColor.r, value));
+    const g = Math.round(lerp(startColor.g, endColor.g, value));
+    const b = Math.round(lerp(startColor.b, endColor.b, value));
+
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
