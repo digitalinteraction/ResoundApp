@@ -564,6 +564,7 @@ function parseLocalMessage(json) {
             const e = json['e'];
             
             targetEnergy = e;
+            console.log('targetEnergy',targetEnergy);
             if(v > 0.2 && tuning) {
                 addSampleToHistogram(f,v);
             }
