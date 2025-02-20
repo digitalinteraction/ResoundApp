@@ -601,7 +601,7 @@ function setBackgroundFromValue(value) {
 
     // Clamp value and apply ease-in
     value = clamp(value, 0, 255) / 255;
-    value = value * value * value * value; // easing
+    value = value * value; // easing
 
     const startColor = { r: 245, g: 245, b: 245 }; // #f5f5f5
     const endColor = { r: 255, g: 215, b: 0 };     // #ffd700
