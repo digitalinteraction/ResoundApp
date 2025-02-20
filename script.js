@@ -541,6 +541,7 @@ function webSocketConnect() {
 function manageWebSocket() {
     if(!webSocketReconnect) {
         webSocketReconnect = function() { if(!webSocketConnected && sphereIsOnline()) webSocketConnect(); };
+        webSocketReconnect();
         setInterval(webSocketReconnect, 10000);
     }
 }
