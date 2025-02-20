@@ -599,9 +599,9 @@ function setBackgroundFromValue(value) {
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
     const lerp = (start, end, t) => start + (end - start) * t;
 
-    // Clamp value and apply cubic ease-in
+    // Clamp value and apply ease-in
     value = clamp(value, 0, 255) / 255;
-    value = value * value * value; // cubic easing
+    value = value * value * value * value; // easing
 
     const startColor = { r: 245, g: 245, b: 245 }; // #f5f5f5
     const endColor = { r: 255, g: 215, b: 0 };     // #ffd700
