@@ -249,6 +249,8 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 function onConfiguration() {
     console.log("onConfiguration", config);
 
+    addPeerConsoleLine(JSON.stringify(config.peers));
+
     if(!config?.filter?.frequency) {
         showSlide('filter');
     }
@@ -566,14 +568,14 @@ function parseLocalDebugMessage(json) {
 
 function parseLocalPeerMessage(json) {
     console.log('peer', json);
-    addConsoleLine(JSON.stringify(json));
+    addPeerConsoleLine(JSON.stringify(json));
 }
 
-function addConsoleLine(text) {
-    const console = document.getElementById('console');
-    if (console) {
-        console.value += text + '\n';
-        console.scrollTop = console.scrollHeight;
+function addPeerConsoleLine(text) {
+    const peerConsole = document.getElementById('peerconsole');
+    if (peerConsole) {
+        peerConsole.value += text + '\n';
+        peerConsole.scrollTop = peerConsole.scrollHeight;
     } 
 }
 
