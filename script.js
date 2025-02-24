@@ -402,18 +402,6 @@ async function tune(f, bw) {
     }
 }
 
-async function startWebApp() {
-    let response = await fetch('/yoyo/getwebapp').catch();
-    if(response.ok) {
-        const json = await response.json();
-        if(json.connected == true) {
-            //redirect('/webapp.html');
-        }
-        //else connection with server failed
-    }
-    //else connection with sphere failed
-}
-
 function redirect(url) {
     location.href = url;
 }
