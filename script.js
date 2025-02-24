@@ -147,11 +147,20 @@ function onStatus(s) {
 
 function onOnline() {
     console.log("onOnline");
-}   
+}
+
+function onWebSocketConnected(v = true) {
+    if(webSocketConnected != v) {
+        var carousel = document.getElementById('carousel');
+        carousel.style.visibility = v ? 'visible' : 'hidden';
+        carousel.style['pointer-events'] = v ? 'auto' : 'none';
+    }
+    webSocketConnected = v;
+}
 
 function onOffline() {
     console.log("onOffline");
-    webSocketConnected = false;
+    onWebSocketConnected(false);
 }
 
 async function getConfiguration() {
@@ -509,16 +518,16 @@ function webSocketConnect() {
 
     webSocket.onopen = function() {
         console.debug('webSocket connected');
-        webSocketConnected = true;
+        onWebSocketConnected();
     };
 
     webSocket.onmessage = async function(event) {
-        webSocketConnected = true;
+        onWebSocketConnected(true);
         parseLocalMessage(JSON.parse(event.data));
     }
     
     webSocket.onclose = function(e) {
-        webSocketConnected = false;
+        onWebSocketConnected(false);
     };
 
     webSocket.onerror = function(event) {
@@ -544,22 +553,34 @@ function parseLocalMessage(json) {
             }
         }
 
-        if(json['type'] === 'peer') console.log('peer', json);
-        if(json['type'] === 'debug') console.log("DEBUG", json['text']);
-        if(json['type'] === 'sound') {
-            const f = json['f'];
-            const v = json['v'];
-            const e = json['e'];
-            
-            targetEnergy = e / 10;
-            if(v > 0.2 && tuning) {
-                addSampleToHistogram(f,v);
-            }
-        }
-        if(json['type'] === 'touch') {
-            console.log(json);
-        }
+        if(json['type'] === 'debug')    parseLocalDebugMessage(json);
+        if(json['type'] === 'peer')     parseLocalPeerMessage(json);
+        if(json['type'] === 'sound')    parseLocalSoundMessage(json);
+        if(json['type'] === 'touch')    parseLocalTouchMessage(json);
     }
+}
+
+function parseLocalDebugMessage(json) {
+    console.log('debug', json);
+}
+
+function parseLocalPeerMessage(json) {
+    console.log('peer', json);
+}
+
+function parseLocalSoundMessage(json) {
+    const f = json['f'];
+    const v = json['v'];
+    const e = json['e'];
+    
+    targetEnergy = e / 10;
+    if(v > 0.2 && tuning) {
+        addSampleToHistogram(f,v);
+    }
+}
+
+function parseLocalTouchMessage(json) {
+    console.log('touch', json);
 }
 
 function getHost() {

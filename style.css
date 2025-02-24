@@ -67,6 +67,11 @@ body {
     text-align: center;
 }
 
+#carousel {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .splide {
     height: 100%;
 }
