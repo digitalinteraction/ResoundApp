@@ -566,6 +566,15 @@ function parseLocalDebugMessage(json) {
 
 function parseLocalPeerMessage(json) {
     console.log('peer', json);
+    addConsoleLine(json);
+}
+
+function addConsoleLine(text) {
+    const console = document.getElementById('console');
+    if (console) {
+        console.value += text + '\n';
+        console.scrollTop = console.scrollHeight;
+    } 
 }
 
 function parseLocalSoundMessage(json) {
