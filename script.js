@@ -566,7 +566,7 @@ function parseLocalDebugMessage(json) {
 
 function parseLocalPeerMessage(json) {
     console.log('peer', json);
-    addConsoleLine(json);
+    addConsoleLine(JSON.stringify(json));
 }
 
 function addConsoleLine(text) {
