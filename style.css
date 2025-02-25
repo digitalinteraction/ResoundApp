@@ -68,8 +68,6 @@ body {
 }
 
 #carousel {
-    visibility: hidden;
-    pointer-events: none;
 }
 
 #peerconsole {

@@ -27,6 +27,7 @@ let webSocketReconnect = undefined;
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide( '#carousel' ).mount();
+        showCarousel(false);
 
         splide.on('active', (slideElement) => {
             onSlideChange();
@@ -60,7 +61,7 @@ function preloadImage(url) {
 function draw() {
     const id = getSlideIdByIndex(splide.index);
 
-    if(((tuning && id === 'filter') || id === 'webapp') && sphereIsUp()) {
+    if(((tuning && id === 'tuning') || id === 'room') && sphereIsUp()) {
         const de = targetEnergy - energy;
         energy = energy + (de * 0.1);
         setBackgroundFromValue(Math.min(Math.max(energy, 0.0), 1.0) * 255);
@@ -151,11 +152,15 @@ function onOnline() {
 
 function onWebSocketConnected(v = true) {
     if(webSocketConnected != v) {
-        var carousel = document.getElementById('carousel');
-        carousel.style.visibility = v ? 'visible' : 'hidden';
-        carousel.style['pointer-events'] = v ? 'auto' : 'none';
+        showCarousel(v);
     }
     webSocketConnected = v;
+}
+
+function showCarousel(v) {
+    var carousel = document.getElementById('carousel');
+    carousel.style.visibility = v ? 'visible' : 'hidden';
+    carousel.style['pointer-events'] = v ? 'auto' : 'none';
 }
 
 function onOffline() {
@@ -231,7 +236,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
     if(success) {
         if(post && rebootDelayMs >= 0) {
             const reboot = function () {
-                showSlide('default');   //TODO: explain reboot
+                showSlide('landing');   //TODO: explain reboot
                 setTimeout(function() {
                     fetch('/yoyo/reboot', {method: 'POST'});
                 }, rebootDelayMs);
@@ -252,7 +257,7 @@ function onConfiguration() {
     addPeerConsoleLine(JSON.stringify(config.peers));
 
     if(!config?.filter?.frequency) {
-        showSlide('filter');
+        showSlide('tuning');
     }
     else {
         console.log(config.filter);
@@ -266,7 +271,7 @@ function onConfiguration() {
             }
             else {
                 console.log(config.wifi);
-                showSlide('webapp');
+                showSlide('room');
             }
         }
     }
@@ -281,7 +286,9 @@ async function onSlideChange() {
 
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
-        case 'filter':
+        case 'landing':
+            break;
+        case 'tuning':
             document.getElementById('filter_button').addEventListener('click', function (e) {
                 const button = e.target; // Get the clicked button
                 if (button.classList.contains('active')) {
@@ -322,7 +329,7 @@ async function onSlideChange() {
             document.getElementById('wifi_secret').addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
             break;
         
-        case 'webapp':
+        case 'room':
             break;
 
         default:
