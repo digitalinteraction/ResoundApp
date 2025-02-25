@@ -27,7 +27,7 @@ let webSocketReconnect = undefined;
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide( '#carousel' ).mount();
-        showCarousel(false);
+        //showCarousel(false);
 
         splide.on('active', (slideElement) => {
             onSlideChange();
@@ -152,7 +152,7 @@ function onOnline() {
 
 function onWebSocketConnected(v = true) {
     if(webSocketConnected != v) {
-        showCarousel(v);
+        //showCarousel(v);
     }
     webSocketConnected = v;
 }
