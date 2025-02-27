@@ -323,8 +323,8 @@ async function onSlideChange() {
             //document.getElementById('wifi_secret').value = config.wifi.secret;
 
             document.getElementById('wifi_button').addEventListener('click', function(e) {
-                if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                //onWiFiSaveEvent(e);
+                //if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                onWiFiSaveEvent(e);
             });
             document.getElementById('wifi_secret').addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
             break;
@@ -471,8 +471,11 @@ async function populateWiFiForm(config) {
                 networks.insertBefore(option, networks.firstChild);
             }
 
-            if(networks.length ==0) {
-                networks.append('<option>No Networks Found</option>');
+            if(networks.options.length === 0) {
+                let option = document.createElement("option");
+                option.textContent = "No Networks Found";
+                option.disabled = true;
+                networks.appendChild(option);
             }
             else {
                 document.getElementById('wifi_secret').removeAttribute("disabled");
