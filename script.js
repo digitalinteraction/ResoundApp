@@ -318,7 +318,13 @@ async function onSlideChange() {
             break;
 
         case 'wifi':
-            document.getElementById('wifi_ssid').setAttribute('disabled', true);
+            const select = document.getElementById('wifi_ssid');
+            select.disabled = true;
+            select.addEventListener("change", function (event) {
+                console.log("onchange");
+                event.stopPropagation(); // Prevents the event from bubbling up
+            });
+            
             document.getElementById('wifi_secret').setAttribute('disabled', true);
             populateWiFiForm(config, ssidList);
             // document.getElementById('wifi_ssid').value = config.server.name;
