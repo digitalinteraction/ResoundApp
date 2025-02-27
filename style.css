@@ -1,30 +1,3 @@
-/* 
-.yo-yo-form .checkbox {
-    font-weight: 400;
-}
-
-.yo-yo-form .form-control:focus {
-    z-index: 2;
-}
-
-.yo-yo-form input[type="email"],
-.yo-yo-form select {
-    margin-bottom: -1px;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.yo-yo-form input[type="password"] {
-    margin-bottom: 10px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
-.dropdown-menu.pull-left {
-    left: 0;
-}
-*/
-
 html, body {
     margin: 0;
     padding: 0;
@@ -90,10 +63,11 @@ body {
 
 .splide {
     height: 100%;
+    width: 100vw;
 }
 
 .splide__track {
-    height: 100%;
+    height: 100vh;
 }
 
 .splide__slide {
