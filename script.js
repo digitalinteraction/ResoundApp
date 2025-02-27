@@ -3,6 +3,7 @@ let webSocketConnected = false;
 let config = {};
 
 const maxWifiNetworks = 16;
+let ssidList = [];
 
 let statuscode = 0x80;
 
@@ -49,6 +50,7 @@ function init() {
         manageWebSocket();
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
+        ssidList = await fetchWiFiNetworks();
     } );
 }
 
@@ -317,7 +319,7 @@ async function onSlideChange() {
         case 'wifi':
             document.getElementById('wifi_ssid').setAttribute('disabled', true);
             document.getElementById('wifi_secret').setAttribute('disabled', true);
-            populateWiFiForm(config, await fetchWiFiNetworks());
+            populateWiFiForm(config, ssidList);
             // document.getElementById('wifi_ssid').value = config.server.name;
             //document.getElementById('wifi_secret').value = config.wifi.secret;
 
