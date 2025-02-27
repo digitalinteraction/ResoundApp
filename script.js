@@ -1,7 +1,6 @@
 let webSocket;
 let webSocketConnected = false;
 let config = {};
-let savedNetworked = false;
 
 const maxWifiNetworks = 16;
 
@@ -318,7 +317,7 @@ async function onSlideChange() {
         case 'wifi':
             document.getElementById('wifi_ssid').setAttribute('disabled', true);
             document.getElementById('wifi_secret').setAttribute('disabled', true);
-            await populateWiFiForm(config);
+            populateWiFiForm(config, await fetchWiFiNetworks());
             // document.getElementById('wifi_ssid').value = config.server.name;
             //document.getElementById('wifi_secret').value = config.wifi.secret;
 
@@ -424,64 +423,66 @@ function redirect(url) {
     location.href = url;
 }
 
-async function populateWiFiForm(config) {
-    let networks = document.getElementById('wifi_ssid');
-    // networks.addEventListener("change", (event) => {
-    //     if(savedNetworked && event.target.selectedIndex == 0) document.getElementById('wifi_secret').value = config.wifi.secret;
-    //     else document.getElementById('wifi_secret').value = "";
-    // });
+async function fetchWiFiNetworks() {
+    try {
+        let response = await fetch('/yoyo/networks');
+        if (!response.ok) throw new Error("Failed to fetch networks");
 
-    let ssidList = [];
-    let response = await fetch('/yoyo/networks');
-    if(response.ok) {
         const json = await response.json();
-        if(json.length > 0) {
-            //empty the existing list:
-            while (networks.firstChild) networks.removeChild(networks.firstChild);
+        if (!Array.isArray(json) || json.length === 0) return [];
 
-            ssidList = ssidList.concat(Object.values(
-                json.reduce((acc, network) => {
-                    if (!acc[network.SSID] || network.RSSI > acc[network.SSID].RSSI) {
-                        acc[network.SSID] = network;
-                    }
-                    return acc;
-                }, {})
-            ));
-            ssidList = ssidList.slice(0, maxWifiNetworks).map(i => {
-                return i.SSID;
-            });
-    
-            const savedNetworked = config?.wifi?.ssid || '';
-            ssidList.forEach((ssid) => {
-                let option = document.createElement("option");
-                option.setAttribute('value', ssid);
-                option.textContent=ssid;
-                networks.appendChild(option);
-                if(ssid === savedNetworked) {
-                    option.setAttribute('selected', true);
-                    document.getElementById('wifi_secret').value = config?.wifi?.secret || '';
+        // Deduplicate SSIDs, keeping the strongest signal (highest RSSI)
+        return Object.values(
+            json.reduce((acc, network) => {
+                if (!acc[network.SSID] || network.RSSI > acc[network.SSID].RSSI) {
+                    acc[network.SSID] = network;
                 }
-            });
+                return acc;
+            }, {})
+        ).map(i => i.SSID);
+    } catch (error) {
+        console.error("Error fetching WiFi networks:", error);
+        return []; // Return an empty list on error
+    }
+}
 
-            if(!ssidList.includes(savedNetworked)) {
-                let option = document.createElement("option");
-                option.setAttribute('value', savedNetworked);
-                option.textContent = savedNetworked;
-                option.setAttribute('disabled', true);
-                networks.insertBefore(option, networks.firstChild);
-            }
+function populateWiFiForm(config, ssidList = []) {
+    let networks = document.getElementById('wifi_ssid');
+    networks.innerHTML = ''; // Clear existing options
 
-            if(networks.options.length === 0) {
-                let option = document.createElement("option");
-                option.textContent = "No Networks Found";
-                option.disabled = true;
-                networks.appendChild(option);
-            }
-            else {
-                document.getElementById('wifi_secret').removeAttribute("disabled");
-                document.getElementById('wifi_ssid').removeAttribute("disabled");
-            }
+    ssidList = ssidList.slice(0, maxWifiNetworks); // Limit the number of networks
+
+    const savedNetwork = config?.wifi?.ssid || '';
+
+    ssidList.forEach((ssid) => {
+        let option = document.createElement("option");
+        option.value = ssid;
+        option.textContent = ssid;
+        networks.appendChild(option);
+        if (ssid === savedNetwork) {
+            option.selected = true;
+            document.getElementById('wifi_secret').value = config?.wifi?.secret || '';
         }
+    });
+
+    // Handle case where the saved network is not in the list
+    if (savedNetwork && !ssidList.includes(savedNetwork)) {
+        let option = document.createElement("option");
+        option.value = savedNetwork;
+        option.textContent = savedNetwork;
+        option.disabled = true;
+        networks.insertBefore(option, networks.firstChild);
+    }
+
+    // Handle empty list case
+    if (networks.options.length === 0) {
+        let noNetworks = document.createElement("option");
+        noNetworks.textContent = "No Networks Found";
+        noNetworks.disabled = true;
+        networks.appendChild(noNetworks);
+    } else {
+        document.getElementById('wifi_secret').removeAttribute("disabled");
+        networks.removeAttribute("disabled");
     }
 }
 
