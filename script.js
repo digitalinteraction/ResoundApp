@@ -26,20 +26,15 @@ let webSocketReconnect = undefined;
 
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
-        splide = new Splide( '#carousel' ).mount();
+        splide = new Splide('#carousel', {
+            type: 'loop',
+            perPage: 1,
+            drag: false, // Enable drag by default
+        }).mount();
         //showCarousel(false);
 
         splide.on('active', (slideElement) => {
             onSlideChange();
-        });
-
-        document.addEventListener('pointerdown', function (event) {
-            if (
-                event.target.matches('input, select, textarea, button') &&
-                event.target.closest('.splide__slide')
-            ) {
-                event.stopPropagation(); // Prevent Splide from triggering
-            }
         });
 
         setInterval(() => { draw(); }, 1000/frameRate);
@@ -319,11 +314,14 @@ async function onSlideChange() {
 
         case 'wifi':
             const select = document.getElementById('wifi_ssid');
-            select.disabled = true;
-            select.addEventListener("change", function (event) {
-                console.log("onchange");
-                event.stopPropagation(); // Prevents the event from bubbling up
-            });
+            //select.disabled = true;
+            // select.addEventListener("change", function (event) {
+            //     console.log("onchange");
+            //     event.stopPropagation(); // Prevents the event from bubbling up
+            // });
+            // select.addEventListener("mousedown", function (event) {
+            //     console.log("Event fired:", event.type);
+            // });
             
             document.getElementById('wifi_secret').setAttribute('disabled', true);
             populateWiFiForm(config, ssidList);
