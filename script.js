@@ -243,8 +243,9 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 }, rebootDelayMs);
             };
 
-            if(sphereIsUp()) onSphereDown = reboot;
-            else reboot();
+            // if(sphereIsUp()) onSphereDown = reboot;
+            // else reboot();
+            reboot();
         }
         else {
             onConfiguration();
