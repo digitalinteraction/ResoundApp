@@ -220,30 +220,36 @@ async function postConfiguration() {
 
 async function setConfiguration(json, post = true, rebootDelayMs = -1) {
     let success = true;
-    console.log("setConfiguration", json);
-    config = { ...config, ...json };
 
-    console.log(JSON.stringify(config));
-
-    if(post) {
-        success = postConfiguration();
+    if (config == null) {
+        success = false;
     }
+    else {
+        console.log("setConfiguration", json);
+        config = { ...config, ...json };
 
-    if(success) {
-        if(post && rebootDelayMs >= 0) {
-            const reboot = function () {
-                showSlide('landing');   //TODO: explain reboot
-                setTimeout(function() {
-                    fetch('/yoyo/reboot', {method: 'POST'});
-                }, rebootDelayMs);
-            };
+        console.log(JSON.stringify(config));
 
-            // if(sphereIsUp()) onSphereDown = reboot;
-            // else reboot();
-            reboot();
+        if(post) {
+            success = postConfiguration();
         }
-        else {
-            onConfiguration();
+
+        if(success) {
+            if(post && rebootDelayMs >= 0) {
+                const reboot = function () {
+                    showSlide('landing');   //TODO: explain reboot
+                    setTimeout(function() {
+                        fetch('/yoyo/reboot', {method: 'POST'});
+                    }, rebootDelayMs);
+                };
+
+                // if(sphereIsUp()) onSphereDown = reboot;
+                // else reboot();
+                reboot();
+            }
+            else {
+                onConfiguration();
+            }
         }
     }
 }
@@ -291,18 +297,19 @@ async function onSlideChange() {
         case 'tuning':
             document.getElementById('filter_button').addEventListener('click', function (e) {
                 const button = e.target; // Get the clicked button
-                if (button.classList.contains('active')) {
-                    button.classList.remove('active'); // Remove the active class
-                    tuning = false; // Set tuning to false
-                } else {
+                if (!button.classList.contains('active')) {
                     button.classList.add('active'); // Add the active class
-                    tuning = true; // Set tuning to true
+                    tuning = true; // Set tuning to true - samples will be added to histogram
                     filter = {
                         frequency: defaultFilterFrequencyHz,
                         bandwidth: defaultFilterBandwidthHz
                     };
-                    tune(filter.frequency,filter.bandwidth);
+                    mic({f:frequency, bw:bandwidth, r:10});
                     tuneSphere();
+                } else {
+                    button.classList.remove('active'); // Remove the active class
+                    mic({r:1});
+                    tuning = false; // Set tuning to false
                 }
             });
             break;
@@ -364,7 +371,7 @@ function tuneSphere() {
             };
 
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
-            tune(filter.frequency, filter.bandwidth);
+            mic({f:filter.frequency, bw:filter.bandwidth, r:1});
             setConfiguration({
                 "filter": filter
             });
@@ -406,15 +413,15 @@ function getSlideIdByIndex(index) {
     return null;
 }
 
-async function tune(f, bw) {
+async function mic(json) {
     try {
-        const response = await fetch('/yoyo/tune', {
+        const response = await fetch('/yoyo/mic', {
             method: 'POST',
             headers: {
                 "Accept": "application/json; charset=utf-8",
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({f:f, bw:bw})
+            body: JSON.stringify(json)
         });
 
         if(response.ok) {
@@ -603,7 +610,7 @@ function parseLocalSoundMessage(json) {
     const e = json['e'];
     
     targetEnergy = e / 10;
-    if(v > 0.2 && tuning) {
+    if(v > 0.5 && tuning) {
         addSampleToHistogram(f,v);
     }
 }
