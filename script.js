@@ -272,6 +272,9 @@ function onConfiguration() {
             }
         }
     }
+
+    document.getElementById('spherename').value = config?.captiveportal?.ssid || '';
+    document.getElementById('sphereversion').value = config?.version || '';
 }
 
 async function onSlideMoved() {
@@ -313,29 +316,26 @@ async function onSlideChange() {
             break;
 
         case 'wifi':
-            const select = document.getElementById('wifi_ssid');
-            //select.disabled = true;
-            // select.addEventListener("change", function (event) {
-            //     console.log("onchange");
-            //     event.stopPropagation(); // Prevents the event from bubbling up
-            // });
-            // select.addEventListener("mousedown", function (event) {
-            //     console.log("Event fired:", event.type);
-            // });
+            const ssid = document.getElementById('wifi_ssid');
+            ssid.disabled = true;
             
-            document.getElementById('wifi_secret').setAttribute('disabled', true);
-            populateWiFiForm(config, ssidList);
-            // document.getElementById('wifi_ssid').value = config.server.name;
-            //document.getElementById('wifi_secret').value = config.wifi.secret;
+            const secret = document.getElementById('wifi_secret');
+            secret.disabled = true;
+            secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
 
-            document.getElementById('wifi_button').addEventListener('click', function(e) {
+            const button = document.getElementById('wifi_button');
+            button.addEventListener('click', function(e) {
                 //if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 onWiFiSaveEvent(e);
             });
-            document.getElementById('wifi_secret').addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
+
+            populateWiFiForm(config, ssidList);
             break;
         
         case 'room':
+            break;
+
+        case 'volume':
             break;
 
         default:
