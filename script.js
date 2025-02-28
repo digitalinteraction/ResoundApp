@@ -273,8 +273,8 @@ function onConfiguration() {
         }
     }
 
-    document.getElementById('spherename').value = config?.captiveportal?.ssid || '';
-    document.getElementById('sphereversion').value = config?.version || '';
+    document.getElementById('spherename').innerText = config?.captiveportal?.ssid || '';
+    document.getElementById('sphereversion').innerText = config?.version || '';
 }
 
 async function onSlideMoved() {
