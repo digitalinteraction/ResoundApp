@@ -92,6 +92,11 @@ body {
     justify-content: center;
 } 
 
+.info {
+    font-size: 0.75rem;
+    color: grey;
+}
+
 .footer {
     text-align: center; 
 }
