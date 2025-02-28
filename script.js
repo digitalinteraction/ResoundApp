@@ -27,7 +27,7 @@ let webSocketReconnect = undefined;
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
-            type: 'loop',
+            type: 'slide',  //don't use loop it duplicates the conent and screws up the forms
             perPage: 1,
             drag: false, // Enable drag by default
         }).mount();
