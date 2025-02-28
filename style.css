@@ -67,7 +67,7 @@ body {
 }
 
 .splide__track {
-    height: 100vh;
+    height: 100%;
 }
 
 .splide__slide {
