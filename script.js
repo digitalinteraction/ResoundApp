@@ -24,6 +24,8 @@ let audioCtx = undefined;
 
 let webSocketReconnect = undefined;
 
+const peers = [];
+
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
@@ -592,8 +594,18 @@ function parseLocalDebugMessage(json) {
 }
 
 function parseLocalPeerMessage(json) {
-    console.log('peer', json);
-    addPeerConsoleLine(JSON.stringify(json));
+    //{"type":"peer","status":19,"id":48461,"arrived":true}
+    if (json.id) {
+        const index = peers.indexOf(json.id);
+        if (json.arrived && index === -1) {
+            peers.push(json.id);
+        }
+        else if (!json.arrived && index >= 0) {
+            peers.splice(index, 1);
+        }
+    }
+
+    addPeerConsoleLine(peers);
 }
 
 function addPeerConsoleLine(text) {
