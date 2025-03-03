@@ -538,6 +538,20 @@ async function onServerSaveEvent(event) {
     });
 }
 
+async function fetchPeers() {
+    try {
+        let response = await fetch('/yoyo/peers');
+        if (!response.ok) throw new Error("Failed to fetch networks");
+
+        const json = await response.json();
+        if (!Array.isArray(json) || json.length === 0) return [];
+        else return json;
+    } catch (error) {
+        console.error("Error fetching peers:", error);
+        return []; // Return an empty list on error
+    }
+}
+
 //---
 function webSocketConnect() {
     let webSocketURL = 'ws://' + getHost() + ':81/';
