@@ -48,6 +48,9 @@ function init() {
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
         ssidList = await fetchWiFiNetworks();
+
+        peers.push(...await fetchPeers());
+        onPeersChanged();
     } );
 }
 
@@ -607,6 +610,13 @@ function parseLocalDebugMessage(json) {
     console.log('debug', json);
 }
 
+function onPeersChanged() {
+    peers.forEach(function(id) {
+        addPeerConsoleText(id + '(' + config?.peers[id]?.user + '),');
+    });
+    addPeerConsoleText('\n');
+}
+
 function parseLocalPeerMessage(json) {
     //{"type":"peer","status":19,"id":48461,"arrived":true}
     if (json.id) {
@@ -618,11 +628,7 @@ function parseLocalPeerMessage(json) {
             peers.splice(index, 1);
         }
     }
-
-    peers.forEach(function(id) {
-        addPeerConsoleText(id + '(' + config?.peers[id]?.user + '),');
-    });
-    addPeerConsoleText('\n');
+    onPeersChanged();
 }
 
 function addPeerConsoleText(text) {
