@@ -606,7 +606,7 @@ function parseLocalPeerMessage(json) {
     }
 
     peers.forEach(function(id) {
-        addPeerConsoleText(id + '(' + config.peers[id] + '),');
+        addPeerConsoleText(id + '(' + config?.peers[id]?.name + '),');
     });
     addPeerConsoleText('\n');
 }
