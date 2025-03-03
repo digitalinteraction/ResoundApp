@@ -605,13 +605,16 @@ function parseLocalPeerMessage(json) {
         }
     }
 
-    addPeerConsoleLine(peers);
+    peers.forEach(function(id) {
+        addPeerConsoleText(id + '(' + config.peers[id] + '),');
+    });
+    addPeerConsoleText('\n');
 }
 
-function addPeerConsoleLine(text) {
+function addPeerConsoleText(text) {
     const peerConsole = document.getElementById('peerconsole');
     if (peerConsole) {
-        peerConsole.value += text + '\n';
+        peerConsole.value += text;
         peerConsole.scrollTop = peerConsole.scrollHeight;
     } 
 }
