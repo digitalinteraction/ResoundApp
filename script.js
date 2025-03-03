@@ -611,10 +611,11 @@ function parseLocalDebugMessage(json) {
 }
 
 function onPeersChanged() {
+    addPeerConsoleText('[');
     peers.forEach(function(id) {
         addPeerConsoleText(id + '(' + config?.peers[id]?.user + '),');
     });
-    addPeerConsoleText('\n');
+    addPeerConsoleText(']\n');
 }
 
 function parseLocalPeerMessage(json) {
