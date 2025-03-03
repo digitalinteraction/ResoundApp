@@ -259,7 +259,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 function onConfiguration() {
     console.log("onConfiguration", config);
 
-    addPeerConsoleLine(JSON.stringify(config.peers));
+    addPeerConsoleText(JSON.stringify(config.peers)+'\n');
 
     if(!config?.filter?.frequency) {
         showSlide('tuning');
