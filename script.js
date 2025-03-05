@@ -656,9 +656,7 @@ function parseLocalSoundMessage(json) {
     const e = json['e'];
     
     targetEnergy = e / 10;
-    if(v > 0.5 && tuning) {
-        addSampleToHistogram(f,v);
-    }
+    if(tuning) addSampleToHistogram(f,v);
 }
 
 function parseLocalTouchMessage(json) {
