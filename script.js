@@ -695,7 +695,7 @@ function setBackgroundFromValue(value) {
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
-let histogram = [0,0,0,0,0,0,0,0];
+let histogram = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 function addSampleToHistogram(f, v) {
     const fl = filter.frequency - filter.bandwidth/2;
     const fh = filter.frequency + filter.bandwidth/2;
@@ -740,14 +740,15 @@ function getGoodHistogramPeak(histogram) {
     const { mean, sd } = calculateHistogramStats(histogram);
     const peak = findHistogramPeak(histogram);
 
-    console.log(peak.value, mean, sd, mean + 2 * sd);
+    console.log('peak: ', peak.value, 'mean: ', mean, 'sd: ', sd, 'threshold: ', mean + 2 * sd);
 
     if (peak.value > mean + (2 * sd)) {
         const binWidth = filter.bandwidth / histogram.length;
         result = filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2);
     }
 
-    return result;
+    //return result;
+    return -1;
 }
 
 // Function to play a tone
