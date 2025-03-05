@@ -377,9 +377,9 @@ function tuneSphere() {
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:1});
-            setConfiguration({
-                "filter": filter
-            });
+            // setConfiguration({
+            //     "filter": filter
+            // });
             //playTone(peak,1000,1);
         }
     }
