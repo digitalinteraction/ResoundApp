@@ -309,11 +309,11 @@ async function onSlideChange() {
                         frequency: defaultFilterFrequencyHz,
                         bandwidth: defaultFilterBandwidthHz
                     };
-                    mic({f:frequency, bw:bandwidth, r:10});
+                    setMic({f:filter.frequency, bw:filter.bandwidth, r:10});
                     tuneSphere();
                 } else {
                     button.classList.remove('active'); // Remove the active class
-                    mic({r:1});
+                    setMic({r:1});
                     tuning = false; // Set tuning to false
                 }
             });
@@ -357,10 +357,10 @@ async function onSlideChange() {
 
 function tuneSphere() {
     console.log('tuneSphere', tuning);
-    const peakFrequency = getGoodHistogramPeak(histogram);
-    console.log('histogram', histogram, peakFrequency);
 
     if(tuning) {
+        const peakFrequency = getGoodHistogramPeak(histogram);
+        console.log('histogram', histogram, peakFrequency);
         clearHistogram(histogram);
 
         if(peakFrequency == -1) {
@@ -374,9 +374,9 @@ function tuneSphere() {
                 "frequency": peakFrequency,
                 "bandwidth": filter.bandwidth / histogram.length,
             };
-
+            
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
-            mic({f:filter.frequency, bw:filter.bandwidth, r:1});
+            setMic({f:filter.frequency, bw:filter.bandwidth, r:1});
             setConfiguration({
                 "filter": filter
             });
@@ -418,7 +418,7 @@ function getSlideIdByIndex(index) {
     return null;
 }
 
-async function mic(json) {
+async function setMic(json) {
     try {
         const response = await fetch('/yoyo/mic', {
             method: 'POST',
