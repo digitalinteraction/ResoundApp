@@ -21,8 +21,11 @@ let filter = {
 };
 
 const histogramSize = 8;
-let histogram = Array(histogramSize).fill(0);
+const histogram = Array(histogramSize).fill(0);
 const tuneWindowMs = 3000;
+
+const lowMicSampleRate = 1;
+const highMicSampleRate = 10;
 
 let audioCtx = undefined;
 
@@ -314,11 +317,11 @@ async function onSlideChange() {
                         frequency: defaultFilterFrequencyHz,
                         bandwidth: defaultFilterBandwidthHz
                     };
-                    setMic({f:filter.frequency, bw:filter.bandwidth, r:10});
+                    setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
                     tuneSphere();
                 } else {
                     button.classList.remove('active'); // Remove the active class
-                    setMic({r:1});
+                    setMic({r:lowMicSampleRate});
                     tuning = false; // Set tuning to false
                 }
             });
