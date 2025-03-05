@@ -20,6 +20,10 @@ let filter = {
     bandwidth: defaultFilterBandwidthHz
 };
 
+const histogramSize = 8;
+let histogram = Array(histogramSize).fill(0);
+const tuneWindowMs = 3000;
+
 let audioCtx = undefined;
 
 let webSocketReconnect = undefined;
@@ -356,7 +360,6 @@ async function onSlideChange() {
     }
 }
 
-const tuneWindowMs = 3000;
 function tuneSphere() {
     console.log('tuneSphere', tuning);
 
@@ -365,7 +368,7 @@ function tuneSphere() {
         console.log('histogram', histogram, peakFrequency);
         clearHistogram(histogram);
         
-        if(peakFrequency == -1) {
+        if(true || peakFrequency == -1) {
             setTimeout(() => {
                 tuneSphere();
             }, tuneWindowMs);
@@ -698,7 +701,6 @@ function setBackgroundFromValue(value) {
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
-let histogram = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 function addSampleToHistogram(f, v) {
     const fl = filter.frequency - filter.bandwidth/2;
     const fh = filter.frequency + filter.bandwidth/2;
@@ -750,8 +752,7 @@ function getGoodHistogramPeak(histogram) {
         result = filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2);
     }
 
-    //return result;
-    return -1;
+    return result;
 }
 
 // Function to play a tone
