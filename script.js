@@ -302,6 +302,7 @@ async function onSlideChange() {
         case 'tuning':
             document.getElementById('filter_button').addEventListener('click', function (e) {
                 const button = e.target; // Get the clicked button
+                console.log('filter_button clicked');
                 if (!button.classList.contains('active')) {
                     button.classList.add('active'); // Add the active class
                     tuning = true; // Set tuning to true - samples will be added to histogram
