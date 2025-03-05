@@ -642,6 +642,8 @@ function addPeerConsoleText(text) {
 }
 
 function parseLocalSoundMessage(json) {
+    console.log('parseLocalSoundMessage');
+
     const f = json['f'];
     const v = json['v'];
     const e = json['e'];
