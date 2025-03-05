@@ -356,6 +356,7 @@ async function onSlideChange() {
     }
 }
 
+const tuneWindowMs = 3000;
 function tuneSphere() {
     console.log('tuneSphere', tuning);
 
@@ -363,11 +364,11 @@ function tuneSphere() {
         const peakFrequency = getGoodHistogramPeak(histogram);
         console.log('histogram', histogram, peakFrequency);
         clearHistogram(histogram);
-
+        
         if(peakFrequency == -1) {
             setTimeout(() => {
                 tuneSphere();
-            }, 5000);
+            }, tuneWindowMs);
         }
         else {
             tuning = false;
