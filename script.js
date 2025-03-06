@@ -1,5 +1,6 @@
 let webSocket;
 let webSocketConnected = false;
+let onWebSocketConnectedOneTime = null;
 let config = {};
 
 const maxWifiNetworks = 16;
@@ -51,9 +52,9 @@ function init() {
         preloadImage("img/sphere-down.png");
         preloadImage("img/sphere-up.png");
 
-        manageWebSocket();
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
+        manageWebSocket(() => console.log("*** Connected to WebSocket for the first time!"));
         onStart();
         ssidList = await fetchWiFiNetworks();
 
@@ -160,11 +161,18 @@ function onOnline() {
 }
 
 function onWebSocketConnected(v = true) {
-    if(webSocketConnected != v) {
-        //showCarousel(v);
-        if(tuning && !v) activateTuning(false);
+    if(webSocketConnected !== v) {
+        if(v) {
+            if(onWebSocketConnectedOneTime) {
+                onWebSocketConnectedOneTime();
+                onWebSocketConnectedOneTime = null;
+            }
+        }
+        else {
+            if(tuning) activateTuning(false); 
+        }
+        webSocketConnected = v;
     }
-    webSocketConnected = v;
 }
 
 function showCarousel(v) {
@@ -595,7 +603,9 @@ function webSocketConnect() {
     };
 }
 
-function manageWebSocket() {
+function manageWebSocket(onConnectedOneTime = null) {
+    onWebSocketConnectedOneTime = onConnectedOneTime;
+
     if(!webSocketReconnect) {
         webSocketReconnect = function() { if(!webSocketConnected && sphereIsOnline()) webSocketConnect(); };
         webSocketReconnect();
