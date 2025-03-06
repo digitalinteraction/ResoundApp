@@ -303,7 +303,7 @@ async function onSlideMoved() {
 async function activateTuning(v = true) {
     const button = document.getElementById('tune_button');
 
-    if (v) {
+    if (v && webSocketConnected) {
         tuning = true; // Set tuning to true - samples will be added to histogram
         button.classList.add('active'); // Add the active class
         filter = {
