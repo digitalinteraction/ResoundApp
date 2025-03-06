@@ -54,6 +54,7 @@ function init() {
         manageWebSocket();
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
+        onStart();
         ssidList = await fetchWiFiNetworks();
 
         peers.push(...await fetchPeers());
@@ -260,15 +261,14 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 // else reboot();
                 reboot();
             }
-            else {
-                onConfiguration();
-            }
         }
     }
+
+    return success;
 }
 
-function onConfiguration() {
-    console.log("onConfiguration", config);
+function onStart() {
+    console.log("onStart", config);
 
     addPeerConsoleText(JSON.stringify(config.peers)+'\n');
 
