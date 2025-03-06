@@ -12,12 +12,12 @@ let energy = 0;
 let targetEnergy = 0;
 let tuning = false;
 
-const defaultFilterFrequencyHz = 150;
-const defaultFilterBandwidthHz = 100;
+const wideFilterFrequencyHz = 165;
+const wideFilterBandwidthHz = 70;
 
 let filter = {
-    frequency: defaultFilterFrequencyHz,
-    bandwidth: defaultFilterBandwidthHz
+    frequency: wideFilterFrequencyHz,
+    bandwidth: wideFilterBandwidthHz
 };
 
 const histogramSize = 8;
@@ -161,6 +161,7 @@ function onOnline() {
 function onWebSocketConnected(v = true) {
     if(webSocketConnected != v) {
         //showCarousel(v);
+        if(tuning && !v) activateTuning(false);
     }
     webSocketConnected = v;
 }
@@ -299,31 +300,36 @@ async function onSlideMoved() {
     console.log('onSlideMoved');
 }
 
+async function activateTuning(v = true) {
+    const button = document.getElementById('tune_button');
+
+    if (!tuning) {
+        tuning = true; // Set tuning to true - samples will be added to histogram
+        button.classList.add('active'); // Add the active class
+        filter = {
+            frequency: wideFilterFrequencyHz,
+            bandwidth: wideFilterBandwidthHz
+        };
+        setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
+        tuneSphere();
+    } else {
+        tuning = false; // Set tuning to false
+        button.classList.remove('active'); // Remove the active class
+        //setMic({r:lowMicSampleRate});
+    }
+}
+
 async function onSlideChange() {
-    playTone(180, 1, 0.5);
+    //playTone(180, 1, 0.5);
 
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
         case 'landing':
             break;
         case 'tuning':
-            document.getElementById('filter_button').addEventListener('click', function (e) {
-                const button = e.target; // Get the clicked button
-                console.log('filter_button clicked');
-                if (!button.classList.contains('active')) {
-                    button.classList.add('active'); // Add the active class
-                    tuning = true; // Set tuning to true - samples will be added to histogram
-                    filter = {
-                        frequency: defaultFilterFrequencyHz,
-                        bandwidth: defaultFilterBandwidthHz
-                    };
-                    setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
-                    tuneSphere();
-                } else {
-                    button.classList.remove('active'); // Remove the active class
-                    setMic({r:lowMicSampleRate});
-                    tuning = false; // Set tuning to false
-                }
+            document.getElementById('tune_button').addEventListener('click', function (e) {
+                console.log('tune_button clicked');
+                activateTuning(!tuning);
             });
             break;
 
