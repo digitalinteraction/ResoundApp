@@ -54,8 +54,7 @@ function init() {
 
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
-        manageWebSocket(() => console.log("*** Connected to WebSocket for the first time!"));
-        onStart();
+        manageWebSocket(() => onStart());
         ssidList = await fetchWiFiNetworks();
 
         peers.push(...await fetchPeers());
