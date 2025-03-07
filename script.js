@@ -21,7 +21,7 @@ let filter = {
     bandwidth: wideFilterBandwidthHz
 };
 
-const numberOfHistogramBins = 6;
+const numberOfHistogramBins = 8;
 const histogram = Array(numberOfHistogramBins).fill(0);
 const tuneWindowMs = 3000;
 
