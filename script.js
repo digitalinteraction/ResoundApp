@@ -399,7 +399,7 @@ function tuneSphere() {
             };
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
-            setMic({f:filter.frequency, bw:filter.bandwidth, r:1});
+            setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
             // setConfiguration({
             //     "filter": filter
             // });
@@ -666,7 +666,7 @@ function addPeerConsoleText(text) {
 }
 
 function parseLocalSoundMessage(json) {
-    console.log('parseLocalSoundMessage');
+    //console.log('parseLocalSoundMessage');
 
     const f = json['f'];
     const v = json['v'];
