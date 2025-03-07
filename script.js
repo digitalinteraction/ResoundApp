@@ -301,6 +301,8 @@ function onStart() {
 
     document.getElementById('spherename').innerText = config?.captiveportal?.ssid || '';
     document.getElementById('sphereversion').innerText = config?.version || '';
+
+    setMic({r:-1});
 }
 
 async function onSlideMoved() {
@@ -322,7 +324,7 @@ async function activateTuning(v = true) {
     } else {
         tuning = false; // Set tuning to false
         button.classList.remove('active'); // Remove the active class
-        //setMic({r:lowMicSampleRate});
+        setMic({r:-1});
     }
 }
 
@@ -718,8 +720,8 @@ function setBackgroundFromValue(value) {
 }
 
 function addSampleToHistogram(f, v) {
-    const fl = filter.frequency - filter.bandwidth/2;
-    const fh = filter.frequency + filter.bandwidth/2;
+    const fl = filter.frequency - (filter.bandwidth/2);
+    const fh = filter.frequency + (filter.bandwidth/2);
     const binSize = filter.bandwidth/histogram.length;
 
     const n = Math.floor((f - fl)/binSize);
