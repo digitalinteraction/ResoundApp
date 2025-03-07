@@ -383,7 +383,7 @@ function tuneSphere() {
 
     if(tuning) {
         const peakFrequency = getGoodHistogramPeak(histogram);
-        console.log('histogram', histogram, peakFrequency);
+        //console.log('histogram', histogram, peakFrequency);
         clearHistogram(histogram);
         
         if(true || peakFrequency == -1) {
@@ -763,7 +763,7 @@ function getGoodHistogramPeak(histogram) {
     const { mean, sd } = calculateHistogramStats(histogram);
     const peak = findHistogramPeak(histogram);
 
-    console.log('peak: ', peak.value, 'mean: ', mean, 'sd: ', sd, 'threshold: ', mean + 2 * sd);
+    console.log('peak: ', peak.value, 'threshold: ', mean + 2 * sd);
 
     if (peak.value > mean + (2 * sd)) {
         const binWidth = filter.bandwidth / histogram.length;
