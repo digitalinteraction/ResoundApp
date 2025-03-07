@@ -26,7 +26,7 @@ const histogram = Array(numberOfHistogramBins).fill(0);
 const tuneWindowMs = 3000;
 
 const lowMicSampleRate = 1;
-const highMicSampleRate = 10;
+const highMicSampleRate = 5;
 
 let audioCtx = undefined;
 
