@@ -416,7 +416,6 @@ function tuneSphere() {
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
-            playTone(filter.frequency, 3, 0.5);
             
             // setConfiguration({
             //     "filter": {
@@ -424,7 +423,12 @@ function tuneSphere() {
             //         "bandwidth": filter.bandwidth / histogram.length,
             //     }
             // });
-            showNextSlide();
+
+            const toneDurationMs = 10000;
+            playTone(filter.frequency, toneDurationMs, 0.5);
+            setTimeout(function() {
+                showNextSlide();
+            }, toneDurationMs);
         }
     }
 }
@@ -802,8 +806,10 @@ function getGoodHistogramPeak(histogram) {
 }
 
 // Function to play a tone
-function playTone(frequency, duration, volume) {
+function playTone(frequency, durationMs, volume) {
     if(audioCtx === undefined) return;
+
+    const duration = durationMs / 1000;
 
     // Ensure the context is resumed after a user interaction
     if (audioCtx.state === 'suspended') {
