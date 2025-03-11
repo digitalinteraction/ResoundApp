@@ -393,7 +393,6 @@ function tuneSphere() {
         let tryAgain = false;
         if(peakFrequency != -1) {
             if(isWarm()) {
-                console.log("*** peakFrequency:" + peakFrequency);
             }
             else {
                 console.log("peakFrequency:" + peakFrequency);
@@ -409,6 +408,13 @@ function tuneSphere() {
         }
         else {
             activateTuning(false);
+
+            filter = {
+                "frequency": peakFrequency,
+                "bandwidth": filter.bandwidth / histogram.length,
+            };
+            
+            console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
         }
 
         if(peakFrequency == -1) {
@@ -418,12 +424,6 @@ function tuneSphere() {
             
             /*
             tuning = false;
-            filter = {
-                "frequency": peakFrequency,
-                "bandwidth": filter.bandwidth / histogram.length,
-            };
-            
-            console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
             // setConfiguration({
             //     "filter": filter
