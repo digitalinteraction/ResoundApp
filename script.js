@@ -672,7 +672,7 @@ function parseLocalSoundMessage(json) {
     const v = json['v'];
     const e = json['e'];
     
-    targetEnergy = e / 10;
+    targetEnergy = e / 5;
     if(tuning) addSampleToHistogram(f,v);
 }
 
