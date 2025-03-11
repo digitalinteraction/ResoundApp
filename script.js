@@ -390,46 +390,33 @@ function tuneSphere() {
         const peakFrequency = getGoodHistogramPeak(histogram);
         clearHistogram(histogram);
         
-        let tryAgain = false;
+        let done = true;
         if(peakFrequency != -1) {
             if(isWarm()) {
             }
             else {
                 console.log("peakFrequency:" + peakFrequency);
-                tryAgain = true;
+                done = false;
             }
         }
-        else tryAgain = true;
+        else done = false;
 
-        if(tryAgain) {
+        if(!done) {
             setTimeout(() => {
                 tuneSphere();
             }, tuneWindowMs);
         }
         else {
             activateTuning(false);
-
-            filter = {
-                "frequency": peakFrequency,
-                "bandwidth": filter.bandwidth / histogram.length,
-            };
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
-        }
 
-        if(peakFrequency == -1) {
-            
-        }
-        else {
-            
-            /*
-            tuning = false;
-            setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
-            // setConfiguration({
-            //     "filter": filter
-            // });
-            //playTone(peak,1000,1);
-            */
+            setConfiguration({
+                "filter": {
+                    "frequency": peakFrequency,
+                    "bandwidth": filter.bandwidth / histogram.length,
+                }
+            });
         }
     }
 }
