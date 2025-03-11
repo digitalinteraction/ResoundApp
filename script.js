@@ -423,8 +423,13 @@ function tuneSphere() {
             //         "bandwidth": filter.bandwidth / histogram.length,
             //     }
             // });
+            showNextSlide();
         }
     }
+}
+
+function showNextSlide() {
+    splide.go('>');
 }
 
 function showSlide(id) {
