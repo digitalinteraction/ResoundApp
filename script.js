@@ -388,17 +388,35 @@ function tuneSphere() {
 
     if(tuning) {
         const peakFrequency = getGoodHistogramPeak(histogram);
-        //console.log('histogram', histogram, peakFrequency);
-        //console.log(peak.value + '(' + result + ') ' + (mean + (2 * sd)));
-        if(peakFrequency != -1) console.log("peakFrequency:" + peakFrequency + " " + isWarm());
         clearHistogram(histogram);
         
-        if(true || peakFrequency == -1) {
+        let tryAgain = false;
+        if(peakFrequency != -1) {
+            if(isWarm()) {
+                console.log("*** peakFrequency:" + peakFrequency);
+            }
+            else {
+                console.log("peakFrequency:" + peakFrequency);
+                tryAgain = true;
+            }
+        }
+        else tryAgain = true;
+
+        if(tryAgain) {
             setTimeout(() => {
                 tuneSphere();
             }, tuneWindowMs);
         }
         else {
+            activateTuning(false);
+        }
+
+        if(peakFrequency == -1) {
+            
+        }
+        else {
+            
+            /*
             tuning = false;
             filter = {
                 "frequency": peakFrequency,
@@ -411,6 +429,7 @@ function tuneSphere() {
             //     "filter": filter
             // });
             //playTone(peak,1000,1);
+            */
         }
     }
 }
@@ -773,7 +792,7 @@ function getGoodHistogramPeak(histogram) {
 
     if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
         const binWidth = filter.bandwidth / histogram.length;
-        result = filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2);
+        result = Math.floor(filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
     }
 
     return result;
