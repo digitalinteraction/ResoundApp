@@ -757,7 +757,7 @@ function calculateHistogramStats(histogram) {
     return { mean, sd };
 }
 
-const minHistogramPeakValue = 1.0;
+const minHistogramPeakValue = 1.0;  //at highMicSampleRate (5 per second) and tuneWindowMs (3000)
 function getGoodHistogramPeak(histogram) {
     let result = -1;
 
