@@ -385,7 +385,7 @@ function tuneSphere() {
         const peakFrequency = getGoodHistogramPeak(histogram);
         //console.log('histogram', histogram, peakFrequency);
         //console.log(peak.value + '(' + result + ') ' + (mean + (2 * sd)));
-        if(peakFrequency != -1) console.log("peakFrequency:" + peakFrequency));
+        if(peakFrequency != -1) console.log("peakFrequency:" + peakFrequency);
         clearHistogram(histogram);
         
         if(true || peakFrequency == -1) {
