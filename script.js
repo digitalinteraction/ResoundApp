@@ -331,8 +331,6 @@ async function activateTuning(v = true) {
 }
 
 async function onSlideChange() {
-    //playTone(180, 1, 0.5);
-
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
         case 'landing':
@@ -340,6 +338,7 @@ async function onSlideChange() {
         case 'tuning':
             document.getElementById('tune_button').addEventListener('click', function (e) {
                 console.log('tune_button clicked');
+                if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 activateTuning(!tuning);
             });
             break;
@@ -362,7 +361,6 @@ async function onSlideChange() {
 
             const button = document.getElementById('wifi_button');
             button.addEventListener('click', function(e) {
-                //if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 onWiFiSaveEvent(e);
             });
 
@@ -418,6 +416,7 @@ function tuneSphere() {
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
+            playTone(filter.frequency, 1, 0.5);
             
             // setConfiguration({
             //     "filter": {
@@ -703,7 +702,7 @@ function parseLocalSoundMessage(json) {
 }
 
 function parseLocalTouchMessage(json) {
-    console.log('touch', json);
+    //console.log('touch', json);
     if(onTouchOneTime) {
         onTouchOneTime();
         onTouchOneTime = null;
