@@ -410,13 +410,14 @@ function tuneSphere() {
             activateTuning(false);
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
-
-            setConfiguration({
-                "filter": {
-                    "frequency": peakFrequency,
-                    "bandwidth": filter.bandwidth / histogram.length,
-                }
-            });
+            setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
+            
+            // setConfiguration({
+            //     "filter": {
+            //         "frequency": peakFrequency,
+            //         "bandwidth": filter.bandwidth / histogram.length,
+            //     }
+            // });
         }
     }
 }
