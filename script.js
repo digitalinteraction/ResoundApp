@@ -408,6 +408,11 @@ function tuneSphere() {
         }
         else {
             activateTuning(false);
+
+            filter = {
+                frequency: peakFrequency,
+                bandwidth: filter.bandwidth / histogram.length
+            };
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
