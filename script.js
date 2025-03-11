@@ -9,8 +9,9 @@ let ssidList = [];
 let statuscode = 0x80;
 
 const frameRate = 20;
-let energy = 0;
-let targetEnergy = 0;
+let warmth = 0;
+let targetWarmth = 0;
+const maxWarmth = 1.0;
 let tuning = false;
 
 const wideFilterFrequencyHz = 165;
@@ -71,9 +72,9 @@ function draw() {
     const id = getSlideIdByIndex(splide.index);
 
     if(((tuning && id === 'tuning') || id === 'room') && sphereIsUp()) {
-        const de = targetEnergy - energy;
-        energy = energy + (de * 0.1);
-        setBackgroundFromValue(Math.min(Math.max(energy, 0.0), 1.0) * 255);
+        const dw = targetWarmth - warmth;
+        warmth = warmth + (dw * 0.1);
+        setBackgroundFromValue(Math.min(Math.max(warmth, 0.0), maxWarmth) * (255/maxWarmth));
     }
     else {
         setBackgroundFromValue(0);
@@ -378,14 +379,18 @@ async function onSlideChange() {
     }
 }
 
+function isWarm() {
+    return warmth > (0.85 * maxWarmth);
+}
+
 function tuneSphere() {
-    console.log('tuneSphere', tuning);
+    //console.log('tuneSphere', tuning);
 
     if(tuning) {
         const peakFrequency = getGoodHistogramPeak(histogram);
         //console.log('histogram', histogram, peakFrequency);
         //console.log(peak.value + '(' + result + ') ' + (mean + (2 * sd)));
-        if(peakFrequency != -1) console.log("peakFrequency:" + peakFrequency);
+        if(peakFrequency != -1) console.log("peakFrequency:" + peakFrequency + " " + isWarm());
         clearHistogram(histogram);
         
         if(true || peakFrequency == -1) {
@@ -674,7 +679,7 @@ function parseLocalSoundMessage(json) {
     const v = json['v'];
     const e = json['e'];
     
-    targetEnergy = e / 5;
+    targetWarmth = e / 5;
     if(tuning) addSampleToHistogram(f,v);
 }
 
