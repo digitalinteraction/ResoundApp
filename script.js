@@ -1,6 +1,7 @@
 let webSocket;
 let webSocketConnected = false;
 let onWebSocketConnectedOneTime = null;
+let webSocketReconnect = undefined;
 let config = {};
 
 const maxWifiNetworks = 16;
@@ -31,7 +32,7 @@ const highMicSampleRate = 5;
 
 let audioCtx = undefined;
 
-let webSocketReconnect = undefined;
+let onTouchOneTime = null;
 
 const peers = [];
 
@@ -372,6 +373,7 @@ async function onSlideChange() {
             break;
 
         case 'volume':
+            onTouchOneTime = function() { showNextSlide(); };
             break;
 
         default:
@@ -702,6 +704,10 @@ function parseLocalSoundMessage(json) {
 
 function parseLocalTouchMessage(json) {
     console.log('touch', json);
+    if(onTouchOneTime) {
+        onTouchOneTime();
+        onTouchOneTime = null;
+    }
 }
 
 function getHost() {
