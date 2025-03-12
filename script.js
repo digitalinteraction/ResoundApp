@@ -72,7 +72,7 @@ function preloadImage(url) {
 function draw() {
     const id = getSlideIdByIndex(splide.index);
 
-    if(((tuning && id === 'tuning') || id === 'room') && sphereIsUp()) {
+    if(sphereIsUp()) {
         const dw = targetWarmth - warmth;
         warmth = warmth + (dw * 0.1);
         setBackgroundFromValue(Math.min(Math.max(warmth, 0.0), maxWarmth) * (255/maxWarmth));
