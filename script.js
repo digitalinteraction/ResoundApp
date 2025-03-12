@@ -422,7 +422,7 @@ function tuneSphere() {
             setConfiguration({
                 "filter": {
                     "frequency": peakFrequency,
-                    "bandwidth": filter.bandwidth / histogram.length,
+                    "bandwidth": (filter.bandwidth / histogram.length) * 3,
                 }
             });
 
