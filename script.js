@@ -80,6 +80,8 @@ function draw() {
     else {
         setBackgroundFromValue(0);
     }
+
+    if(id !== 'tuning' && tuning) activateTuning(false);
 }
 
 function onTick() {
@@ -424,7 +426,7 @@ function tuneSphere() {
             //     }
             // });
 
-            const toneDurationMs = 10000;
+            const toneDurationMs = 4000;
             playTone(filter.frequency, toneDurationMs, 0.5);
             setTimeout(function() {
                 showNextSlide();
