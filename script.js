@@ -411,9 +411,10 @@ function tuneSphere() {
         else {
             activateTuning(false);
 
+            const bw = Math.ceil((filter.bandwidth / histogram.length) * 3);
             filter = {
                 frequency: peakFrequency,
-                bandwidth: filter.bandwidth / histogram.length
+                bandwidth: bw
             };
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
@@ -422,7 +423,7 @@ function tuneSphere() {
             setConfiguration({
                 "filter": {
                     "frequency": peakFrequency,
-                    "bandwidth": (filter.bandwidth / histogram.length) * 3,
+                    "bandwidth": bw,
                 }
             });
 
