@@ -411,7 +411,7 @@ function tuneSphere() {
         else {
             activateTuning(false);
 
-            const bw = Math.ceil((filter.bandwidth / histogram.length) * 3);
+            const bw = Math.ceil(filter.bandwidth / histogram.length);
             filter = {
                 frequency: peakFrequency,
                 bandwidth: bw
