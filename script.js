@@ -419,12 +419,12 @@ function tuneSphere() {
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
             
-            // setConfiguration({
-            //     "filter": {
-            //         "frequency": peakFrequency,
-            //         "bandwidth": filter.bandwidth / histogram.length,
-            //     }
-            // });
+            setConfiguration({
+                "filter": {
+                    "frequency": peakFrequency,
+                    "bandwidth": filter.bandwidth / histogram.length,
+                }
+            });
 
             const toneDurationMs = 4000;
             playTone(filter.frequency, toneDurationMs, 0.5);
