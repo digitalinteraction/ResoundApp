@@ -423,7 +423,7 @@ function tuneSphere() {
             setConfiguration({
                 "filter": {
                     "frequency": peakFrequency,
-                    "bandwidth": bw,
+                    "bandwidth": bw
                 }
             });
 
