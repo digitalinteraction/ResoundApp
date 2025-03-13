@@ -283,11 +283,11 @@ function onStart() {
 
     addPeerConsoleText(JSON.stringify(config.peers)+'\n');
 
-    if(!config?.filter?.frequency) {
+    if(!config?.mic?.frequency) {
         showSlide('tuning');
     }
     else {
-        console.log(config.filter);
+        console.log(config.mic);
         if(!config?.server?.host) {
             showSlide('server');
         }
@@ -421,7 +421,7 @@ function tuneSphere() {
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
             
             setConfiguration({
-                "filter": {
+                "mic": {
                     "frequency": peakFrequency,
                     "bandwidth": bw
                 }
