@@ -293,7 +293,7 @@ function onStart() {
         }
         else {
             console.log(config.server);
-            if(!config?.wifi?.ssid) {
+            if(!config?.wifi?.ssid || captivePortalRunning()) {
                 showSlide('wifi');
             }
             else {
