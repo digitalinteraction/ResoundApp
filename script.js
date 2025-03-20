@@ -372,6 +372,9 @@ async function onSlideChange() {
         case 'room':
             break;
 
+        case 'determination':
+            break;
+
         case 'volume':
             onTouchOneTime = function() { showNextSlide(); };
             break;
