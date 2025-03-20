@@ -49,6 +49,11 @@
                             <form class="yo-yo-form">
                               <button id="tune_button" type="button">Tune</button>
                             </form>
+                            <div class="slider-container">
+                              <label for="volume">mic level</label>
+                              <input type="range" id="volume" min="0" max="2" value="1" oninput="console.log('mic level', this.value)">
+                              <span id="volumeValue">50</span>
+                            </div>
                           </div>
                           <div class="row">
                             Chant NMRK until the light warms to orange
