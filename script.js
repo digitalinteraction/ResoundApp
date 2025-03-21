@@ -346,9 +346,11 @@ async function onSlideChange() {
             const miclevel = document.getElementById('miclevel');
             miclevel.value = (config?.mic?.level || 1.0) * 10;
             miclevel.addEventListener('change', function() {
-                setMic({l:Math.max(0.1, miclevel.value/10)});
+                const v = Math.max(0.1, miclevel.value/10);
+                setMic({l:v});
+                setConfiguration({mic: {level: v}});
             });
-
+            
             break;
 
         case 'server':
