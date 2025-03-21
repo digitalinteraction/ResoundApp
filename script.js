@@ -343,6 +343,12 @@ async function onSlideChange() {
                 if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 activateTuning(!tuning);
             });
+            const miclevel = document.getElementById('miclevel');
+            miclevel.value = (config?.mic?.level || 1.0) * 10;
+            miclevel.addEventListener('input', function() {
+                console.log('* mic level', max(0.1,miclevel.value/10))
+            });
+
             break;
 
         case 'server':
