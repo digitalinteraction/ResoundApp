@@ -346,7 +346,7 @@ async function onSlideChange() {
             const miclevel = document.getElementById('miclevel');
             miclevel.value = (config?.mic?.level || 1.0) * 10;
             miclevel.addEventListener('input', function() {
-                console.log('* mic level', max(0.1,miclevel.value/10))
+                console.log('* mic level', Math.max(0.1,miclevel.value/10))
             });
 
             break;
