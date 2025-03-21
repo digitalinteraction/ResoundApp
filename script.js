@@ -348,7 +348,8 @@ async function onSlideChange() {
             miclevel.addEventListener('change', function() {
                 const v = Math.max(0.1, miclevel.value/10);
                 setMic({l:v});
-                setConfiguration({mic: {level: v}});
+                config.mic.level = v;
+                setConfiguration({mic: config.mic});
             });
             
             break;
