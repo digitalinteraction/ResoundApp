@@ -332,6 +332,45 @@ async function activateTuning(v = true) {
     }
 }
 
+function drawEllipse(canvas, width, height) {
+    const ctx = canvas.getContext("2d");
+    //ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
+
+    // Draw a horizontal ellipse
+    ctx.beginPath();
+    ctx.ellipse(canvas.width / 2, canvas.height / 2, width / 2 , height / 2, 0, 0, 2 * Math.PI);
+    ctx.strokeStyle = "gray";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function drawEllipseWithImages(canvas, width, height) {
+    const imgSrc = 'img/sphere-up.png';
+    const numImages = 3;
+    const ctx = canvas.getContext("2d");
+    //ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radiusX = width/2;
+    const radiusY = height/2;
+
+    const image = new Image();
+    image.src = imgSrc;
+    image.onload = function() {
+        const angleStep = (2 * Math.PI) / numImages; // Number of images to place along the ellipse
+
+        for (let i = 0; i < numImages; i++) {
+            const angle = i * angleStep;
+            const x = centerX + radiusX * Math.cos(angle);
+            const y = centerY + radiusY * Math.sin(angle);
+
+            // Draw the image centered at (x, y)
+            ctx.drawImage(image, x - 25, y - 25,50,50);
+        }
+    };
+}
+
 async function onSlideChange() {
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
@@ -379,6 +418,13 @@ async function onSlideChange() {
             break;
         
         case 'room':
+            const roomCanvas = document.getElementById('room_canvas');
+            roomCanvas.width = roomCanvas.parentElement.clientWidth;
+            roomCanvas.height = roomCanvas.parentElement.clientHeight;
+            const width = roomCanvas.width * 0.8;
+            const height = roomCanvas.height * 0.8;
+            drawEllipse(roomCanvas, height, height);
+            drawEllipseWithImages(roomCanvas, height, height);
             break;
 
         case 'determination':
