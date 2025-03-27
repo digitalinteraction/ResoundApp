@@ -93,6 +93,10 @@ body {
     padding-top: 5vh;
 } 
 
+.bottom-row {
+    font-size: 1.1rem;
+} 
+
 .info {
     font-size: 0.75rem;
     color: #bbb;
