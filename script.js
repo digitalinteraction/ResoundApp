@@ -722,6 +722,21 @@ function parseLocalSoundMessage(json) {
 
 function parseLocalTouchMessage(json) {
     console.log('touch', json);
+
+    switch (touchByte >> 6 & 0b11) {
+         case 0b11:  // CW Gesture (Clockwise)
+             console.log('Gesture: Clockwise');
+             break;
+         case 0b10:  // CCW Gesture (Counterclockwise)
+             console.log('Gesture: Counterclockwise');
+             break;
+         case 0b00:  // No Gesture or Neutral
+             console.log('Gesture: None');
+             break;
+         default:
+             console.log('Gesture: Unknown');
+     }
+
     if(onTouchOneTime) {
         onTouchOneTime();
         onTouchOneTime = null;
