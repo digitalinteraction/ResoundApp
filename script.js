@@ -724,7 +724,7 @@ function parseLocalTouchMessage(json) {
     console.log('touch', json);
 
     switch ((parseInt(json['v']) >> 6) & 0b11) {
-         case 0b11:  // CW Gesture (Clockwise)
+         case 0b01:  // CW Gesture (Clockwise)
              console.log('Gesture: Clockwise');
              break;
          case 0b10:  // CCW Gesture (Counterclockwise)
