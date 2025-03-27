@@ -723,7 +723,7 @@ function parseLocalSoundMessage(json) {
 function parseLocalTouchMessage(json) {
     console.log('touch', json);
 
-    switch ((json['v'] >> 6) & 0b11) {
+    switch ((int(json['v']) >> 6) & 0b11) {
          case 0b11:  // CW Gesture (Clockwise)
              console.log('Gesture: Clockwise');
              break;
