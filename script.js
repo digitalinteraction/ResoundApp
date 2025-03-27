@@ -721,7 +721,7 @@ function parseLocalSoundMessage(json) {
 }
 
 function parseLocalTouchMessage(json) {
-    //console.log('touch', json);
+    console.log('touch', json);
     if(onTouchOneTime) {
         onTouchOneTime();
         onTouchOneTime = null;
