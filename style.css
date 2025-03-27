@@ -91,6 +91,8 @@ body {
     align-items: center;
     justify-content:flex-start;
     padding-top: 5vh;
+    margin-left: 2vw;
+    margin-right: 2vw;
 } 
 
 .top-row {
