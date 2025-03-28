@@ -371,37 +371,46 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
-function positionElementsOnEllipse(container, width, height, users = []) {
+function positionElementsOnEllipse(container, width, height, data) {
     const template = document.getElementById("room_item_template");
     const imgSrc = 'img/sphere-up.png';
 
-    const numElements = users.length;
     const centerX = container.clientWidth / 2;
     const centerY = container.clientHeight / 2;
     const radiusX = width / 2;
     const radiusY = height / 2;
 
-    for (let i = 0; i < numElements; i++) {
-        const angle = (i * 2 * Math.PI) / numElements;
+    const keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
+        const angle = (i * 2 * Math.PI) / keys.length;
         const x = centerX + radiusX * Math.cos(angle);
         const y = centerY + radiusY * Math.sin(angle);
 
         const element = template.content.cloneNode(true).firstElementChild;
+        element.id = keys[i];
         element.style.left = `${x}px`;
         element.style.top = `${y}px`;
 
         const img = element.querySelector("img");
         img.src = imgSrc;
-        img.alt = users[i];
+        img.alt = data[keys[i]].user;
 
         const label = element.querySelector("span");
-        label.textContent = users[i];
+        label.textContent = data[keys[i]].user;
+
+        element.onclick = function() {
+            onUserClicked(element.id);
+        };
 
         // Apply animation delay to stagger appearance
         // element.style.animationDelay = `${i * 0.2}s`;
 
         container.appendChild(element);
     }
+}
+
+function onUserClicked(id) {
+    console.log("onUserClicked: " + id);
 }
 
 async function onSlideChange() {
@@ -462,7 +471,11 @@ async function onSlideChange() {
             const roomContainer = document.getElementById('room_container');
             roomContainer.width = roomContainer.parentElement.clientWidth;
             roomContainer.height = roomContainer.parentElement.clientHeight;
-            positionElementsOnEllipse(roomContainer, 300, 300, ['dave','ben','caro','sara','abi']);
+            const data = {
+                "65535": { "user": "dave", "score": 0 },
+                "12345": { "user": "ben", "score": 5 }
+              };
+            positionElementsOnEllipse(roomContainer, 300, 300, data);
             break;
 
         case 'determination':
