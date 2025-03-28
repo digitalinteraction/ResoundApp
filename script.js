@@ -371,6 +371,39 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
+function positionElementsOnEllipse(container, width, height, users = []) {
+    const template = document.getElementById("room_item_template");
+    const imgSrc = 'img/sphere-up.png';
+
+    const numElements = users.length;
+    const centerX = container.clientWidth / 2;
+    const centerY = container.clientHeight / 2;
+    const radiusX = width / 2;
+    const radiusY = height / 2;
+
+    for (let i = 0; i < numElements; i++) {
+        const angle = (i * 2 * Math.PI) / numElements;
+        const x = centerX + radiusX * Math.cos(angle);
+        const y = centerY + radiusY * Math.sin(angle);
+
+        const element = template.content.cloneNode(true).firstElementChild;
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+
+        const img = element.querySelector("img");
+        img.src = imgSrc;
+        img.alt = users[i];
+
+        const label = element.querySelector("span");
+        label.textContent = users[i];
+
+        // Apply animation delay to stagger appearance
+        // element.style.animationDelay = `${i * 0.2}s`;
+
+        container.appendChild(element);
+    }
+}
+
 async function onSlideChange() {
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
@@ -418,13 +451,18 @@ async function onSlideChange() {
             break;
         
         case 'room':
-            const roomCanvas = document.getElementById('room_canvas');
-            roomCanvas.width = roomCanvas.parentElement.clientWidth;
-            roomCanvas.height = roomCanvas.parentElement.clientHeight;
-            const width = roomCanvas.width * 0.8;
-            const height = roomCanvas.height * 0.8;
-            drawEllipse(roomCanvas, height, height);
-            drawEllipseWithImages(roomCanvas, height, height);
+            // const roomCanvas = document.getElementById('room_canvas');
+            // roomCanvas.width = roomCanvas.parentElement.clientWidth;
+            // roomCanvas.height = roomCanvas.parentElement.clientHeight;
+            // const width = roomCanvas.width * 0.8;
+            // const height = roomCanvas.height * 0.8;
+            // drawEllipse(roomCanvas, height, height);
+            // drawEllipseWithImages(roomCanvas, height, height);
+
+            const roomContainer = document.getElementById('room_container');
+            roomContainer.width = roomContainer.parentElement.clientWidth;
+            roomContainer.height = roomContainer.parentElement.clientHeight;
+            positionElementsOnEllipse(roomContainer, 300, 300, ['dave','ben','caro','sara','abi']);
             break;
 
         case 'determination':

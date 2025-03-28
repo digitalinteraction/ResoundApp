@@ -98,7 +98,14 @@
                           See who is in your group!
                         </div>
                         <div class="row">
-                          <canvas id="room_canvas"></canvas>
+                          <!-- <canvas id="room_canvas"></canvas> -->
+                          <div id="room_container"></div>
+                          <template id="room_item_template">
+                            <div class="room_item">
+                                <img src="" alt="Image">
+                                <span>Label</span>
+                            </div>
+                          </template>
                         </div>
                         <div class="row">
                           <textarea id="peerconsole" readonly></textarea>
