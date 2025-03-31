@@ -372,7 +372,6 @@ function drawEllipseWithImages(canvas, width, height) {
 }
 
 function drawRoom(container, width, height, data) {
-    console.log(container, width, height, data);
     const template = document.getElementById("room_item_template");
 
     const centerX = container.clientWidth / 2;
@@ -411,7 +410,9 @@ function onUserClicked(id) {
 }
 
 function updatePeer(id, online) {
-  const userItem = document.getElementById(id);
+    console.log('updatePeer', id, online);
+
+    const userItem = document.getElementById(id);
     const img = userItem.querySelector("img");
     if(online) img.src = 'img/sphere-up.png';
     else img.src = 'img/sphere-down.png';
