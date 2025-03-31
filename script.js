@@ -371,9 +371,9 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
-function positionElementsOnEllipse(container, width, height, data) {
+function drawRoom(container, width, height, data) {
+    console.log(container, width, height, data);
     const template = document.getElementById("room_item_template");
-    const imgSrc = 'img/sphere-up.png';
 
     const centerX = container.clientWidth / 2;
     const centerY = container.clientHeight / 2;
@@ -386,31 +386,35 @@ function positionElementsOnEllipse(container, width, height, data) {
         const x = centerX + radiusX * Math.cos(angle);
         const y = centerY + radiusY * Math.sin(angle);
 
-        const element = template.content.cloneNode(true).firstElementChild;
-        element.id = keys[i];
-        element.style.left = `${x}px`;
-        element.style.top = `${y}px`;
+        let peer = document.getElementById(keys[i]);
+        if (!peer) {
+            peer = template.content.cloneNode(true).firstElementChild;
+            peer.id = keys[i];
+            peer.style.left = `${x}px`;
+            peer.style.top = `${y}px`;
 
-        const img = element.querySelector("img");
-        img.src = imgSrc;
-        img.alt = data[keys[i]].user;
+            const label = peer.querySelector("span");
+            label.textContent = data[keys[i]].user;
 
-        const label = element.querySelector("span");
-        label.textContent = data[keys[i]].user;
+            peer.onclick = function() {
+                onUserClicked(peer.id);
+            };
 
-        element.onclick = function() {
-            onUserClicked(element.id);
-        };
-
-        // Apply animation delay to stagger appearance
-        // element.style.animationDelay = `${i * 0.2}s`;
-
-        container.appendChild(element);
+            container.appendChild(peer);
+            updatePeer(peer.id, false);
+        }
     }
 }
 
 function onUserClicked(id) {
     console.log("onUserClicked: " + id);
+}
+
+function updatePeer(id, online) {
+  const userItem = document.getElementById(id);
+    const img = userItem.querySelector("img");
+    if(online) img.src = 'img/sphere-up.png';
+    else img.src = 'img/sphere-down.png';
 }
 
 async function onSlideChange() {
@@ -471,11 +475,15 @@ async function onSlideChange() {
             const roomContainer = document.getElementById('room_container');
             roomContainer.width = roomContainer.parentElement.clientWidth;
             roomContainer.height = roomContainer.parentElement.clientHeight;
-            const data = {
-                "65535": { "user": "dave", "score": 0 },
-                "12345": { "user": "ben", "score": 5 }
-              };
-            positionElementsOnEllipse(roomContainer, 300, 300, data);
+
+            let data = config.peers;
+            if(!sphereIsOnline()) {
+                data = {
+                    "65535": { "user": "dave", "score": 0 },
+                    "12345": { "user": "ben", "score": 5 }
+                };
+            }
+            drawRoom(roomContainer, 300, 300, data);
             break;
 
         case 'determination':
@@ -794,8 +802,9 @@ function parseLocalPeerMessage(json) {
         else if (!json.arrived && index >= 0) {
             peers.splice(index, 1);
         }
+        onPeersChanged();
+        updatePeer(json.id, json.arrived);
     }
-    onPeersChanged();
 }
 
 function addPeerConsoleText(text) {
