@@ -410,8 +410,6 @@ function onUserClicked(id) {
 }
 
 function updatePeer(id, online) {
-    console.log('updatePeer', id, online);
-
     const userItem = document.getElementById(id);
     const img = userItem.querySelector("img");
     if(online) img.src = 'img/sphere-up.png';
