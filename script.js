@@ -464,8 +464,6 @@ async function onSlideChange() {
         
         case 'room':
             const roomContainer = document.getElementById('room_container');
-            //roomContainer.width = roomContainer.parentElement.clientWidth / 2;
-            //roomContainer.height = roomContainer.parentElement.clientHeight;
 
             let data = config.peers;
             if(!sphereIsOnline()) {
@@ -481,6 +479,16 @@ async function onSlideChange() {
             break;
 
         case 'volume':
+            const vollevel = document.getElementById('vollevel');
+            vollevel.value = (config?.mic?.level || 1.0) * 10;
+            vollevel.addEventListener('change', function() {
+                const v = vollevel.value/10;
+                console.log('vollevel', v);
+                // setMic({l:v});
+                // config.mic.level = v;
+                // setConfiguration({mic: config.mic});
+            });
+
             onTouchOneTime = function() { showNextSlide(); };
             break;
 
