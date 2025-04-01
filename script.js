@@ -214,35 +214,6 @@ async function getConfiguration() {
     }
 }
 
-async function postConfiguration() {
-    let success = true;
-
-    try {
-        const response = await fetch('/yoyo/config', {
-            method: 'POST',
-            headers: {
-                "Accept": "application/json; charset=utf-8",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(config)
-        });
-
-        if(response.ok) {
-            success = true;
-        }
-        else {
-            success = false;
-            console.log(response.statusText);
-        }
-    }
-    catch(e) {
-        success = false;
-        console.log(e);
-    }
-    
-    return success;
-}
-
 async function setConfiguration(json, post = true, rebootDelayMs = -1) {
     let success = true;
 
@@ -256,7 +227,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
         console.log(JSON.stringify(config));
 
         if(post) {
-            success = postConfiguration();
+            success = post('/yoyo/config', config);
         }
 
         if(success) {
@@ -264,7 +235,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 const reboot = function () {
                     showSlide('landing');   //TODO: explain reboot
                     setTimeout(function() {
-                        fetch('/yoyo/reboot', {method: 'POST'});
+                        post('/yoyo/reboot');
                     }, rebootDelayMs);
                 };
 
@@ -589,24 +560,36 @@ function getSlideIdByIndex(index) {
     return null;
 }
 
-async function setMic(json) {
-    try {
-        const response = await fetch('/yoyo/mic', {
-            method: 'POST',
-            headers: {
-                "Accept": "application/json; charset=utf-8",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(json)
-        });
+async function post(endpoint, json) {
+    let success = true;
 
+    try {
+        let request = { method: 'POST'};
+        if(json) {
+            request.headers = { 'Accept': 'application/json; charset=utf-8', 'Content-Type': 'application/json'};
+            request.body = JSON.stringify(json);
+        }
+        
+        const response = await fetch(endpoint, request);
         if(response.ok) {
             console.log(response);
         }
+        else success = false;
     }
     catch(e) {
         console.log(e);
+        success = false;
     }
+
+    return success;
+}
+
+async function setMic(json) {
+    post('/yoyo/mic', json);
+}
+
+async function setSound(json) {
+    post('/yoyo/sound', json);
 }
 
 function redirect(url) {
