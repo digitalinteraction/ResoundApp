@@ -371,13 +371,13 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
-function drawRoom(container, width, height, data) {
+function drawRoom(container, data) {
     const template = document.getElementById("room_item_template");
 
     const centerX = container.clientWidth / 2;
     const centerY = container.clientHeight / 2;
-    const radiusX = width / 2;
-    const radiusY = height / 2;
+    const radiusX = container.clientWidth / 2;
+    const radiusY = container.clientHeight / 2;
 
     const keys = Object.keys(data);
     for (let i = 0; i < keys.length; i++) {
@@ -463,17 +463,9 @@ async function onSlideChange() {
             break;
         
         case 'room':
-            // const roomCanvas = document.getElementById('room_canvas');
-            // roomCanvas.width = roomCanvas.parentElement.clientWidth;
-            // roomCanvas.height = roomCanvas.parentElement.clientHeight;
-            // const width = roomCanvas.width * 0.8;
-            // const height = roomCanvas.height * 0.8;
-            // drawEllipse(roomCanvas, height, height);
-            // drawEllipseWithImages(roomCanvas, height, height);
-
             const roomContainer = document.getElementById('room_container');
-            roomContainer.width = roomContainer.parentElement.clientWidth;
-            roomContainer.height = roomContainer.parentElement.clientHeight;
+            //roomContainer.width = roomContainer.parentElement.clientWidth / 2;
+            //roomContainer.height = roomContainer.parentElement.clientHeight;
 
             let data = config.peers;
             if(!sphereIsOnline()) {
@@ -482,7 +474,7 @@ async function onSlideChange() {
                     "12345": { "user": "ben", "score": 5 }
                 };
             }
-            drawRoom(roomContainer, 300, 300, data);
+            drawRoom(roomContainer, data);
             break;
 
         case 'determination':
