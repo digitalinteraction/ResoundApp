@@ -459,7 +459,7 @@ async function onSlideChange() {
                 // setConfiguration({mic: config.mic});
             });
 
-            onTouchOneTime = function() { showNextSlide(); };
+            //onTouchOneTime = function() { showNextSlide(); };
             break;
 
         default:
@@ -473,7 +473,8 @@ function onVolumeChanged(v, localChange = true) {
         //post config
     }
     else {
-        //update ui = no infinite loops!
+        const vollevel = document.getElementById('vollevel');
+        vollevel.value = v * 10;    //won't cause a change event (good)
     }
 }
 
