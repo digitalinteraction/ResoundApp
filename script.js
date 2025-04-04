@@ -61,6 +61,15 @@ function init() {
 
         peers.push(...await fetchPeers());
         onPeersChanged();
+
+        const vollevel = document.getElementById('vollevel');
+            vollevel.value = (config?.volume || 1.0) * 100;
+            vollevel.addEventListener('change', function() {
+                onVolumeChanged(vollevel.value/100);
+                // setMic({l:v});
+                // config.mic.level = v;
+                // setConfiguration({mic: config.mic});
+            });
     } );
 }
 
@@ -450,15 +459,6 @@ async function onSlideChange() {
             break;
 
         case 'volume':
-            const vollevel = document.getElementById('vollevel');
-            vollevel.value = (config?.mic?.level || 1.0) * 10;
-            vollevel.addEventListener('change', function() {
-                onVolumeChanged(vollevel.value/10);
-                // setMic({l:v});
-                // config.mic.level = v;
-                // setConfiguration({mic: config.mic});
-            });
-
             //onTouchOneTime = function() { showNextSlide(); };
             break;
 
@@ -471,11 +471,13 @@ function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v);
     if(localChange) {
         //post config
+        console.log('localchange vollevel', v);
     }
     else {
         const vollevel = document.getElementById('vollevel');
-        vollevel.value = v * 10;    //won't cause a change event (good)
+        vollevel.value = v * 100;    //won't cause a change event (good)
     }
+    config.volume = v;
 }
 
 function isWarm() {
