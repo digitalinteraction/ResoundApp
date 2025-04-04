@@ -769,6 +769,7 @@ function parseLocalMessage(json) {
         else if(json['type'] === 'peer')    parseLocalPeerMessage(json);
         else if(json['type'] === 'sound')   parseLocalSoundMessage(json);
         else if(json['type'] === 'touch')   parseLocalTouchMessage(json);
+        else if(json['type'] === 'gesture') parseLocalGestureMessage(json);
         else if(json['type'] === 'volume')  parseLocalVolumeMessage(json);
         else parseLocalDebugMessage(json);
     }
@@ -826,6 +827,13 @@ function parseLocalTouchMessage(json) {
     if(onTouchOneTime) {
         onTouchOneTime();
         onTouchOneTime = null;
+    }
+}
+
+function parseLocalGestureMessage(json) {
+    const type = json['t'];
+    if(t === 'clockwise' | t === 'anticlockwise') {
+        showSlide('volume');
     }
 }
 
