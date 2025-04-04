@@ -201,3 +201,33 @@ body {
     text-align: center; /* Center text */
     /* margin-top: 5px; */
 }
+
+.slider-container {
+    width: 100%;
+}
+
+.slider{
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 50%; 
+    height: 4px;
+    background: #d3d3d3;
+    outline: none;
+}
+
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; 
+    background: #7f7a7a;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #7f7a7a;
+}
