@@ -833,6 +833,8 @@ function parseLocalTouchMessage(json) {
 }
 
 function parseLocalGestureMessage(json) {
+    console.log('gesture', json);
+
     const type = json['t'];
     if(t === 'clockwise' | t === 'anticlockwise') {
         showSlide('volume');
