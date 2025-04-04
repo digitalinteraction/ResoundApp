@@ -756,9 +756,10 @@ function parseLocalMessage(json) {
         }
 
         if(json['type'] === 'debug')    parseLocalDebugMessage(json);
-        if(json['type'] === 'peer')     parseLocalPeerMessage(json);
-        if(json['type'] === 'sound')    parseLocalSoundMessage(json);
-        if(json['type'] === 'touch')    parseLocalTouchMessage(json);
+        else if(json['type'] === 'peer')     parseLocalPeerMessage(json);
+        else if(json['type'] === 'sound')    parseLocalSoundMessage(json);
+        else if(json['type'] === 'touch')    parseLocalTouchMessage(json);
+        else parseLocalDebugMessage(json);
     }
 }
 
