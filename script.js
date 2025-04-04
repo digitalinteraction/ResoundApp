@@ -453,8 +453,7 @@ async function onSlideChange() {
             const vollevel = document.getElementById('vollevel');
             vollevel.value = (config?.mic?.level || 1.0) * 10;
             vollevel.addEventListener('change', function() {
-                const v = vollevel.value/10;
-                console.log('vollevel', v);
+                onVolumeChanged(vollevel.value/10);
                 // setMic({l:v});
                 // config.mic.level = v;
                 // setConfiguration({mic: config.mic});
@@ -465,6 +464,16 @@ async function onSlideChange() {
 
         default:
             console.log("no rule for: " + id);
+    }
+}
+
+function onVolumeChanged(v, localChange = true) {
+    console.log('vollevel', v);
+    if(localChange) {
+        //post config
+    }
+    else {
+        //update ui = no infinite loops!
     }
 }
 
@@ -755,10 +764,11 @@ function parseLocalMessage(json) {
             }
         }
 
-        if(json['type'] === 'debug')    parseLocalDebugMessage(json);
-        else if(json['type'] === 'peer')     parseLocalPeerMessage(json);
-        else if(json['type'] === 'sound')    parseLocalSoundMessage(json);
-        else if(json['type'] === 'touch')    parseLocalTouchMessage(json);
+        if(json['type'] === 'debug')        parseLocalDebugMessage(json);
+        else if(json['type'] === 'peer')    parseLocalPeerMessage(json);
+        else if(json['type'] === 'sound')   parseLocalSoundMessage(json);
+        else if(json['type'] === 'touch')   parseLocalTouchMessage(json);
+        else if(json['type'] === 'volume')  parseLocalVolumeMessage(json);
         else parseLocalDebugMessage(json);
     }
 }
@@ -811,25 +821,16 @@ function parseLocalSoundMessage(json) {
 
 function parseLocalTouchMessage(json) {
     console.log('touch', json);
-    
-    switch ((json['v'] >> 6) & 0b11) {
-         case 0b01:  // CW Gesture (Clockwise)
-             console.log('Gesture: Clockwise');
-             break;
-         case 0b10:  // CCW Gesture (Counterclockwise)
-             console.log('Gesture: Counterclockwise');
-             break;
-         case 0b00:  // No Gesture or Neutral
-             console.log('Gesture: None');
-             break;
-         default:
-             console.log('Gesture: Unknown');
-     }
 
     if(onTouchOneTime) {
         onTouchOneTime();
         onTouchOneTime = null;
     }
+}
+
+function parseLocalVolumeMessage(json) {
+    console.log('volume', json);
+    onVolumeChanged(json['v'], false);
 }
 
 function getHost() {
