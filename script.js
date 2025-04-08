@@ -495,7 +495,7 @@ async function onSlideChange() {
 function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v);
     if(localChange) {
-        //post config
+        setConfiguration({ volume:  v});
         console.log('localchange vollevel', v);
     }
     else {
@@ -615,7 +615,7 @@ async function postJson(endpoint, json) {
             }
         }
         catch(e) {
-            console.log(e);
+            //console.log(e);
         }
     }
 
