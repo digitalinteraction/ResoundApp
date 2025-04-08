@@ -74,7 +74,10 @@ function init() {
         const determinationText = document.getElementById('determination_individual');
         const determinationListener = debounce((e) => {
             console.log('determinationListener');
-            const json = {server:{room:{determination:e.target.value}}};
+            const json = { server: { ...(config.server ?? {}) }};          
+            json.server.room = { ...(json.server.room ?? {}) };
+            json.server.room.determination = e.target.value;
+              
             setConfiguration(json);
         }, 2000);
         determinationText.addEventListener('input', determinationListener);
