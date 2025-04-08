@@ -475,6 +475,9 @@ async function onSlideChange() {
             const determinationText = document.getElementById('determination_individual');
             determinationText.value = config?.server?.room?.determination ?? '';
 
+            const score = document.getElementById('score');
+            score.textContent = config?.server?.room?.score ?? 0;
+
             break;
 
         case 'volume':
