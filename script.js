@@ -63,15 +63,31 @@ function init() {
         onPeersChanged();
 
         const vollevel = document.getElementById('vollevel');
-            vollevel.value = (config?.volume || 1.0) * 100;
-            vollevel.addEventListener('change', function() {
-                onVolumeChanged(vollevel.value/100);
-                // setMic({l:v});
-                // config.mic.level = v;
-                // setConfiguration({mic: config.mic});
-            });
+        vollevel.value = (config?.volume || 1.0) * 100;
+        vollevel.addEventListener('change', function() {
+            onVolumeChanged(vollevel.value/100);
+            // setMic({l:v});
+            // config.mic.level = v;
+            // setConfiguration({mic: config.mic});
+        });
+
+        const determinationText = document.getElementById('determination_individual');
+        const determinationListener = debounce((e) => {
+            console.log('determinationListener');
+            const json = {server:{room:{determination:e.target.value}}};
+            setConfiguration(json);
+        }, 2000);
+        determinationText.addEventListener('input', determinationListener);
     } );
 }
+
+function debounce(fn, delay) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
 
 function preloadImage(url) {
     const img = new Image();
@@ -236,7 +252,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
         console.log(JSON.stringify(config));
 
         if(post) {
-            success = post('/yoyo/config', config);
+            success = postJson('/yoyo/config', config);
         }
 
         if(success) {
@@ -244,7 +260,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 const reboot = function () {
                     showSlide('landing');   //TODO: explain reboot
                     setTimeout(function() {
-                        post('/yoyo/reboot');
+                        postJson('/yoyo/reboot');
                     }, rebootDelayMs);
                 };
 
@@ -456,6 +472,9 @@ async function onSlideChange() {
             break;
 
         case 'determination':
+            const determinationText = document.getElementById('determination_individual');
+            determinationText.value = config?.server?.room?.determination ?? '';
+
             break;
 
         case 'volume':
@@ -572,36 +591,37 @@ function getSlideIdByIndex(index) {
     return null;
 }
 
-async function post(endpoint, json) {
-    let success = true;
+async function postJson(endpoint, json) {
+    let success = false;
 
-    try {
-        let request = { method: 'POST'};
-        if(json) {
-            request.headers = { 'Accept': 'application/json; charset=utf-8', 'Content-Type': 'application/json'};
-            request.body = JSON.stringify(json);
+    if(endpoint) {
+        try {
+            let request = { method: 'POST'};
+            if(json) {
+                request.headers = { 'Accept': 'application/json; charset=utf-8', 'Content-Type': 'application/json'};
+                request.body = JSON.stringify(json);
+            }
+            
+            const response = await fetch(endpoint, request);
+            if(response.ok) {
+                console.log(response);
+                success = true;
+            }
         }
-        
-        const response = await fetch(endpoint, request);
-        if(response.ok) {
-            console.log(response);
+        catch(e) {
+            console.log(e);
         }
-        else success = false;
-    }
-    catch(e) {
-        console.log(e);
-        success = false;
     }
 
     return success;
 }
 
 async function setMic(json) {
-    post('/yoyo/mic', json);
+    postJson('/yoyo/mic', json);
 }
 
 async function setSound(json) {
-    post('/yoyo/sound', json);
+    postJson('/yoyo/sound', json);
 }
 
 function redirect(url) {
