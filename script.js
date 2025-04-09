@@ -496,6 +496,7 @@ function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v);
     if(localChange) {
         setConfiguration({ volume:  v});
+        postJson('/yoyo/tone');
         console.log('localchange vollevel', v);
     }
     else {
@@ -603,10 +604,10 @@ async function postJson(endpoint, json) {
     if(endpoint) {
         try {
             let request = { method: 'POST'};
-            if(json) {
-                request.headers = { 'Accept': 'application/json; charset=utf-8', 'Content-Type': 'application/json'};
-                request.body = JSON.stringify(json);
-            }
+            if(!json) json = {};
+            
+            request.headers = { 'Accept': 'application/json; charset=utf-8', 'Content-Type': 'application/json'};
+            request.body = JSON.stringify(json);
             
             const response = await fetch(endpoint, request);
             if(response.ok) {
