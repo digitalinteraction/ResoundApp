@@ -180,8 +180,8 @@ function onStatus(s) {
         if(sphereIsOnline(s) && webSocketConnected) sphereImage.style.filter = 'none';
         else sphereImage.style.filter = 'invert(30%)';
 
-        if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
-        if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
+        // if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
+        // if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
 
         statuscode = s;
     }
