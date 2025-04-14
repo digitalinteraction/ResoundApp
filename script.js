@@ -169,9 +169,6 @@ function drawSphere(s) {
 
     if(sphereIsOnline(s) && webSocketConnected) sphereImage.style.filter = 'none';
     else sphereImage.style.filter = 'invert(30%)';
-
-    // if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
-    // if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
 }
 
 function onStatus(s) {
@@ -185,10 +182,12 @@ function onStatus(s) {
             if(onSphereDown && typeof onSphereDown === 'function') onSphereDown();
             onSphereDown = undefined; //one time event
         }
-        drawSphere(s);
+        if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
+        if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
 
         statuscode = s;
     }
+    drawSphere(statuscode);
 }
 
 function onOnline() {
