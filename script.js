@@ -161,27 +161,31 @@ function remoteConnected(s = statuscode) {
 }
 
 let onSphereUp = undefined, onSphereDown = undefined;
+function drawSphere(s) {
+    const sphereImage = document.querySelector('#sphereImage');
+
+    if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
+    else                sphereImage.src = 'img/sphere-down.png';
+
+    if(sphereIsOnline(s) && webSocketConnected) sphereImage.style.filter = 'none';
+    else sphereImage.style.filter = 'invert(30%)';
+
+    // if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
+    // if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
+}
+
 function onStatus(s) {
     console.log('onStatus', s);
     if(statuscode != s) {
-        const sphereImage = document.querySelector('#sphereImage');
-
         if(sphereIsUp(s)) {
-            sphereImage.src = 'img/sphere-up.png';
             if(onSphereUp && typeof onSphereUp === 'function') onSphereUp();
             onSphereUp = undefined; //one time event
         }
         else {
-            sphereImage.src = 'img/sphere-down.png';
             if(onSphereDown && typeof onSphereDown === 'function') onSphereDown();
             onSphereDown = undefined; //one time event
         }
-
-        if(sphereIsOnline(s) && webSocketConnected) sphereImage.style.filter = 'none';
-        else sphereImage.style.filter = 'invert(30%)';
-
-        // if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
-        // if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
+        drawSphere(s);
 
         statuscode = s;
     }
@@ -194,6 +198,7 @@ function onOnline() {
 function onWebSocketConnected(v = true) {
     if(webSocketConnected !== v) {
         if(v) {
+            onStatus(statuscode | 0x01 | 0x08);
             if(onWebSocketConnectedOneTime) {
                 onWebSocketConnectedOneTime();
                 onWebSocketConnectedOneTime = null;
