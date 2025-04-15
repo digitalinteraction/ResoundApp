@@ -168,7 +168,7 @@ function drawSphere(s) {
     if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
     else                sphereImage.src = 'img/sphere-down.png';
 
-    if(sphereIsOnline(s) && webSocketConnected) sphereImage.style.filter = 'none';
+    if(sphereIsOnline(s)) sphereImage.style.filter = 'none';
     else sphereImage.style.filter = 'invert(30%)';
 }
 
