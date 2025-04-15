@@ -162,6 +162,7 @@ function remoteConnected(s = statuscode) {
 
 let onSphereUp = undefined, onSphereDown = undefined;
 function drawSphere(s) {
+    console.log('drawSphere', s);
     const sphereImage = document.querySelector('#sphereImage');
 
     if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
