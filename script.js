@@ -468,7 +468,8 @@ async function onSlideChange() {
             const roomContainer = document.getElementById('room_container');
 
             let data = config.peers;
-            if(!sphereIsOnline()) {
+            //if(!sphereIsOnline()) {
+	if(true) {
                 data = {
                     "65535": { "user": "dave", "score": 0 },
                     "12345": { "user": "ben", "score": 5 }
