@@ -161,7 +161,6 @@ function remoteConnected(s = statuscode) {
 }
 
 function drawSphere(s) {
-    console.log('drawSphere', s);
     const sphereImage = document.querySelector('#sphereImage');
 
     if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
@@ -173,7 +172,6 @@ function drawSphere(s) {
 
 let onSphereUp = undefined, onSphereDown = undefined;
 function onStatus(s) {
-    console.log('onStatus', s);
     if(statuscode != s) {
         if(sphereIsUp(s)) {
             if(onSphereUp && typeof onSphereUp === 'function') onSphereUp();
@@ -187,8 +185,8 @@ function onStatus(s) {
         if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
 
         statuscode = s;
+	drawSphere(statuscode);
     }
-    drawSphere(statuscode);
 }
 
 function onOnline() {
@@ -791,6 +789,7 @@ function manageWebSocket(onConnectedOneTime = null) {
 }
 
 function parseLocalMessage(json) {
+	console.log('parseLocalMessage', json);
     if(json) {
         if(json['status']) {
             let s = json['status'];
