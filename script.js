@@ -789,7 +789,6 @@ function manageWebSocket(onConnectedOneTime = null) {
 }
 
 function parseLocalMessage(json) {
-	console.log('parseLocalMessage', json);
     if(json) {
         if(json['status']) {
             let s = json['status'];
