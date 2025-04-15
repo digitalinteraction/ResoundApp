@@ -196,6 +196,7 @@ function onOnline() {
 }
 
 function onWebSocketConnected(v = true) {
+    console.log('onWebSocketConnected', v);
     if(webSocketConnected !== v) {
         if(v) {
             onStatus(statuscode | 0x01 | 0x08);
