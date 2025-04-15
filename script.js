@@ -160,7 +160,6 @@ function remoteConnected(s = statuscode) {
     return (s & 0x10) == 0x10;
 }
 
-let onSphereUp = undefined, onSphereDown = undefined;
 function drawSphere(s) {
     console.log('drawSphere', s);
     const sphereImage = document.querySelector('#sphereImage');
@@ -172,6 +171,7 @@ function drawSphere(s) {
     else sphereImage.style.filter = 'invert(30%)';
 }
 
+let onSphereUp = undefined, onSphereDown = undefined;
 function onStatus(s) {
     console.log('onStatus', s);
     if(statuscode != s) {
