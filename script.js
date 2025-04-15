@@ -804,6 +804,7 @@ function parseLocalMessage(json) {
         else if(json['type'] === 'touch')   parseLocalTouchMessage(json);
         else if(json['type'] === 'gesture') parseLocalGestureMessage(json);
         else if(json['type'] === 'volume')  parseLocalVolumeMessage(json);
+	else if(json['type'] === 'status');
         else parseLocalDebugMessage(json);
     }
 }
