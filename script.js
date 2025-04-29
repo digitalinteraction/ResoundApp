@@ -185,7 +185,7 @@ function onStatus(s) {
         if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
 
         statuscode = s;
-	drawSphere(statuscode);
+	    drawSphere(statuscode);
     }
 }
 
@@ -468,13 +468,14 @@ async function onSlideChange() {
             const roomContainer = document.getElementById('room_container');
 
             let data = config.peers;
-            //if(!sphereIsOnline()) {
-	if(true) {
+            /*
+            if(!sphereIsOnline()) {
                 data = {
                     "65535": { "user": "dave", "score": 0 },
                     "12345": { "user": "ben", "score": 5 }
                 };
             }
+            */
             drawRoom(roomContainer, data);
             break;
 
