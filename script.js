@@ -43,11 +43,12 @@ function init() {
             perPage: 1,
             drag: false, // Enable drag by default
         }).mount();
-        //showCarousel(false);
+        allowInteraction(false);
 
         splide.on('active', (slideElement) => {
             onSlideChange();
         });
+        onSlideChange();
 
         setInterval(() => { draw(); }, 1000/frameRate);
 
@@ -165,9 +166,6 @@ function drawSphere(s) {
 
     if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
     else                sphereImage.src = 'img/sphere-down.png';
-
-    if(sphereIsOnline(s)) sphereImage.style.filter = 'none';
-    else sphereImage.style.filter = 'invert(30%)';
 }
 
 let onSphereUp = undefined, onSphereDown = undefined;
@@ -187,10 +185,6 @@ function onStatus(s) {
         statuscode = s;
 	    drawSphere(statuscode);
     }
-}
-
-function onOnline() {
-    console.log("onOnline");
 }
 
 function onWebSocketConnected(v = true) {
@@ -215,9 +209,20 @@ function showCarousel(v) {
     carousel.style['pointer-events'] = v ? 'auto' : 'none';
 }
 
+function onOnline() {
+    console.log("onOnline");
+    showCarousel(true);
+    document.querySelector('#sphereImage').style.filter = 'none';
+    allowInteraction(true);
+}
+
 function onOffline() {
     console.log("onOffline");
     onWebSocketConnected(false);
+    //showCarousel(false);
+    showSlide('landing');
+    document.querySelector('#sphereImage').style.filter = 'invert(30%)';
+    allowInteraction(false);
 }
 
 async function getConfiguration() {
@@ -418,10 +423,45 @@ function updatePeer(id, online) {
     else img.src = 'img/sphere-down.png';
 }
 
+function generateLandingText() {
+    let text = 'Your sphere ';
+
+    text += sphereIsOnline() ? 'is online. ' : 'appears to be offline. ';
+
+    const savedNetwork = config?.wifi?.ssid || '';
+    if(savedNetwork !== '') {
+        text += sphereIsOnline() ? 'It is ' : 'It was ';
+        text += 'connected to the ' + savedNetwork + ' WiFi network. ';
+    }
+    else {
+        text += 'It needs to be connected to a WiFi network. ';
+    }
+
+    if(remoteConnected()) {
+        text += 'It is connected to a Resound server. ';
+    }
+
+    if(localConnected() && !sphereIsUp()) {
+        text += 'To get started, please turn over your sphere. ';
+    }
+
+    return text.trim();
+}
+
+function allowInteraction(visible) {
+    const arrows = document.querySelector('.splide__arrows');
+    const pagination = document.querySelector('.splide__pagination');
+
+    if (arrows) arrows.style.display = visible ? 'block' : 'none';
+    if (pagination) pagination.style.display = visible ? 'flex' : 'none';
+}
+
 async function onSlideChange() {
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
         case 'landing':
+            getSlideById('landing').querySelectorAll('.slide-content .row')[2].textContent = generateLandingText();
+
             break;
         case 'tuning':
             document.getElementById('tune_button').addEventListener('click', function (e) {
@@ -578,6 +618,19 @@ function showSlide(id) {
     }
 }
 
+function getSlideById(id) {
+    const track = document.querySelector('.splide__track');
+    const slides = track.querySelectorAll('.splide__slide');
+
+    for (let slide of slides) {
+        if (slide.getAttribute('data-id') === id) {
+            return slide;
+        }
+    }
+
+    return null;
+}
+
 function getSlideIndexById(id) {
     const track = document.querySelector('.splide__track'); // Select the track container
     const slides = track.querySelectorAll('.splide__slide'); // Get all slides within the track
@@ -585,7 +638,7 @@ function getSlideIndexById(id) {
 
     slides.forEach((slide, idx) => {
         if (slide.getAttribute('data-id') === id) {
-        index = idx;
+            index = idx;
         }
     });
 
