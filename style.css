@@ -27,6 +27,10 @@ body {
     object-position: center; /* Centers the image */
   }
 
+#sphereImage {
+    filter: invert(30%);
+}
+
 .container {
     height: calc(100vh - 110px);
     width: 100%;
