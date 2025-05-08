@@ -179,10 +179,12 @@ function onStatus(s) {
             if(onSphereDown && typeof onSphereDown === 'function') onSphereDown();
             onSphereDown = undefined; //one time event
         }
-        if(!sphereIsOnline() && sphereIsOnline(s)) onOnline();
-        if(sphereIsOnline() && !sphereIsOnline(s)) onOffline();
 
+        let lastStatus = statuscode;
         statuscode = s;
+        if(!sphereIsOnline(lastStatus) && sphereIsOnline()) onOnline();
+        if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
+
 	    drawSphere(statuscode);
     }
 }
