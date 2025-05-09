@@ -280,6 +280,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                     showSlide('landing');   //TODO: explain reboot
                     rebootTimeoutId = setTimeout(function() {
                         postJson('/yoyo/reboot');
+                        rebootTimeoutId = -1;
                     }, rebootDelayMs);
                 };
 
@@ -442,12 +443,14 @@ function getDisplayMode() {
   }
 
 function generateLandingText() {
+    const savedNetwork = config?.wifi?.ssid || '';
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
     let text = 'Your sphere ';
 
     if(!sphereIsRebooting()) {
         text += sphereIsOnline() ? 'is online. ' : 'appears to be offline. ';
 
-        const savedNetwork = config?.wifi?.ssid || '';
         if(savedNetwork !== '') {
             text += sphereIsOnline() ? 'It is ' : 'It was ';
             text += 'connected to the ' + savedNetwork + ' WiFi network. ';
@@ -465,10 +468,11 @@ function generateLandingText() {
         }
     }
     else {
-        text += 'is rebooting. ';
+        text += ' is connecting to the ' + savedNetwork + ' WiFi network. Make sure this device is connected to this network too.';
     }
-    text += ' display-mode is ' + getDisplayMode();
-
+    text += ' display-mode is ' + getDisplayMode() + '. ';
+    text += ' userAgent is ' + userAgent + '. ';
+    
     return text.trim();
 }
 
