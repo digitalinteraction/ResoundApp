@@ -444,7 +444,7 @@ function getDisplayMode() {
 
 function generateLandingText() {
     const savedNetwork = config?.wifi?.ssid || '';
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
     let text = 'Your sphere ';
 
