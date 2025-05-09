@@ -1,3 +1,5 @@
+let rebootTimeoutId = -1;
+
 let webSocket;
 let webSocketConnected = false;
 let onWebSocketConnectedOneTime = null;
@@ -141,6 +143,10 @@ async function getStatus() {
     }
 }
 
+function sphereIsRebooting() {
+    return rebootTimeoutId != -1;
+}
+
 function sphereIsOnline(s = statuscode) {
     return (s & 0x01) == 0x01;
 }
@@ -272,7 +278,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
             if(post && rebootDelayMs >= 0) {
                 const reboot = function () {
                     showSlide('landing');   //TODO: explain reboot
-                    setTimeout(function() {
+                    rebootTimeoutId = setTimeout(function() {
                         postJson('/yoyo/reboot');
                     }, rebootDelayMs);
                 };
@@ -425,27 +431,43 @@ function updatePeer(id, online) {
     else img.src = 'img/sphere-down.png';
 }
 
+function getDisplayMode() {
+    const modes = ['fullscreen', 'standalone', 'minimal-ui', 'browser'];
+    for (const mode of modes) {
+      if (window.matchMedia(`(display-mode: ${mode})`).matches) {
+        return mode;
+      }
+    }
+    return 'unknown';
+  }
+
 function generateLandingText() {
     let text = 'Your sphere ';
 
-    text += sphereIsOnline() ? 'is online. ' : 'appears to be offline. ';
+    if(!sphereIsRebooting()) {
+        text += sphereIsOnline() ? 'is online. ' : 'appears to be offline. ';
 
-    const savedNetwork = config?.wifi?.ssid || '';
-    if(savedNetwork !== '') {
-        text += sphereIsOnline() ? 'It is ' : 'It was ';
-        text += 'connected to the ' + savedNetwork + ' WiFi network. ';
+        const savedNetwork = config?.wifi?.ssid || '';
+        if(savedNetwork !== '') {
+            text += sphereIsOnline() ? 'It is ' : 'It was ';
+            text += 'connected to the ' + savedNetwork + ' WiFi network. ';
+        }
+        else {
+            text += 'It needs to be connected to a WiFi network. ';
+        }
+    
+        if(remoteConnected()) {
+            text += 'It is connected to a Resound server. ';
+        }
+    
+        if(localConnected() && !sphereIsUp()) {
+            text += 'To get started, please turn over your sphere. ';
+        }
     }
     else {
-        text += 'It needs to be connected to a WiFi network. ';
+        text += 'is rebooting. ';
     }
-
-    if(remoteConnected()) {
-        text += 'It is connected to a Resound server. ';
-    }
-
-    if(localConnected() && !sphereIsUp()) {
-        text += 'To get started, please turn over your sphere. ';
-    }
+    text += ' display-mode is ' + getDisplayMode();
 
     return text.trim();
 }
