@@ -478,7 +478,7 @@ function generateLandingText() {
 
                 if(localConnected() && !sphereIsUp()) {
                     text += 'To get started, please turn the sphere over. ';
-                    onSphereUp = onStart;
+                    onSphereUp = function() { onStart() };;
                 }
             }
         }
@@ -527,6 +527,7 @@ async function onSlideChange() {
                 config.mic.level = v;
                 setConfiguration({mic: config.mic});
             });
+            onSphereDown = function() { showSlide('landing'); };
             
             break;
 
@@ -580,6 +581,7 @@ async function onSlideChange() {
 
         case 'volume':
             //onTouchOneTime = function() { showNextSlide(); };
+            onSphereDown = function() { showSlide('landing'); };
             break;
 
         default:
