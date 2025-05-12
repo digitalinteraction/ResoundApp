@@ -456,19 +456,23 @@ function generateLandingText() {
     let text = 'Your sphere ';
 
     if(!sphereIsRebooting()) {
-        text += sphereIsOnline() ? 'is online. ' : 'appears to be offline. ';
-        text += captivePortalRunning() ? 'captivePortalRunning' : '';
-
-        if(savedNetwork !== '') {
-            text += sphereIsOnline() ? 'It is ' : 'It was ';
-            text += 'connected to the ' + savedNetwork + ' WiFi network. ';
+        if(!sphereIsOnline()) {
+            text += 'appears to be offline. ';
+            if(savedNetwork !== '') {
+                text += 'It was last connected to the ' + savedNetwork + ' WiFi network. Is the sphere plugged in? Is this devive on that network too?';
+            }
         }
         else {
-            text += 'It needs to be connected to a WiFi network. ';
-        }
-    
-        if(remoteConnected()) {
-            text += 'It is connected to a Resound server. ';
+            if(captivePortalRunning()) {
+                text += 'needs to be connected to a WiFi network. ';
+                if(savedNetwork !== '') text += 'It couldn\'t find ' + savedNetwork + '.';
+            }
+            else {
+                text += 'is connected to the ' + savedNetwork + ' WiFi network. ';
+                if(remoteConnected()) {
+                    text += 'It is also connected to a Resound server. ';
+                }
+            }
         }
     
         if(localConnected() && !sphereIsUp()) {
