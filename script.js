@@ -457,6 +457,7 @@ function generateLandingText() {
 
     if(!sphereIsRebooting()) {
         text += sphereIsOnline() ? 'is online. ' : 'appears to be offline. ';
+        text += captivePortalRunning() ? 'captivePortalRunning' : '';
 
         if(savedNetwork !== '') {
             text += sphereIsOnline() ? 'It is ' : 'It was ';
