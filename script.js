@@ -476,7 +476,7 @@ function generateLandingText() {
                 text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network. ';
                 if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>.';
 
-                if(localConnected() && sphereIsDown()) {
+                if(localConnected() && !sphereIsUp()) {
                     text += 'To get started, please turn the sphere over. ';
                     onSphereUp = onStart;
                 }
