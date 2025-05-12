@@ -461,6 +461,7 @@ function generateLandingText() {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(remoteConnected()) {
                     text += 'It is also connected to a Resound server (' + (config?.server?.host || '') + '). ';
+                    text += 'Everything looks good. ';
                 }
             }
             else {
@@ -471,7 +472,7 @@ function generateLandingText() {
         else {
             text += 'appears to be offline. ';
             if(savedNetwork !== '') {
-                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this devive on that network too?';
+                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this device on that network too?';
             }
         }
     
