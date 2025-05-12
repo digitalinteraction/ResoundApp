@@ -445,6 +445,11 @@ function getDisplayMode() {
     return 'unknown';
   }
 
+function getDeviceType() {
+    const isPhone = /iPhone|Android.*Mobile|Windows Phone|BlackBerry|webOS/i.test(navigator.userAgent);
+    return isPhone ? "phone" : "computer";
+}
+
 function updateLandingText() {
     getSlideById('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
 }
@@ -467,21 +472,21 @@ function generateLandingText() {
             else {
                 text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network. ';
                 if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>.';
+
+                if(localConnected() && !sphereIsUp()) {
+                    text += 'To get started, please turn the sphere over. ';
+                }
             }
         }
         else {
             text += 'appears to be offline. ';
             if(savedNetwork !== '') {
-                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this device on that network too?';
+                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this '+ getDeviceType() + ' is on that network too?';
             }
-        }
-    
-        if(localConnected() && !sphereIsUp()) {
-            text += 'To get started, please turn over your sphere. ';
         }
     }
     else {
-        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this device is on that network too. Please close this window.';
+        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this '+ getDeviceType() + ' is on that network too. Please close this window.';
     }
     //text += ' display-mode is ' + getDisplayMode() + '. ';
     //text += ' userAgent is ' + userAgent + '. ';
