@@ -456,22 +456,22 @@ function generateLandingText() {
     let text = 'Your sphere ';
 
     if(!sphereIsRebooting()) {
-        if(!sphereIsOnline()) {
-            text += 'appears to be offline. ';
-            if(savedNetwork !== '') {
-                text += 'It was last connected to the ' + savedNetwork + ' WiFi network. Is the sphere plugged in? Is this devive on that network too?';
-            }
-        }
-        else {
-            if(captivePortalRunning()) {
-                text += 'needs to be connected to a WiFi network. ';
-                if(savedNetwork !== '') text += 'It couldn\'t find ' + savedNetwork + '.';
-            }
-            else {
-                text += 'is connected to the ' + savedNetwork + ' WiFi network. ';
+        if(sphereIsOnline()) {
+            if(!captivePortalRunning()) {
+                text += 'is connected to the ' + savedNetwork + ' WiFi network (' + getHost() +'). ';
                 if(remoteConnected()) {
                     text += 'It is also connected to a Resound server. ';
                 }
+            }
+            else {
+                text += 'needs to be connected to a WiFi network. ';
+                if(savedNetwork !== '') text += 'It couldn\'t find ' + savedNetwork + '.';
+            }
+        }
+        else {
+            text += 'appears to be offline. ';
+            if(savedNetwork !== '') {
+                text += 'It was last connected to the ' + savedNetwork + ' WiFi network. Is the sphere plugged in? Is this devive on that network too?';
             }
         }
     
@@ -480,10 +480,10 @@ function generateLandingText() {
         }
     }
     else {
-        text += ' is connecting to the ' + savedNetwork + ' WiFi network. Make sure this device is connected to this network too.';
+        text += ' is connecting to the ' + savedNetwork + ' WiFi network. Make sure this device is on this network too.';
     }
-    text += ' display-mode is ' + getDisplayMode() + '. ';
-    text += ' userAgent is ' + userAgent + '. ';
+    //text += ' display-mode is ' + getDisplayMode() + '. ';
+    //text += ' userAgent is ' + userAgent + '. ';
     
     return text.trim();
 }
