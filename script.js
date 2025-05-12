@@ -446,7 +446,7 @@ function getDisplayMode() {
   }
 
 function updateLandingText() {
-    getSlideById('landing').querySelectorAll('.slide-content .row')[2].textContent = generateLandingText();
+    getSlideById('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
 }
 
 function generateLandingText() {
@@ -460,7 +460,7 @@ function generateLandingText() {
             if(!captivePortalRunning()) {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(remoteConnected()) {
-                    text += 'It is also connected to a Resound server (' + config?.server?.host || '' + '). ';
+                    text += 'It is also connected to a Resound server (' + (config?.server?.host || '') + '). ';
                 }
             }
             else {
