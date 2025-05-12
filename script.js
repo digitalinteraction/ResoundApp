@@ -458,20 +458,20 @@ function generateLandingText() {
     if(!sphereIsRebooting()) {
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
-                text += 'is connected to the ' + savedNetwork + ' WiFi network (' + getHost() +'). ';
+                text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(remoteConnected()) {
-                    text += 'It is also connected to a Resound server. ';
+                    text += 'It is also connected to a Resound server (' + config?.server?.host || '' + '). ';
                 }
             }
             else {
                 text += 'needs to be connected to a WiFi network. ';
-                if(savedNetwork !== '') text += 'It couldn\'t find ' + savedNetwork + '.';
+                if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>.';
             }
         }
         else {
             text += 'appears to be offline. ';
             if(savedNetwork !== '') {
-                text += 'It was last connected to the ' + savedNetwork + ' WiFi network. Is the sphere plugged in? Is this devive on that network too?';
+                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this devive on that network too?';
             }
         }
     
@@ -480,7 +480,7 @@ function generateLandingText() {
         }
     }
     else {
-        text += ' is connecting to the ' + savedNetwork + ' WiFi network. Make sure this device is on this network too.';
+        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this device is on that network too.';
     }
     //text += ' display-mode is ' + getDisplayMode() + '. ';
     //text += ' userAgent is ' + userAgent + '. ';
