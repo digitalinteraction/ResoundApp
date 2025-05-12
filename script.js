@@ -191,6 +191,9 @@ function onStatus(s) {
         if(!sphereIsOnline(lastStatus) && sphereIsOnline()) onOnline();
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
+        switch (getSlideIdByIndex(splide.index)) {
+            case 'landing': updateLandingText();
+        }
 	    drawSphere(statuscode);
     }
 }
@@ -442,6 +445,10 @@ function getDisplayMode() {
     return 'unknown';
   }
 
+function updateLandingText() {
+    getSlideById('landing').querySelectorAll('.slide-content .row')[2].textContent = generateLandingText();
+}
+
 function generateLandingText() {
     const savedNetwork = config?.wifi?.ssid || '';
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -488,7 +495,7 @@ async function onSlideChange() {
     const id = getSlideIdByIndex(splide.index);
     switch (id) {
         case 'landing':
-            getSlideById('landing').querySelectorAll('.slide-content .row')[2].textContent = generateLandingText();
+            updateLandingText();
 
             break;
         case 'tuning':
