@@ -465,7 +465,7 @@ function generateLandingText() {
                 }
             }
             else {
-                text += 'needs to be connected to a WiFi network. ';
+                text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network. ';
                 if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>.';
             }
         }
@@ -481,7 +481,7 @@ function generateLandingText() {
         }
     }
     else {
-        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this device is on that network too.';
+        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this device is on that network too. Please close this window.';
     }
     //text += ' display-mode is ' + getDisplayMode() + '. ';
     //text += ' userAgent is ' + userAgent + '. ';
