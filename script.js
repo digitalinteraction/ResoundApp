@@ -300,32 +300,35 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 function onStart() {
     console.log("onStart", config);
 
-    addPeerConsoleText(JSON.stringify(config.peers)+'\n');
+    //addPeerConsoleText(JSON.stringify(config.peers)+'\n');
 
-    if(!config?.mic?.frequency) {
-        showSlide('tuning');
-    }
-    else {
-        console.log(config.mic);
-        if(!config?.server?.host) {
-            showSlide('server');
+    if(sphereIsUp()) {
+        setMic({r:-1});
+
+        if(!config?.mic?.frequency) {
+            showSlide('tuning');
         }
         else {
-            console.log(config.server);
-            if(!config?.wifi?.ssid || captivePortalRunning()) {
-                showSlide('wifi');
+            console.log(config.mic);
+            if(!config?.server?.host) {
+                showSlide('server');
             }
             else {
-                console.log(config.wifi);
-                showSlide('room');
+                console.log(config.server);
+                if(!config?.wifi?.ssid || captivePortalRunning()) {
+                    showSlide('wifi');
+                }
+                else {
+                    console.log(config.wifi);
+                    showSlide('room');
+                }
             }
         }
     }
+    else showSlide('landing');
 
     document.getElementById('spherename').innerText = config?.captiveportal?.ssid || '';
     document.getElementById('sphereversion').innerText = config?.version || '';
-
-    setMic({r:-1});
 }
 
 async function onSlideMoved() {
@@ -438,12 +441,12 @@ function updatePeer(id, online) {
 function getDisplayMode() {
     const modes = ['fullscreen', 'standalone', 'minimal-ui', 'browser'];
     for (const mode of modes) {
-      if (window.matchMedia(`(display-mode: ${mode})`).matches) {
-        return mode;
-      }
+        if (window.matchMedia(`(display-mode: ${mode})`).matches) {
+            return mode;
+        }
     }
     return 'unknown';
-  }
+}
 
 function getDeviceType() {
     const isPhone = /iPhone|Android.*Mobile|Windows Phone|BlackBerry|webOS/i.test(navigator.userAgent);
@@ -473,8 +476,9 @@ function generateLandingText() {
                 text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network. ';
                 if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>.';
 
-                if(localConnected() && !sphereIsUp()) {
+                if(localConnected() && sphereIsDown()) {
                     text += 'To get started, please turn the sphere over. ';
+                    onSphereUp = onStart;
                 }
             }
         }
