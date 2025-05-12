@@ -85,6 +85,9 @@ body {
     display: flex;
     flex-direction: column; 
     height: 100%;
+    width: 80%;    
+    max-width: 1000px;
+    min-width: 300px;
     justify-content: space-between;
     text-align: center;
 }
