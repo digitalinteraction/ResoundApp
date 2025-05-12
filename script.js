@@ -490,7 +490,7 @@ function generateLandingText() {
         }
     }
     else {
-        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this '+ getDeviceType() + ' is on that network too. Please close this window.';
+        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this '+ getDeviceType() + ' on that network too. Please close this window.';
     }
     //text += ' display-mode is ' + getDisplayMode() + '. ';
     //text += ' userAgent is ' + userAgent + '. ';
