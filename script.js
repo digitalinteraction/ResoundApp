@@ -192,7 +192,7 @@ function onStatus(s) {
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
         switch (getSlideIdByIndex(splide.index)) {
-            case 'landing': updateLandingText();
+            case 'landing':  getSlideById('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
         }
 	    drawSphere(statuscode);
     }
@@ -453,10 +453,6 @@ function getDeviceType() {
     return isPhone ? "phone" : "computer";
 }
 
-function updateLandingText() {
-    getSlideById('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
-}
-
 function generateLandingText() {
     const savedNetwork = config?.wifi?.ssid || '';
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -478,7 +474,7 @@ function generateLandingText() {
 
                 if(localConnected() && !sphereIsUp()) {
                     text += 'To get started, please turn the sphere over. ';
-                    onSphereUp = function() { onStart() };;
+                    onSphereUp = function() { onStart() };
                 }
             }
         }
@@ -508,10 +504,10 @@ function allowInteraction(visible) {
 
 async function onSlideChange() {
     const id = getSlideIdByIndex(splide.index);
+    const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
-            updateLandingText();
-
+            lastRow.innerHTML = generateLandingText();
             break;
         case 'tuning':
             document.getElementById('tune_button').addEventListener('click', function (e) {
@@ -527,7 +523,12 @@ async function onSlideChange() {
                 config.mic.level = v;
                 setConfiguration({mic: config.mic});
             });
-            onSphereDown = function() { showSlide('landing'); };
+            onSphereDown = function() { console.log('TODO: tuning - onSphereDown'); };
+            onSphereUp = function() { console.log('TODO: tuning - onSphereUp'); };
+            
+            lastRow.querySelector("span").innerHTML = sphereIsUp()
+                ? lastRow.querySelector(".sphere_up_text").innerHTML
+                : lastRow.querySelector(".sphere_down_text").innerHTML;
             
             break;
 
@@ -581,7 +582,13 @@ async function onSlideChange() {
 
         case 'volume':
             //onTouchOneTime = function() { showNextSlide(); };
-            onSphereDown = function() { showSlide('landing'); };
+            onSphereDown = function() { console.log('TODO: volume - onSphereDown'); };
+            onSphereUp = function() { console.log('TODO: volume - onSphereUp'); };
+
+            lastRow.querySelector("span").innerHTML = sphereIsUp()
+                ? lastRow.querySelector(".sphere_up_text").innerHTML
+                : lastRow.querySelector(".sphere_down_text").innerHTML;
+
             break;
 
         default:
@@ -590,7 +597,7 @@ async function onSlideChange() {
 }
 
 function onVolumeChanged(v, localChange = true) {
-    console.log('vollevel', v);
+    console.log('vollevel', v, localChange);
     if(localChange) {
         setConfiguration({ volume:  v});
         postJson('/yoyo/tone');
@@ -662,12 +669,20 @@ function showNextSlide() {
     splide.go('>');
 }
 
+let lastSlideIndex = -1;
 function showSlide(id) {
     console.log('showSlide', id);
     if(splide) {
         const i = getSlideIndexById(id);
-        if(i >= 0 && i != splide.index) splide.go(i);
+        lastSlideIndex = splide.index;
+        if(i >= 0 && i != lastSlideIndex) {
+            splide.go(i);
+        }
     }
+}
+
+function showLastSlide() {
+    showSlide(lastSlideIndex);
 }
 
 function getSlideById(id) {
