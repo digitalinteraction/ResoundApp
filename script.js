@@ -48,9 +48,9 @@ function init() {
         allowInteraction(false);
 
         splide.on('active', (slideElement) => {
-            onSlideChange();
+            updateSlide();
         });
-        onSlideChange();
+        updateSlide();
 
         setInterval(() => { draw(); }, 1000/frameRate);
 
@@ -502,7 +502,7 @@ function allowInteraction(visible) {
     if (pagination) pagination.style.display = visible ? 'flex' : 'none';
 }
 
-async function onSlideChange() {
+async function updateSlide() {
     const id = getSlideIdByIndex(splide.index);
     const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
@@ -523,8 +523,8 @@ async function onSlideChange() {
                 config.mic.level = v;
                 setConfiguration({mic: config.mic});
             });
-            onSphereDown = function() { console.log('TODO: tuning - onSphereDown'); };
-            onSphereUp = function() { console.log('TODO: tuning - onSphereUp'); };
+            onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
+            onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
             
             lastRow.querySelector("span").innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
@@ -582,8 +582,8 @@ async function onSlideChange() {
 
         case 'volume':
             //onTouchOneTime = function() { showNextSlide(); };
-            onSphereDown = function() { console.log('TODO: volume - onSphereDown'); };
-            onSphereUp = function() { console.log('TODO: volume - onSphereUp'); };
+            onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
+            onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
 
             lastRow.querySelector("span").innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
