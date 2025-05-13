@@ -503,6 +503,8 @@ function allowInteraction(visible) {
 }
 
 async function updateSlide() {
+    console.log('updateSlide()');
+    
     const id = getSlideIdByIndex(splide.index);
     const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
