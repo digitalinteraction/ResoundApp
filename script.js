@@ -279,23 +279,22 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 
         if(success) {
             if(post && rebootDelayMs >= 0) {
-                const reboot = function () {
-                    showSlide('landing');   //TODO: explain reboot
-                    rebootTimeoutId = setTimeout(function() {
+                showSlide('landing');
+                onSphereDown = undefined;
+                rebootTimeoutId = setTimeout(function () {
+                    onSphereDown = function () {
                         postJson('/yoyo/reboot');
                         rebootTimeoutId = -1;
-                    }, rebootDelayMs);
-                };
-
-                // if(sphereIsUp()) onSphereDown = reboot;
-                // else reboot();
-                reboot();
+                    };
+                }, rebootDelayMs);
             }
         }
     }
 
     return success;
 }
+
+
 
 function onStart() {
     console.log("onStart", config);
@@ -486,7 +485,13 @@ function generateLandingText() {
         }
     }
     else {
-        text += ' is connecting to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Please put this '+ getDeviceType() + ' on that network too. Please close this window.';
+        text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network';
+        
+        if(sphereIsUp()) text += ', when you turn the sphere over. ';
+        else text += '. ';
+        
+        text += 'Please put this '+ getDeviceType() + ' on that network too. Please close this window. ';
+        
     }
     //text += ' display-mode is ' + getDisplayMode() + '. ';
     //text += ' userAgent is ' + userAgent + '. ';
@@ -504,7 +509,10 @@ function allowInteraction(visible) {
 
 async function updateSlide() {
     console.log('updateSlide()');
-    
+
+    onSphereDown = undefined;
+    onSphereUp = undefined;
+
     const id = getSlideIdByIndex(splide.index);
     const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
