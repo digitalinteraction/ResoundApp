@@ -284,6 +284,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
         if(success) {
             if(post && rebootDelayMs >= 0) {
                 showSlide('landing');
+                allowInteraction(false);
                 onSphereDown = undefined;
                 rebootTimeoutId = setTimeout(function () {
                     if(sphereIsUp()) {
@@ -496,7 +497,7 @@ function generateLandingText() {
         if(sphereIsUp()) text += ', when you turn the sphere over. ';
         else text += '. ';
         
-        text += 'Please put this '+ getDeviceType() + ' on that network too. Please close this window. ';
+        text += 'Make sure this '+ getDeviceType() + ' is on that network too. Please close this window. ';
         
     }
     //text += ' display-mode is ' + getDisplayMode() + '. ';
