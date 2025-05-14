@@ -143,8 +143,12 @@ async function getStatus() {
     }
 }
 
-function sphereIsRebooting() {
+function sphereWillReboot() {
     return rebootTimeoutId != -1;
+}
+function reboot() {
+    postJson('/yoyo/reboot');
+    rebootTimeoutId = -1;
 }
 
 function sphereIsOnline(s = statuscode) {
@@ -282,10 +286,12 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 showSlide('landing');
                 onSphereDown = undefined;
                 rebootTimeoutId = setTimeout(function () {
-                    onSphereDown = function () {
-                        postJson('/yoyo/reboot');
-                        rebootTimeoutId = -1;
-                    };
+                    if(sphereIsUp()) {
+                        onSphereDown = function () {
+                            reboot();
+                        };
+                    }
+                    else reboot();
                 }, rebootDelayMs);
             }
         }
@@ -458,7 +464,7 @@ function generateLandingText() {
 
     let text = 'Your sphere ';
 
-    if(!sphereIsRebooting()) {
+    if(!sphereWillReboot()) {
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
