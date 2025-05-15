@@ -116,9 +116,10 @@ body {
     align-items: center;
 }
 
-.row input,
+.row input:not([type="range"]),
 .row textarea,
-.row button {
+.row button,
+.row select {
     background-color: rgba(255, 255, 255, 0.8);
 }
 

@@ -181,6 +181,9 @@ function drawSphere(s) {
 let onSphereUp = undefined, onSphereDown = undefined;
 function onStatus(s) {
     if(statuscode != s) {
+        const lastStatus = statuscode;
+        statuscode = s;
+
         if(sphereIsUp(s)) {
             if(onSphereUp && typeof onSphereUp === 'function') onSphereUp();
             onSphereUp = undefined; //one time event
@@ -190,8 +193,6 @@ function onStatus(s) {
             onSphereDown = undefined; //one time event
         }
 
-        let lastStatus = statuscode;
-        statuscode = s;
         if(!sphereIsOnline(lastStatus) && sphereIsOnline()) onOnline();
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
@@ -496,7 +497,7 @@ function generateLandingText() {
         if(sphereIsUp()) text += 'Turn the sphere over now and it ';
         else text += 'The sphere will now';
 
-        text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network';
+        text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
         
         text += 'Make sure this '+ getDeviceType() + ' is on that network too. Please close this window. ';
         
