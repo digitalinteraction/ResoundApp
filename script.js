@@ -618,6 +618,7 @@ async function updateSlide() {
     }
 }
 
+let saveConfigTimeOut = undefined;
 function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v, localChange);
     config.volume = v;
@@ -625,6 +626,13 @@ function onVolumeChanged(v, localChange = true) {
     if(localChange) {
         postJson('/yoyo/volume', {v:config.volume});
         console.log('localchange vollevel', v);
+
+        if(!saveConfigTimeOut) {
+            saveConfigTimeOut = setTimeout(function() {
+                postJson('/yoyo/config');
+                saveConfigTimeOut = undefined;
+            }, 3000);
+        }
     }
     else {
         vollevel.value = v * 100; //won't cause a change event (good)
