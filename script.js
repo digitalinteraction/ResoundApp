@@ -470,8 +470,9 @@ function generateLandingText() {
                 }
             }
             else {
-                text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network. ';
-                if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>. ';
+                text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network';
+                if(savedNetwork !== '') text += ', it couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>. ';
+                else text += '. ';
 
                 if(localConnected() && !sphereIsUp()) {
                     text += 'To get started, please turn the sphere over. ';
@@ -619,15 +620,15 @@ async function updateSlide() {
 
 function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v, localChange);
+    config.volume = v;
+
     if(localChange) {
-        setConfiguration({ volume:  v});
-        postJson('/yoyo/tone',{f:(config?.mic?.frequency || 0)});
+        postJson('/yoyo/volume', {v:config.volume});
         console.log('localchange vollevel', v);
     }
     else {
         vollevel.value = v * 100; //won't cause a change event (good)
     }
-    config.volume = v;
 }
 
 function isWarm() {
