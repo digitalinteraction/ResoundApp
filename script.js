@@ -65,15 +65,6 @@ function init() {
         peers.push(...await fetchPeers());
         onPeersChanged();
 
-        const vollevel = document.getElementById('vollevel');
-        vollevel.value = (config?.volume || 1.0) * 100;
-        vollevel.addEventListener('change', function() {
-            onVolumeChanged(vollevel.value/100);
-            // setMic({l:v});
-            // config.mic.level = v;
-            // setConfiguration({mic: config.mic});
-        });
-
         const determinationText = document.getElementById('determination_individual');
         const determinationListener = debounce((e) => {
             console.log('determinationListener');
@@ -600,6 +591,15 @@ async function updateSlide() {
             break;
 
         case 'volume':
+            const vollevel = document.getElementById('vollevel');
+            vollevel.onchange = function() {
+                onVolumeChanged(vollevel.value/100);
+                // setMic({l:v});
+                // config.mic.level = v;
+                // setConfiguration({mic: config.mic});
+            };
+            onVolumeChanged(config?.volume || 1.0, false);
+
             //onTouchOneTime = function() { showNextSlide(); };
             onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
@@ -623,8 +623,7 @@ function onVolumeChanged(v, localChange = true) {
         console.log('localchange vollevel', v);
     }
     else {
-        const vollevel = document.getElementById('vollevel');
-        vollevel.value = v * 100;    //won't cause a change event (good)
+        vollevel.value = v * 100; //won't cause a change event (good)
     }
     config.volume = v;
 }
