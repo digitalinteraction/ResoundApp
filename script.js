@@ -1,4 +1,5 @@
-let rebootTimeoutId = -1;
+let rebootTimeoutId = undefined;
+let saveConfigTimeOutId = undefined;
 
 let webSocket;
 let webSocketConnected = false;
@@ -135,11 +136,10 @@ async function getStatus() {
 }
 
 function sphereWillReboot() {
-    return rebootTimeoutId != -1;
+    return rebootTimeoutId;
 }
 function reboot() {
     postJson('/yoyo/reboot');
-    rebootTimeoutId = -1;
 }
 
 function sphereIsOnline(s = statuscode) {
@@ -218,9 +218,10 @@ function showCarousel(v) {
 
 function onOnline() {
     console.log("onOnline");
+    rebootTimeoutId = undefined;
     showCarousel(true);
-    document.querySelector('#sphereImage').style.filter = 'none';
     allowInteraction(true);
+    document.querySelector('#sphereImage').style.filter = 'none';
 }
 
 function onOffline() {
@@ -300,7 +301,7 @@ function onStart() {
 
     //addPeerConsoleText(JSON.stringify(config.peers)+'\n');
 
-    if(getSlideIdByIndex(splide.index) !== 'landing'){
+    if(getSlideIdByIndex(splide.index) === 'landing'){
         if(sphereIsUp()) {
             setMic({r:-1});
     
@@ -618,7 +619,6 @@ async function updateSlide() {
     }
 }
 
-let saveConfigTimeOut = undefined;
 function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v, localChange);
     config.volume = v;
@@ -627,10 +627,10 @@ function onVolumeChanged(v, localChange = true) {
         postJson('/yoyo/volume', {v:config.volume});
         console.log('localchange vollevel', v);
 
-        if(saveConfigTimeOut) clearTimeout(saveConfigTimeOut);
-        saveConfigTimeOut = setTimeout(function() {
+        if(saveConfigTimeOutId) clearTimeout(saveConfigTimeOutId);
+        saveConfigTimeOutId = setTimeout(function() {
             postJson('/yoyo/config');
-            saveConfigTimeOut = undefined;
+            saveConfigTimeOutId = undefined;
         }, 3000);
     }
     else {
