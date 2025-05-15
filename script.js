@@ -622,7 +622,6 @@ function onVolumeChanged(v, localChange = true) {
     if(localChange) {
         setConfiguration({ volume:  v});
         postJson('/yoyo/tone',{f:(config?.mic?.frequency || 0)});
-        });
         console.log('localchange vollevel', v);
     }
     else {
