@@ -300,30 +300,32 @@ function onStart() {
 
     //addPeerConsoleText(JSON.stringify(config.peers)+'\n');
 
-    if(sphereIsUp()) {
-        setMic({r:-1});
-
-        if(!config?.mic?.frequency) {
-            showSlide('tuning');
-        }
-        else {
-            console.log(config.mic);
-            if(!config?.server?.host) {
-                showSlide('server');
+    if(getSlideIdByIndex(splide.index) !== 'landing'){
+        if(sphereIsUp()) {
+            setMic({r:-1});
+    
+            if(!config?.mic?.frequency) {
+                showSlide('tuning');
             }
             else {
-                console.log(config.server);
-                if(!config?.wifi?.ssid || captivePortalRunning()) {
-                    showSlide('wifi');
+                console.log(config.mic);
+                if(!config?.server?.host) {
+                    showSlide('server');
                 }
                 else {
-                    console.log(config.wifi);
-                    showSlide('room');
+                    console.log(config.server);
+                    if(!config?.wifi?.ssid || captivePortalRunning()) {
+                        showSlide('wifi');
+                    }
+                    else {
+                        console.log(config.wifi);
+                        showSlide('room');
+                    }
                 }
             }
         }
+        else showSlide('landing');
     }
-    else showSlide('landing');
 
     document.getElementById('spherename').innerText = config?.captiveportal?.ssid || '';
     document.getElementById('sphereversion').innerText = config?.version || '';
@@ -469,7 +471,7 @@ function generateLandingText() {
             }
             else {
                 text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network. ';
-                if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>.';
+                if(savedNetwork !== '') text += 'It couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>. ';
 
                 if(localConnected() && !sphereIsUp()) {
                     text += 'To get started, please turn the sphere over. ';
@@ -619,7 +621,8 @@ function onVolumeChanged(v, localChange = true) {
     console.log('vollevel', v, localChange);
     if(localChange) {
         setConfiguration({ volume:  v});
-        postJson('/yoyo/tone');
+        postJson('/yoyo/tone',{f:(config?.mic?.frequency || 0)});
+        });
         console.log('localchange vollevel', v);
     }
     else {
