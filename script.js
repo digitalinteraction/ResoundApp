@@ -463,9 +463,10 @@ function generateLandingText() {
     const savedNetwork = config?.wifi?.ssid || '';
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-    let text = 'Your sphere ';
+    let text = '';
 
     if(!sphereWillReboot()) {
+        text += 'Your sphere ';
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
@@ -492,10 +493,10 @@ function generateLandingText() {
         }
     }
     else {
+        if(sphereIsUp()) text += 'Turn the sphere over now and it ';
+        else text += 'The sphere will now';
+
         text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network';
-        
-        if(sphereIsUp()) text += ', when you turn the sphere over. ';
-        else text += '. ';
         
         text += 'Make sure this '+ getDeviceType() + ' is on that network too. Please close this window. ';
         
