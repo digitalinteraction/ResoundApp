@@ -627,12 +627,11 @@ function onVolumeChanged(v, localChange = true) {
         postJson('/yoyo/volume', {v:config.volume});
         console.log('localchange vollevel', v);
 
-        if(!saveConfigTimeOut) {
-            saveConfigTimeOut = setTimeout(function() {
-                postJson('/yoyo/config');
-                saveConfigTimeOut = undefined;
-            }, 3000);
-        }
+        if(saveConfigTimeOut) clearTimeout(saveConfigTimeOut);
+        saveConfigTimeOut = setTimeout(function() {
+            postJson('/yoyo/config');
+            saveConfigTimeOut = undefined;
+        }, 3000);
     }
     else {
         vollevel.value = v * 100; //won't cause a change event (good)
