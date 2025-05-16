@@ -433,10 +433,13 @@ function onUserClicked(id) {
 }
 
 function updatePeer(id, online) {
-    const userItem = document.getElementById(id);
-    const img = userItem.querySelector("img");
-    if(online) img.src = 'img/sphere-up.png';
-    else img.src = 'img/sphere-down.png';
+    const peer = document.getElementById(id);
+    if(peer) {
+        const img = peer.querySelector("img");
+        if(online) img.src = 'img/sphere-up.png';
+        else img.src = 'img/sphere-down.png';
+    }
+    else console.log('can\'t find peer ' + id);
 }
 
 function getDisplayMode() {
@@ -517,6 +520,8 @@ async function updateSlide() {
     onSphereDown = undefined;
     onSphereUp = undefined;
 
+    onTouchOneTime = function() { showSlide('volume'); };
+
     const id = getSlideIdByIndex(splide.index);
     const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
@@ -530,6 +535,7 @@ async function updateSlide() {
                 activateTuning(!tuning);
             });
             const miclevel = document.getElementById('miclevel');
+            miclevel.disabled = !sphereIsUp();
             miclevel.value = (config?.mic?.level || 1.0) * 10;
             miclevel.addEventListener('change', function() {
                 const v = Math.max(0.1, miclevel.value/10);
@@ -599,13 +605,9 @@ async function updateSlide() {
             vollevel.disabled = !sphereIsUp();
             vollevel.onchange = function() {
                 onVolumeChanged(vollevel.value/100);
-                // setMic({l:v});
-                // config.mic.level = v;
-                // setConfiguration({mic: config.mic});
             };
             onVolumeChanged(config?.volume || 1.0, false);
 
-            //onTouchOneTime = function() { showNextSlide(); };
             onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
 
