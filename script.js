@@ -580,17 +580,7 @@ async function updateSlide() {
         
         case 'room':
             const roomContainer = document.getElementById('room_container');
-
-            let data = config.peers;
-            /*
-            if(!sphereIsOnline()) {
-                data = {
-                    "65535": { "user": "dave", "score": 0 },
-                    "12345": { "user": "ben", "score": 5 }
-                };
-            }
-            */
-            drawRoom(roomContainer, data);
+            drawRoom(roomContainer, config.peers);
             break;
 
         case 'determination':
