@@ -433,6 +433,8 @@ function onUserClicked(id) {
 }
 
 function updatePeer(id, online) {
+    console.log('updatePeer', id, online);
+
     const peer = document.getElementById(id);
     if(peer) {
         const img = peer.querySelector("img");
