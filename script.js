@@ -412,8 +412,6 @@ function drawRoom(container, data) {
         if (!peer) {
             peer = template.content.cloneNode(true).firstElementChild;
             peer.id = keys[i];
-            peer.style.left = `${x}px`;
-            peer.style.top = `${y}px`;
 
             const label = peer.querySelector("span");
             label.textContent = data[keys[i]].user;
@@ -425,6 +423,8 @@ function drawRoom(container, data) {
             container.appendChild(peer);
             updatePeer(peer.id, false);
         }
+        peer.style.left = `${x}px`;
+        peer.style.top = `${y}px`;
     }
 }
 
