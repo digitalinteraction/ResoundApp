@@ -596,6 +596,7 @@ async function updateSlide() {
 
         case 'volume':
             const vollevel = document.getElementById('vollevel');
+            vollevel.disabled = !sphereIsUp();
             vollevel.onchange = function() {
                 onVolumeChanged(vollevel.value/100);
                 // setMic({l:v});
