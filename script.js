@@ -16,7 +16,7 @@ const frameRate = 20;
 let warmth = 0;
 let targetWarmth = 0;
 const maxWarmth = 1.0;
-let tuning = false;
+let isTuning = false;
 
 const wideFilterFrequencyHz = 165;
 const wideFilterBandwidthHz = 70;
@@ -104,7 +104,7 @@ function draw() {
         setBackgroundFromValue(0);
     }
 
-    if(id !== 'tuning' && tuning) activateTuning(false);
+    if(id !== 'tuning' && isTuning) activateTuning(false);
 }
 
 function onTick() {
@@ -204,7 +204,7 @@ function onWebSocketConnected(v = true) {
             }
         }
         else {
-            if(tuning) activateTuning(false); 
+            if(isTuning) activateTuning(false); 
         }
         webSocketConnected = v;
     }
@@ -337,21 +337,23 @@ async function onSlideMoved() {
 }
 
 async function activateTuning(v = true) {
-    const button = document.getElementById('tune_button');
+    // const button = document.getElementById('tune_button');
 
-    if (v && webSocketConnected) {
-        tuning = true; // Set tuning to true - samples will be added to histogram
-        button.classList.add('active'); // Add the active class
-        filter = {
-            frequency: wideFilterFrequencyHz,
-            bandwidth: wideFilterBandwidthHz
-        };
-        setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
-        tuneSphere();
-    } else {
-        tuning = false; // Set tuning to false
-        button.classList.remove('active'); // Remove the active class
-        setMic({r:-1});
+    if(v != isTuning) {
+        if (v && webSocketConnected) {
+            isTuning = true; // Set tuning to true - samples will be added to histogram
+            // button.classList.add('active'); // Add the active class
+            filter = {
+                frequency: wideFilterFrequencyHz,
+                bandwidth: wideFilterBandwidthHz
+            };
+            setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
+            tuneSphere();
+        } else {
+            isTuning = false; // Set tuning to false
+            // button.classList.remove('active'); // Remove the active class
+            setMic({r:-1}); //return to defaults
+        }
     }
 }
 
@@ -522,13 +524,18 @@ async function updateSlide(changed) {
     onSphereDown = undefined;
     onSphereUp = undefined;
 
-    onTouchOneTime = function() { showSlide('volume'); };
+    //onTouchOneTime = function() { showSlide('volume'); };
+
+    const id = getSlideIdByIndex(splide.index);
 
     if(changed) {
+        if(id === 'tuning') {
+            activateTuning(true);
+        }
+        else activateTuning(false);
         console.log('slide changed');
     }
 
-    const id = getSlideIdByIndex(splide.index);
     const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
@@ -538,7 +545,7 @@ async function updateSlide(changed) {
             // document.getElementById('tune_button').addEventListener('click', function (e) {
             //     console.log('tune_button clicked');
             //     if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            //     activateTuning(!tuning);
+            //     activateTuning(!isTuning);
             // });
             // const miclevel = document.getElementById('miclevel');
             // miclevel.disabled = !sphereIsUp();
@@ -556,7 +563,7 @@ async function updateSlide(changed) {
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
                 : lastRow.querySelector(".sphere_down_text").innerHTML;
 
-            lastRow.querySelector("span").innerHTML += config?.mic?.frequency + ' ' + config?.mic?.bandwidth + ' ' + config?.mic?.level;
+            lastRow.querySelector("span").innerHTML += 'f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
             
             break;
 
@@ -650,7 +657,7 @@ function isWarm() {
 function tuneSphere() {
     //console.log('tuneSphere', tuning);
 
-    if(tuning) {
+    if(isTuning) {
         const peakFrequency = getGoodHistogramPeak(histogram);
         clearHistogram(histogram);
         
@@ -682,18 +689,18 @@ function tuneSphere() {
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
             
-            setConfiguration({
-                "mic": {
-                    "frequency": peakFrequency,
-                    "bandwidth": bw
-                }
-            });
+            // setConfiguration({
+            //     "mic": {
+            //         "frequency": peakFrequency,
+            //         "bandwidth": bw
+            //     }
+            // });
 
-            const toneDurationMs = 4000;
-            playTone(filter.frequency, toneDurationMs, 0.5);
-            setTimeout(function() {
-                showNextSlide();
-            }, toneDurationMs);
+            // const toneDurationMs = 4000;
+            // playTone(filter.frequency, toneDurationMs, 0.5);
+            // setTimeout(function() {
+            //     showNextSlide();
+            // }, toneDurationMs);
         }
     }
 }
@@ -782,7 +789,8 @@ async function postJson(endpoint, json) {
 }
 
 async function setMic(json) {
-    postJson('/yoyo/mic', json);
+    console.log('setMic ' + json);
+    //postJson('/yoyo/mic', json);
 }
 
 async function setSound(json) {
