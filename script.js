@@ -54,7 +54,7 @@ function init() {
         });
         updateSlide(true);
 
-        setInterval(() => { draw(); }, 1000/frameRate);
+        setInterval(() => { loop(); }, 1000/frameRate);
 
         preloadImage("img/sphere-down.png");
         preloadImage("img/sphere-up.png");
@@ -93,9 +93,20 @@ function preloadImage(url) {
     img.src = url;
 }
 
-function draw() {
+function loop() {
     const id = getSlideIdByIndex(splide.index);
+    if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
+        console.log('start tuning');
+        tuningTimeOutId = setTimeout(() => {
+            console.log('stop tuning');
+            tuningTimeOutId = undefined;
+        }, tuneWindowMs);
+    }
 
+    draw();
+}
+
+function draw() {
     if(sphereIsUp()) {
         const dw = targetWarmth - warmth;
         warmth = warmth + (dw * 0.1);
@@ -104,8 +115,6 @@ function draw() {
     else {
         setBackgroundFromValue(0);
     }
-
-    if(id === 'tuning') console.log('isCold: ' + isCold());
 }
 
 function onTick() {
@@ -564,7 +573,7 @@ async function updateSlide(changed) {
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
                 : lastRow.querySelector(".sphere_down_text").innerHTML;
 
-            lastRow.querySelector("span").innerHTML += 'f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
+            lastRow.querySelector("span").innerHTML += ' f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
             
             break;
 
@@ -662,7 +671,7 @@ function isCold() {
 function tuneSphere() {
     //console.log('tuneSphere', tuning);
 
-    if(isTuning) {
+    if(false && isTuning) {
         const peakFrequency = getGoodHistogramPeak(histogram);
         clearHistogram(histogram);
         
