@@ -1014,7 +1014,7 @@ function parseLocalSoundMessage(json) {
     const e = json['e'];
     
     targetWarmth = e / 5;
-    if(tuning) addSampleToHistogram(f,v);
+    if(isTuning) addSampleToHistogram(f,v);
 }
 
 function parseLocalTouchMessage(json) {
