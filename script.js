@@ -49,9 +49,9 @@ function init() {
         allowInteraction(false);
 
         splide.on('active', (slideElement) => {
-            updateSlide();
+            updateSlide(true);
         });
-        updateSlide();
+        updateSlide(true);
 
         setInterval(() => { draw(); }, 1000/frameRate);
 
@@ -516,13 +516,17 @@ function allowInteraction(visible) {
     if (pagination) pagination.style.display = visible ? 'flex' : 'none';
 }
 
-async function updateSlide() {
+async function updateSlide(changed) {
     console.log('updateSlide()');
 
     onSphereDown = undefined;
     onSphereUp = undefined;
 
     onTouchOneTime = function() { showSlide('volume'); };
+
+    if(changed) {
+        console.log('slide changed');
+    }
 
     const id = getSlideIdByIndex(splide.index);
     const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
@@ -531,26 +535,28 @@ async function updateSlide() {
             lastRow.innerHTML = generateLandingText();
             break;
         case 'tuning':
-            document.getElementById('tune_button').addEventListener('click', function (e) {
-                console.log('tune_button clicked');
-                if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                activateTuning(!tuning);
-            });
-            const miclevel = document.getElementById('miclevel');
-            miclevel.disabled = !sphereIsUp();
-            miclevel.value = (config?.mic?.level || 1.0) * 10;
-            miclevel.addEventListener('change', function() {
-                const v = Math.max(0.1, miclevel.value/10);
-                setMic({l:v});
-                config.mic.level = v;
-                setConfiguration({mic: config.mic});
-            });
-            onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
-            onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
+            // document.getElementById('tune_button').addEventListener('click', function (e) {
+            //     console.log('tune_button clicked');
+            //     if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            //     activateTuning(!tuning);
+            // });
+            // const miclevel = document.getElementById('miclevel');
+            // miclevel.disabled = !sphereIsUp();
+            // miclevel.value = (config?.mic?.level || 1.0) * 10;
+            // miclevel.addEventListener('change', function() {
+            //     const v = Math.max(0.1, miclevel.value/10);
+            //     setMic({l:v});
+            //     config.mic.level = v;
+            //     setConfiguration({mic: config.mic});
+            // });
+            onSphereDown = function() { updateSlide(false); console.log('TODO: tuning - onSphereDown'); };
+            onSphereUp = function() { updateSlide(false); console.log('TODO: tuning - onSphereUp'); };
             
             lastRow.querySelector("span").innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
                 : lastRow.querySelector(".sphere_down_text").innerHTML;
+
+            lastRow.querySelector("span").innerHTML += config?.mic?.frequency + ' ' + config?.mic?.bandwidth + ' ' + config?.mic?.level;
             
             break;
 
@@ -600,8 +606,8 @@ async function updateSlide() {
             };
             onVolumeChanged(config?.volume || 1.0, false);
 
-            onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
-            onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
+            onSphereDown = function() { updateSlide(false); console.log('TODO: volume - onSphereDown'); };
+            onSphereUp = function() { updateSlide(false); console.log('TODO: volume - onSphereUp'); };
 
             lastRow.querySelector("span").innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
@@ -612,6 +618,10 @@ async function updateSlide() {
         default:
             console.log("no rule for: " + id);
     }
+}
+
+function mute(v = true) {
+
 }
 
 function onVolumeChanged(v, localChange = true) {
