@@ -1,5 +1,6 @@
 let rebootTimeoutId = undefined;
 let saveConfigTimeOutId = undefined;
+let tuningTimeOutId = undefined;
 
 let webSocket;
 let webSocketConnected = false;
@@ -104,7 +105,7 @@ function draw() {
         setBackgroundFromValue(0);
     }
 
-    if(id !== 'tuning' && isTuning) activateTuning(false);
+    if(id === 'tuning') console.log('isCold: ' + isCold());
 }
 
 function onTick() {
@@ -348,11 +349,11 @@ async function activateTuning(v = true) {
                 bandwidth: wideFilterBandwidthHz
             };
             setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
-            tuneSphere();
+            //tuneSphere();
         } else {
             isTuning = false; // Set tuning to false
             // button.classList.remove('active'); // Remove the active class
-            setMic({r:-1}); //return to defaults
+            setMic(); //return to defaults
         }
     }
 }
@@ -652,6 +653,10 @@ function onVolumeChanged(v, localChange = true) {
 
 function isWarm() {
     return warmth > (0.85 * maxWarmth);
+}
+
+function isCold() {
+    return warmth < (0.15 * maxWarmth);
 }
 
 function tuneSphere() {
