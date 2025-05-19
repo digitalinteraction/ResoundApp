@@ -789,7 +789,7 @@ async function postJson(endpoint, json) {
 }
 
 async function setMic(json) {
-    console.log('setMic ' + json);
+    console.log('setMic ' +  JSON.stringify(json));
     //postJson('/yoyo/mic', json);
 }
 
