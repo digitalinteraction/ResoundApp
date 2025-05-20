@@ -97,9 +97,11 @@ function loop() {
     const id = getSlideIdByIndex(splide.index);
     if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
         console.log('start tuning');
+        updateSlide(false);
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
             tuningTimeOutId = undefined;
+            updateSlide(false);
         }, tuneWindowMs);
     }
 
@@ -569,11 +571,16 @@ async function updateSlide(changed) {
             onSphereDown = function() { updateSlide(false); console.log('TODO: tuning - onSphereDown'); };
             onSphereUp = function() { updateSlide(false); console.log('TODO: tuning - onSphereUp'); };
             
-            lastRow.querySelector("span").innerHTML = sphereIsUp()
-                ? lastRow.querySelector(".sphere_up_text").innerHTML
-                : lastRow.querySelector(".sphere_down_text").innerHTML;
+            if(!sphereIsUp()) {
+                lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_down_text").innerHTML;
+            }
+            else {
+                if(tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'listening';
+                else lastRow.querySelector("span").innerHTML = 'waiting';
+                //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
+            }
 
-            lastRow.querySelector("span").innerHTML += ' f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
+            //lastRow.querySelector("span").innerHTML += ' f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
             
             break;
 
