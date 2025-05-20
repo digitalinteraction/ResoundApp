@@ -97,8 +97,10 @@ function loop() {
     const id = getSlideIdByIndex(splide.index);
     if(id === 'tuning' && !tuningTimeOutId && isWarm()) {
         console.log('start tuning');
+        clearHistogram(histogram);
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
+            console.log('getGoodHistogramPeak ', getGoodHistogramPeak(histogram));
             tuningTimeOutId = undefined;
             updateSlide(false);
         }, tuneWindowMs);
@@ -577,8 +579,8 @@ async function updateSlide(changed) {
             }
             else {
                 const f = config?.mic?.frequency;
-                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz ' + '(the note of ' + getNoteName(f) + '). ' 
-                    + 'To retuned it, start chanting NMRK making the light warm to orange.';
+                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz ' + '(the note of ' + getNoteName(f) + ').<br>' 
+                    + 'To retuned it, start chanting NMRK.'; //making the light warm to orange
                 else lastRow.querySelector("span").innerHTML = 'listening';
                 //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
             }
@@ -1047,7 +1049,7 @@ function addPeerConsoleText(text) {
 }
 
 function parseLocalSoundMessage(json) {
-    console.log('parseLocalSoundMessage' + JSON.stringify(json));
+    if(tuningTimeOutId) console.log('parseLocalSoundMessage' + JSON.stringify(json));
 
     const f = json['f'];
     const v = json['v'];
@@ -1055,7 +1057,7 @@ function parseLocalSoundMessage(json) {
     
     targetWarmth = e / 5;
     //tuningTimeOutId
-    if(isTuning) addSampleToHistogram(f,v);
+    if(tuningTimeOutId) addSampleToHistogram(f,v);
 }
 
 function parseLocalTouchMessage(json) {
