@@ -105,8 +105,7 @@ function loop() {
                 console.log('getGoodHistogramPeak ', peakFrequency);
                 setConfiguration({
                     "mic": {
-                        "frequency": peakFrequency,
-                        "bandwidth": 15
+                        "frequency": peakFrequency
                     }
                 });
 
