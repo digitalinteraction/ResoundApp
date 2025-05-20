@@ -101,8 +101,8 @@ function loop() {
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
             const peakFrequency = getGoodHistogramPeak(histogram);
-            if(peakFrequency) {
-                console.log('getGoodHistogramPeak ', peakFrequency);
+            console.log('getGoodHistogramPeak ', peakFrequency);
+            if(peakFrequency > 0) {
                 setConfiguration({
                     "mic": {
                         "frequency": peakFrequency
