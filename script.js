@@ -97,12 +97,12 @@ function loop() {
     const id = getSlideIdByIndex(splide.index);
     if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
         console.log('start tuning');
-        updateSlide(false);
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
             tuningTimeOutId = undefined;
             updateSlide(false);
         }, tuneWindowMs);
+        updateSlide(false);
     }
 
     draw();
