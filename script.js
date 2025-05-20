@@ -654,7 +654,7 @@ function getNoteName(f) {
         const A4 = 440;
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-        const semitoneOffset = Math.round(12 * Math.log2(freq / A4));
+        const semitoneOffset = Math.round(12 * Math.log2(f / A4));
         const noteIndex = (semitoneOffset + 9 + 12) % 12; // +9 to shift from A to C, +12 to handle negatives
 
         note = noteNames[noteIndex];
