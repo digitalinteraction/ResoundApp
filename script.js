@@ -20,7 +20,8 @@ const maxWarmth = 1.0;
 let isTuning = false;
 
 const wideFilterFrequencyHz = 165;
-const wideFilterBandwidthHz = 70;
+const narrowFilterBandwidthHz = 15;
+const wideFilterBandwidthHz = 150;
 
 let filter = {
     frequency: wideFilterFrequencyHz,
@@ -105,7 +106,8 @@ function loop() {
             if(peakFrequency > 0) {
                 setConfiguration({
                     "mic": {
-                        "frequency": peakFrequency
+                        "frequency": peakFrequency,
+                        "bandwidth": narrowFilterBandwidthHz
                     }
                 });
 
