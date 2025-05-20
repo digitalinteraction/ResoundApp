@@ -104,13 +104,15 @@ function loop() {
             const peakFrequency = getGoodHistogramPeak(histogram);
             console.log('getGoodHistogramPeak ', peakFrequency);
             if(peakFrequency > 0) {
+                setMic({
+                    f: peakFrequency
+                });
                 setConfiguration({
                     "mic": {
                         "frequency": peakFrequency,
                         "bandwidth": narrowFilterBandwidthHz
                     }
                 });
-
             }
             tuningTimeOutId = undefined;
             updateSlide(false);
