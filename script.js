@@ -95,7 +95,7 @@ function preloadImage(url) {
 
 function loop() {
     const id = getSlideIdByIndex(splide.index);
-    if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
+    if(id === 'tuning' && !tuningTimeOutId && isWarm()) {
         console.log('start tuning');
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
@@ -348,25 +348,26 @@ async function onSlideMoved() {
     console.log('onSlideMoved');
 }
 
-async function activateTuning(v = true) {
-    // const button = document.getElementById('tune_button');
+async function activateTuning(v = true) { //wideListenig?
+    let result = false;
 
-    if(v != isTuning) {
-        if (v && webSocketConnected) {
-            isTuning = true; // Set tuning to true - samples will be added to histogram
-            // button.classList.add('active'); // Add the active class
-            filter = {
-                frequency: wideFilterFrequencyHz,
-                bandwidth: wideFilterBandwidthHz
-            };
-            setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
-            //tuneSphere();
-        } else {
-            isTuning = false; // Set tuning to false
-            // button.classList.remove('active'); // Remove the active class
-            setMic(); //return to defaults
-        }
+    if (v && webSocketConnected) {
+        //isTuning = true; // Set tuning to true - samples will be added to histogram
+        filter = {
+            frequency: wideFilterFrequencyHz,
+            bandwidth: wideFilterBandwidthHz
+        };
+        setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
+        result = true;
+        //tuneSphere();
+    } else {
+        //isTuning = false; // Set tuning to false
+        clearTimeout(tuningTimeOutId);
+        tuningTimeOutId = undefined;
+        setMic(); //return to defaults
     }
+
+    return result;
 }
 
 function drawEllipse(canvas, width, height) {
@@ -575,8 +576,10 @@ async function updateSlide(changed) {
                 lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_down_text").innerHTML;
             }
             else {
-                if(tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'listening';
-                else lastRow.querySelector("span").innerHTML = 'waiting';
+                const f = config?.mic?.frequency;
+                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz ' + '(' + getNoteName(f) + '). ' 
+                    + 'To retuned it, start chanting NMRK making the light warm to orange.';
+                else lastRow.querySelector("span").innerHTML = 'listening';
                 //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
             }
 
@@ -642,6 +645,22 @@ async function updateSlide(changed) {
         default:
             console.log("no rule for: " + id);
     }
+}
+
+function getNoteName(f) {
+    let note = undefined;
+
+    if(f > 0) {
+        const A4 = 440;
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+        const semitoneOffset = Math.round(12 * Math.log2(freq / A4));
+        const noteIndex = (semitoneOffset + 9 + 12) % 12; // +9 to shift from A to C, +12 to handle negatives
+
+        note = noteNames[noteIndex];
+    }
+    
+    return note;
 }
 
 function mute(v = true) {
@@ -1035,6 +1054,7 @@ function parseLocalSoundMessage(json) {
     const e = json['e'];
     
     targetWarmth = e / 5;
+    //tuningTimeOutId
     if(isTuning) addSampleToHistogram(f,v);
 }
 
