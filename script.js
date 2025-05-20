@@ -100,7 +100,17 @@ function loop() {
         clearHistogram(histogram);
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
-            console.log('getGoodHistogramPeak ', getGoodHistogramPeak(histogram));
+            const peakFrequency = getGoodHistogramPeak(histogram);
+            if(peakFrequency) {
+                console.log('getGoodHistogramPeak ', peakFrequency);
+                setConfiguration({
+                    "mic": {
+                        "frequency": peakFrequency,
+                        "bandwidth": 15
+                    }
+                });
+
+            }
             tuningTimeOutId = undefined;
             updateSlide(false);
         }, tuneWindowMs);
@@ -1162,14 +1172,14 @@ const minHistogramPeakValue = 1.0;  //at highMicSampleRate (5 per second) and tu
 function getGoodHistogramPeak(histogram) {
     let result = -1;
 
-    if (histogram.length === 0) return -1;
+    if (histogram.length > 0) {
+        const { mean, sd } = calculateHistogramStats(histogram);
+        const peak = findHistogramPeak(histogram);
 
-    const { mean, sd } = calculateHistogramStats(histogram);
-    const peak = findHistogramPeak(histogram);
-
-    if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
-        const binWidth = filter.bandwidth / histogram.length;
-        result = Math.floor(filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
+        if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
+            const binWidth = filter.bandwidth / histogram.length;
+            result = Math.floor(filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
+        }
     }
 
     return result;
