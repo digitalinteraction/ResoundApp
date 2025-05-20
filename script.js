@@ -577,7 +577,7 @@ async function updateSlide(changed) {
             }
             else {
                 const f = config?.mic?.frequency;
-                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz ' + '(' + getNoteName(f) + '). ' 
+                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz ' + '(the note of ' + getNoteName(f) + '). ' 
                     + 'To retuned it, start chanting NMRK making the light warm to orange.';
                 else lastRow.querySelector("span").innerHTML = 'listening';
                 //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
@@ -1047,7 +1047,7 @@ function addPeerConsoleText(text) {
 }
 
 function parseLocalSoundMessage(json) {
-    //console.log('parseLocalSoundMessage' + JSON.stringify(json));
+    console.log('parseLocalSoundMessage' + JSON.stringify(json));
 
     const f = json['f'];
     const v = json['v'];
