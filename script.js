@@ -1079,7 +1079,7 @@ function parseLocalSoundMessage(json) {
     //tuningTimeOutId
     if(tuningTimeOutId) addSampleToHistogram(f,v);
 
-    peakEnergy = tuningTimeOutId ? max(e, peakEnergy) : 0;
+    peakEnergy = tuningTimeOutId ? Math.max(e, peakEnergy) : 0;
 }
 
 function parseLocalTouchMessage(json) {
