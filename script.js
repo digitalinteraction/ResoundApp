@@ -96,20 +96,20 @@ function preloadImage(url) {
 
 function loop() {
     const id = getSlideIdByIndex(splide.index);
-    if(id === 'tuning' && !tuningTimeOutId && isWarm()) {
+    if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
         console.log('start tuning');
         clearHistogram(histogram);
         tuningTimeOutId = setTimeout(() => {
             console.log('stop tuning');
-            const peakFrequency = getGoodHistogramPeak(histogram);
-            console.log('getGoodHistogramPeak ', peakFrequency);
-            if(peakFrequency > 0) {
+            const peak = getGoodHistogramPeak(histogram);
+            console.log('getGoodHistogramPeak ', peak);
+            if(peak.frequency > 0) {
                 setMic({
-                    f: peakFrequency
+                    f: peak.frequency
                 });
                 setConfiguration({
                     "mic": {
-                        "frequency": peakFrequency,
+                        "frequency": peak.frequency,
                         "bandwidth": narrowFilterBandwidthHz
                     }
                 });
@@ -1173,7 +1173,8 @@ function calculateHistogramStats(histogram) {
 
 const minHistogramPeakValue = 1.0;  //at highMicSampleRate (5 per second) and tuneWindowMs (3000)
 function getGoodHistogramPeak(histogram) {
-    let result = -1;
+    let frequency = -1;
+    let value = -1;
 
     if (histogram.length > 0) {
         const { mean, sd } = calculateHistogramStats(histogram);
@@ -1181,11 +1182,12 @@ function getGoodHistogramPeak(histogram) {
 
         if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
             const binWidth = filter.bandwidth / histogram.length;
-            result = Math.floor(filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
+            frequency = Math.floor(filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
+            value = peak.value;
         }
     }
 
-    return result;
+    return {frequency, value};
 }
 
 // Function to play a tone
