@@ -106,8 +106,7 @@ function loop() {
             console.log('getGoodHistogramPeak ', peak);
             if(peak.frequency > 0) {
                 //Adjust microphone so the sphere will turn orange
-                //let micLevel = 
-                console.log('micLevel', (config?.mic?.level || 1) * (maxWarmth/peakEnergy));
+                let micLevel = (config?.mic?.level || 1) * (maxWarmth/peakEnergy);
                 
                 setMic({
                     f: peak.frequency
@@ -122,6 +121,7 @@ function loop() {
             }
             tuningTimeOutId = undefined;
             updateSlide(false);
+            peakEnergy = 0;
         }, tuneWindowMs);
         updateSlide(false);
     }
