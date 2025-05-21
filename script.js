@@ -95,6 +95,7 @@ function preloadImage(url) {
     img.src = url;
 }
 
+let micLevel = 0;
 function loop() {
     const id = getSlideIdByIndex(splide.index);
     if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
@@ -106,18 +107,18 @@ function loop() {
             console.log('getGoodHistogramPeak ', peak);
             if(peak.frequency > 0 && peakEnergy > 0) {
                 //Adjust microphone so the sphere will turn orange at this chanting volume
-                let micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-                
+                micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
                 setMic({
-                    f: peak.frequency
+                    f: peak.frequency,
+                    l: micLevel
                 });
-                setConfiguration({
-                    "mic": {
-                        "frequency": peak.frequency,
-                        "bandwidth": narrowFilterBandwidthHz,
-                        "level": micLevel
-                    }
-                });
+                // setConfiguration({
+                //     "mic": {
+                //         "frequency": peak.frequency,
+                //         "bandwidth": narrowFilterBandwidthHz,
+                //         "level": micLevel
+                //     }
+                // });
             }
             tuningTimeOutId = undefined;
             updateSlide(false);
@@ -854,7 +855,8 @@ async function postJson(endpoint, json) {
     return success;
 }
 
-async function setMic(json) {
+async function setMic(json, save = false) {
+    json['save'] = save;
     console.log('setMic ' +  JSON.stringify(json));
     postJson('/yoyo/mic', json);
 }
