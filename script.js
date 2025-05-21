@@ -110,7 +110,7 @@ function loop() {
                 micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
                 setMic({
                     f: peak.frequency,
-                    l: micLevel
+                    l: parseFloat(micLevel.toFixed(1))
                 });
                 // setConfiguration({
                 //     "mic": {
