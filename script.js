@@ -241,20 +241,20 @@ function onWebSocketConnected(v = true) {
             //if(tuningTimeOutId) activateTuning(false); 
         }
         webSocketConnected = v;
+        allowInteraction(v);
     }
 }
 
-function showCarousel(v) {
-    var carousel = document.getElementById('carousel');
-    carousel.style.visibility = v ? 'visible' : 'hidden';
-    carousel.style['pointer-events'] = v ? 'auto' : 'none';
-}
+// function showCarousel(v) {
+//     var carousel = document.getElementById('carousel');
+//     carousel.style.visibility = v ? 'visible' : 'hidden';
+//     carousel.style['pointer-events'] = v ? 'auto' : 'none';
+// }
 
 function onOnline() {
     console.log("onOnline");
     rebootTimeoutId = undefined;
-    showCarousel(true);
-    allowInteraction(true);
+    // showCarousel(true);
     document.querySelector('#sphereImage').style.filter = 'none';
 }
 
