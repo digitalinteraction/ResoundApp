@@ -105,11 +105,9 @@ function loop() {
             const peak = getGoodHistogramPeak(histogram);
             console.log('getGoodHistogramPeak ', peak);
             if(peak.frequency > 0) {
-                let micLevel = config?.mic?.level || 1;
-                //console.log('peakEnergy', peakEnergy, maxWarmth/peakEnergy, micLevel);
-                console.log('micLevel', micLevel * (maxWarmth/peakEnergy));
-                //micLevel = micLevel * (maxWarmth/peakEnergy);
-
+                //Adjust microphone so the sphere will turn orange
+                let micLevel = (config?.mic?.level || 1) * (maxWarmth/peakEnergy);
+                
                 setMic({
                     f: peak.frequency
                 });
