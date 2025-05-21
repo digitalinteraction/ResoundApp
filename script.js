@@ -104,8 +104,9 @@ function loop() {
             console.log('stop tuning');
             const peak = getGoodHistogramPeak(histogram);
             console.log('getGoodHistogramPeak ', peak);
-            console.log('peakEnergy', peakEnergy);
             if(peak.frequency > 0) {
+                console.log('peakEnergy', peakEnergy, maxWarmth/peakEnergy, config.mic.level);
+                
                 setMic({
                     f: peak.frequency
                 });
