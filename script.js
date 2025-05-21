@@ -105,15 +105,18 @@ function loop() {
             const peak = getGoodHistogramPeak(histogram);
             console.log('getGoodHistogramPeak ', peak);
             if(peak.frequency > 0) {
-                console.log('peakEnergy', peakEnergy, maxWarmth/peakEnergy, config.mic.level);
-                
+                let micLevel = config?.mic?.level || 1;
+                console.log('peakEnergy', peakEnergy, maxWarmth/peakEnergy, micLevel);
+                //micLevel = micLevel * (maxWarmth/peakEnergy);
+
                 setMic({
                     f: peak.frequency
                 });
                 setConfiguration({
                     "mic": {
                         "frequency": peak.frequency,
-                        "bandwidth": narrowFilterBandwidthHz
+                        "bandwidth": narrowFilterBandwidthHz,
+                        "level": micLevel
                     }
                 });
             }
