@@ -855,8 +855,8 @@ async function postJson(endpoint, json) {
     return success;
 }
 
-async function setMic(json, save = false) {
-    json['save'] = save;
+async function setMic(json = {}, save = false) {
+    if(save) json['save'] = save;
     console.log('setMic ' +  JSON.stringify(json));
     postJson('/yoyo/mic', json);
 }
