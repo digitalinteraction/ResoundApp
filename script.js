@@ -594,10 +594,14 @@ async function updateSlide(changed) {
             }
             else {
                 const f = config?.mic?.frequency;
-                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz' 
-                    + getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '' + '.<br>'
-                    + 'Start chanting NMRK to retuned it.'; //making the light warm to orange
-                else lastRow.querySelector("span").innerHTML = 'listening';
+                if (!tuningTimeOutId) {
+                    lastRow.querySelector("span").innerHTML = 
+                      'Your sphere is tuned to ' + f + 'Hz' 
+                      + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>'
+                      + 'Start chanting NMRK to retune it.';
+                  } else {
+                    lastRow.querySelector("span").innerHTML = 'listening';
+                  }
                 //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
             }
 
