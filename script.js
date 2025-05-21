@@ -16,7 +16,7 @@ let statuscode = 0x80;
 const frameRate = 20;
 let warmth = 0;
 let targetWarmth = 0;
-const maxWarmth = 1.0;
+const maxWarmth = 5.0;
 let isTuning = false;
 let peakEnergy = 0;
 
@@ -1075,8 +1075,7 @@ function parseLocalSoundMessage(json) {
     const v = json['v'];
     const e = json['e'];
     
-    targetWarmth = e / 5;
-    //tuningTimeOutId
+    targetWarmth = e;
     if(tuningTimeOutId) addSampleToHistogram(f,v);
 
     peakEnergy = tuningTimeOutId ? Math.max(e, peakEnergy) : 0;
