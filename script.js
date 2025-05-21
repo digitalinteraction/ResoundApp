@@ -238,7 +238,7 @@ function onWebSocketConnected(v = true) {
             }
         }
         else {
-            if(tuningTimeOutId) activateTuning(false); 
+            //if(tuningTimeOutId) activateTuning(false); 
         }
         webSocketConnected = v;
     }
