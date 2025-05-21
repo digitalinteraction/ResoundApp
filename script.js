@@ -18,6 +18,7 @@ let warmth = 0;
 let targetWarmth = 0;
 const maxWarmth = 1.0;
 let isTuning = false;
+let peakEnergy = 0;
 
 const wideFilterFrequencyHz = 165;
 const narrowFilterBandwidthHz = 15;
@@ -103,6 +104,7 @@ function loop() {
             console.log('stop tuning');
             const peak = getGoodHistogramPeak(histogram);
             console.log('getGoodHistogramPeak ', peak);
+            console.log('peakEnergy', peakEnergy);
             if(peak.frequency > 0) {
                 setMic({
                     f: peak.frequency
@@ -231,7 +233,7 @@ function onWebSocketConnected(v = true) {
             }
         }
         else {
-            if(isTuning) activateTuning(false); 
+            if(tuningTimeOutId) activateTuning(false); 
         }
         webSocketConnected = v;
     }
@@ -592,8 +594,9 @@ async function updateSlide(changed) {
             }
             else {
                 const f = config?.mic?.frequency;
-                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz ' + '(the note of ' + getNoteName(f) + ').<br>' 
-                    + 'To retuned it, start chanting NMRK.'; //making the light warm to orange
+                if(!tuningTimeOutId) lastRow.querySelector("span").innerHTML = 'Your sphere is tuned to ' + f + 'Hz' 
+                    + getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '' + '.<br>'
+                    + 'Start chanting NMRK to retuned it.'; //making the light warm to orange
                 else lastRow.querySelector("span").innerHTML = 'listening';
                 //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
             }
@@ -1071,6 +1074,8 @@ function parseLocalSoundMessage(json) {
     targetWarmth = e / 5;
     //tuningTimeOutId
     if(tuningTimeOutId) addSampleToHistogram(f,v);
+
+    peakEnergy = tuningTimeOutId ? max(e, peakEnergy) : 0;
 }
 
 function parseLocalTouchMessage(json) {
