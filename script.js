@@ -104,9 +104,9 @@ function loop() {
             console.log('stop tuning');
             const peak = getGoodHistogramPeak(histogram);
             console.log('getGoodHistogramPeak ', peak);
-            if(peak.frequency > 0) {
-                //Adjust microphone so the sphere will turn orange
-                let micLevel = (config?.mic?.level || 1) * (maxWarmth/peakEnergy);
+            if(peak.frequency > 0 && peakEnergy > 0) {
+                //Adjust microphone so the sphere will turn orange at this chanting volume
+                let micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
                 
                 setMic({
                     f: peak.frequency
@@ -361,8 +361,8 @@ function onStart() {
         else showSlide('landing');
     }
 
-    document.getElementById('spherename').innerText = config?.captiveportal?.ssid || '';
-    document.getElementById('sphereversion').innerText = config?.version || '';
+    document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
+    document.getElementById('sphereversion').innerText = config?.version ?? '';
 }
 
 async function onSlideMoved() {
@@ -496,7 +496,7 @@ function getDeviceType() {
 }
 
 function generateLandingText() {
-    const savedNetwork = config?.wifi?.ssid || '';
+    const savedNetwork = config?.wifi?.ssid ?? '';
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
     let text = '';
@@ -507,7 +507,7 @@ function generateLandingText() {
             if(!captivePortalRunning()) {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(remoteConnected()) {
-                    text += 'It is also connected to a Resound server (' + (config?.server?.host || '') + '). ';
+                    text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
                     text += 'Everything looks good. ';
                 }
             }
@@ -583,7 +583,7 @@ async function updateSlide(changed) {
             // });
             // const miclevel = document.getElementById('miclevel');
             // miclevel.disabled = !sphereIsUp();
-            // miclevel.value = (config?.mic?.level || 1.0) * 10;
+            // miclevel.value = (config?.mic?.level ?? 1.0) * 10;
             // miclevel.addEventListener('change', function() {
             //     const v = Math.max(0.1, miclevel.value/10);
             //     setMic({l:v});
@@ -614,9 +614,9 @@ async function updateSlide(changed) {
             break;
 
         case 'server':
-            document.getElementById('server_name').value = config?.server?.name || '';
-            document.getElementById('server_host').value = config?.server?.host || '';
-            document.getElementById('server_channel').value = config?.server?.room?.channel || '';
+            document.getElementById('server_name').value = config?.server?.name ?? '';
+            document.getElementById('server_host').value = config?.server?.host ?? '';
+            document.getElementById('server_channel').value = config?.server?.room?.channel ?? '';
 
             document.getElementById('server_button').addEventListener('click', function(e) {onServerSaveEvent(e);});
             break;
@@ -657,7 +657,7 @@ async function updateSlide(changed) {
             vollevel.onchange = function() {
                 onVolumeChanged(vollevel.value/100);
             };
-            onVolumeChanged(config?.volume || 1.0, false);
+            onVolumeChanged(config?.volume ?? 1.0, false);
 
             onSphereDown = function() { updateSlide(false); console.log('TODO: volume - onSphereDown'); };
             onSphereUp = function() { updateSlide(false); console.log('TODO: volume - onSphereUp'); };
@@ -896,7 +896,7 @@ function populateWiFiForm(config, ssidList = []) {
 
     ssidList = ssidList.slice(0, maxWifiNetworks); // Limit the number of networks
 
-    const savedNetwork = config?.wifi?.ssid || '';
+    const savedNetwork = config?.wifi?.ssid ?? '';
 
     ssidList.forEach((ssid) => {
         let option = document.createElement("option");
@@ -905,7 +905,7 @@ function populateWiFiForm(config, ssidList = []) {
         networks.appendChild(option);
         if (ssid === savedNetwork) {
             option.selected = true;
-            document.getElementById('wifi_secret').value = config?.wifi?.secret || '';
+            document.getElementById('wifi_secret').value = config?.wifi?.secret ?? '';
         }
     });
 
