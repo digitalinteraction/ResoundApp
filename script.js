@@ -106,7 +106,8 @@ function loop() {
             console.log('getGoodHistogramPeak ', peak);
             if(peak.frequency > 0) {
                 let micLevel = config?.mic?.level || 1;
-                console.log('peakEnergy', peakEnergy, maxWarmth/peakEnergy, micLevel);
+                //console.log('peakEnergy', peakEnergy, maxWarmth/peakEnergy, micLevel);
+                console.log('micLevel', micLevel * (maxWarmth/peakEnergy));
                 //micLevel = micLevel * (maxWarmth/peakEnergy);
 
                 setMic({
