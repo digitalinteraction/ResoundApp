@@ -1100,6 +1100,7 @@ function parseLocalPeerMessage(json) {
         let peer = document.getElementById(json.id);
         if (!peer) peer = makePeer(json.id);
         updatePeer(peer, json.arrived);
+    }
 }
 
 function addPeerConsoleText(text) {
