@@ -431,9 +431,7 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
-function drawRoom(container, data) {
-    const template = document.getElementById("room_item_template");
-
+function makeRoom(container, data) {
     const centerX = container.clientWidth / 2;
     const centerY = container.clientHeight / 2;
     const radiusX = container.clientWidth / 2;
@@ -447,38 +445,43 @@ function drawRoom(container, data) {
 
         let peer = document.getElementById(keys[i]);
         if (!peer) {
-            peer = template.content.cloneNode(true).firstElementChild;
-            peer.id = keys[i];
-
-            const label = peer.querySelector("span");
-            label.textContent = data[keys[i]].user;
-
-            peer.onclick = function() {
-                onUserClicked(peer.id);
-            };
-
+            peer = makePeer(keys[i]);
             container.appendChild(peer);
-            updatePeer(peer.id, false);
         }
         peer.style.left = `${x}px`;
         peer.style.top = `${y}px`;
     }
 }
 
+function makePeer(id) {
+    const template = document.getElementById("room_item_template");
+    let peer = template.content.cloneNode(true).firstElementChild;
+    peer.id = id;
+
+    const label = peer.querySelector("span");
+    label.textContent = data[id].user;
+
+    peer.onclick = function() {
+        onUserClicked(peer.id);
+    };
+
+    updatePeer(peer, false);
+
+    return peer;
+}
+
 function onUserClicked(id) {
     console.log("onUserClicked: " + id);
 }
 
-function updatePeer(id, online) {
-    console.log('updatePeer', id, online);
+function updatePeer(peer, online) {
+    console.log('updatePeer', peer, online);
 
-    const peer = document.getElementById(id);
     if(peer) {
         const img = peer.querySelector("img");
         if(online) img.src = 'img/sphere-up.png';
         else img.src = 'img/sphere-down.png';
     }
-    else console.log('can\'t find peer ' + id);
 }
 
 function getDisplayMode() {
@@ -672,7 +675,7 @@ async function updateSlide(changed) {
         
         case 'room':
             const roomContainer = document.getElementById('room_container');
-            drawRoom(roomContainer, config.peers);
+            makeRoom(roomContainer, config.peers);
             break;
 
         case 'determination':
@@ -1094,8 +1097,9 @@ function parseLocalPeerMessage(json) {
             peers.splice(index, 1);
         }
         //onPeersChanged();
-        updatePeer(json.id, json.arrived);
-    }
+        let peer = document.getElementById(json.id);
+        if (!peer) peer = makePeer(json.id);
+        updatePeer(peer, json.arrived);
 }
 
 function addPeerConsoleText(text) {
