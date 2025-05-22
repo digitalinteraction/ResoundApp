@@ -551,7 +551,7 @@ function generateLandingText() {
         text += 'Your sphere ';
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
-                text += 'is connect' + (localConnected() ? 'ed' : 'ing') + 'to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
+                text += 'is connect' + (localConnected() ? 'ed' : 'ing') + ' to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(!localConnected()) {
                     text += '<br>Please wait. ';
                 }
@@ -614,11 +614,28 @@ function generateWiFiText() {
 function generateServerText() {
     let text = 'Your sphere is ';
 
-    if(remoteConnected()) {
+    if(!captivePortalRunning() && remoteConnected()){
         text += 'connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
     }
     else {
         text += 'not connected to a Resound server. ';
+    }
+
+    return text.trim();
+}
+
+function generateTuningText() {
+    let text = '';
+
+    const f = config?.mic?.frequency ?? filter.frequency;
+    if(f) {
+        text += 'Your sphere is tuned to ' + f + 'Hz' 
+        + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
+        + 'Start chanting NMRK to retune it.';
+    }
+    else {
+        text += 'Your sphere isn\'t tuned.<br>'
+        + 'Start chanting NMRK to tune it.';
     }
 
     return text.trim();
@@ -677,12 +694,8 @@ async function updateSlide(changed) {
                 lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_down_text").innerHTML;
             }
             else {
-                const f = config?.mic?.frequency;
                 if (!tuningTimeOutId) {
-                    lastRow.querySelector("span").innerHTML = 
-                      'Your sphere is tuned to ' + f + 'Hz' 
-                      + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>'
-                      + 'Start chanting NMRK to retune it.';
+                    lastRow.querySelector("span").innerHTML = generateTuningText();
                   } else {
                     lastRow.querySelector("span").innerHTML = 'listening';
                   }
