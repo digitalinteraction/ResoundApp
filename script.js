@@ -445,15 +445,14 @@ function makeRoom(container, data) {
 
         let peer = document.getElementById(keys[i]);
         if (!peer) {
-            peer = makePeer(keys[i], data[id].user);
-            container.appendChild(peer);
+            peer = makePeer(keys[i], data[id].user, container);
         }
         peer.style.left = `${x}px`;
         peer.style.top = `${y}px`;
     }
 }
 
-function makePeer(id, user) {
+function makePeer(id, user, container) {
     const template = document.getElementById("room_item_template");
     let peer = template.content.cloneNode(true).firstElementChild;
     peer.id = id;
@@ -465,6 +464,8 @@ function makePeer(id, user) {
         onUserClicked(peer.id);
     };
     
+    if(container) container.appendChild(peer);
+
     return peer;
 }
 
@@ -508,7 +509,10 @@ function generateLandingText() {
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
-                if(remoteConnected()) {
+                if(!localConnected()) {
+                    text += 'Please wait. ';
+                }
+                else if(remoteConnected()) {
                     text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
                     text += 'Everything looks good. ';
                 }
@@ -1097,7 +1101,9 @@ function parseLocalPeerMessage(json) {
         }
         //onPeersChanged();
         let peer = document.getElementById(json.id);
-        if (!peer) peer = makePeer(json.id);
+        if (!peer) {
+            peer = makePeer(json.id, document.getElementById('room_container'));
+        }
         updatePeer(peer, json.arrived);
     }
 }
