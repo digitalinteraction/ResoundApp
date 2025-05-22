@@ -510,7 +510,7 @@ function generateLandingText() {
             if(!captivePortalRunning()) {
                 text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(!localConnected()) {
-                    text += 'Please wait. ';
+                    text += '<br>Please wait. ';
                 }
                 else if(remoteConnected()) {
                     text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
@@ -1102,7 +1102,7 @@ function parseLocalPeerMessage(json) {
         //onPeersChanged();
         let peer = document.getElementById(json.id);
         if (!peer) {
-            peer = makePeer(json.id, document.getElementById('room_container'));
+            peer = makePeer(json.id, undefined, document.getElementById('room_container'));
         }
         updatePeer(peer, json.arrived);
     }
