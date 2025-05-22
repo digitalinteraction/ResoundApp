@@ -551,7 +551,7 @@ function generateLandingText() {
         text += 'Your sphere ';
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
-                text += 'is connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
+                text += 'is connect' + (localConnected() ? 'ed' : 'ing') + 'to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
                 if(!localConnected()) {
                     text += '<br>Please wait. ';
                 }
