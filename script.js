@@ -574,7 +574,7 @@ function generateLandingText() {
         else {
             text += 'appears to be offline. ';
             if(savedNetwork !== '') {
-                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this '+ getDeviceType() + ' is on that network too?';
+                text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this '+ getDeviceType() + ' on that network too?';
             }
         }
     }
@@ -1145,7 +1145,9 @@ function parseLocalPeerMessage(json) {
         //onPeersChanged();
         let peer = document.getElementById(json.id);
         if (!peer) {
-            peer = makePeer(json.id, undefined, document.getElementById('room_container'));
+            const container = document.getElementById('room_container');
+            peer = makePeer(json.id, undefined, container);
+            layoutPeers(container);
         }
         updatePeer(peer, json.arrived);
     }
