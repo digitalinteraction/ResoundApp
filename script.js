@@ -445,7 +445,7 @@ function makeRoom(container, data) {
 
         let peer = document.getElementById(keys[i]);
         if (!peer) {
-            peer = makePeer(keys[i]);
+            peer = makePeer(keys[i], data[id].user);
             container.appendChild(peer);
         }
         peer.style.left = `${x}px`;
@@ -453,19 +453,17 @@ function makeRoom(container, data) {
     }
 }
 
-function makePeer(id) {
+function makePeer(id, user) {
     const template = document.getElementById("room_item_template");
     let peer = template.content.cloneNode(true).firstElementChild;
     peer.id = id;
 
-    const label = peer.querySelector("span");
-    label.textContent = data[id].user;
+    if(user) peer.querySelector("span").textContent = user;
+    updatePeer(peer, false);
 
     peer.onclick = function() {
         onUserClicked(peer.id);
     };
-
-    updatePeer(peer, false);
 
     return peer;
 }
@@ -549,6 +547,7 @@ function generateLandingText() {
 }
 
 function generateWiFiText() {
+    const savedNetwork = config?.wifi?.ssid ?? '';
     let text = 'Your sphere is ';
 
     if(!captivePortalRunning()) {
