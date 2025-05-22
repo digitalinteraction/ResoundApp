@@ -115,7 +115,8 @@ body {
 } 
 
 .middle-row {
-    align-items: center;
+    display: flex;
+    justify-content: center;
 }
 
 .row input:not([type="range"]),
