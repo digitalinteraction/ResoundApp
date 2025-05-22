@@ -464,7 +464,7 @@ function makePeer(id, user) {
     peer.onclick = function() {
         onUserClicked(peer.id);
     };
-
+    
     return peer;
 }
 
