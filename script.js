@@ -51,6 +51,10 @@ function init() {
         }).mount();
         allowInteraction(false);
 
+        window.addEventListener('resize', () => {
+            updateSlide(false);
+        });
+
         splide.on('active', (slideElement) => {
             updateSlide(true);
         });
@@ -68,6 +72,7 @@ function init() {
 
         peers.push(...await fetchPeers());
         //onPeersChanged();
+        makePeers(roomContainer, config.peers);
 
         const determinationText = document.getElementById('determination_individual');
         const determinationListener = debounce((e) => {
@@ -431,26 +436,64 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
-function makeRoom(container, data) {
-    const centerX = container.clientWidth / 2;
-    const centerY = container.clientHeight / 2;
-    const radiusX = container.clientWidth / 2;
-    const radiusY = container.clientHeight / 2;
-
-    const keys = Object.keys(data);
-    for (let i = 0; i < keys.length; i++) {
-        const angle = (i * 2 * Math.PI) / keys.length;
-        const x = centerX + radiusX * Math.cos(angle);
-        const y = centerY + radiusY * Math.sin(angle);
-
-        let peer = document.getElementById(keys[i]);
-        if (!peer) {
-            peer = makePeer(keys[i], data[id].user, container);
+function makePeers(container, data) {
+    if(container && data) {
+        const keys = Object.keys(data);
+        for (let i = 0; i < keys.length; i++) {
+            const id = keys[i];
+            if (!document.getElementById(id)) {
+                makePeer(id, data[id].user, container);
+            }
         }
-        peer.style.left = `${x}px`;
-        peer.style.top = `${y}px`;
     }
 }
+
+function layoutPeers(container) {
+    if(container) {
+        const centerX = container.clientWidth / 2;
+        const centerY = container.clientHeight / 2;
+        const radiusX = container.clientWidth / 2;
+        const radiusY = container.clientHeight / 2;
+    
+        const peers = Array.from(container.children);
+        for (let i = 0; i < peers.length; i++) {
+            const angle = (i * 2 * Math.PI) / peers.length;
+            const x = centerX + radiusX * Math.cos(angle);
+            const y = centerY + radiusY * Math.sin(angle);
+    
+            let peer = peers[i];
+            if (peer) {
+                peer.style.left = `${x}px`;
+                peer.style.top = `${y}px`;
+            }
+        }
+    }
+}
+
+/*
+function makeRoom(container, data) {
+    if(container && data) {
+        const centerX = container.clientWidth / 2;
+        const centerY = container.clientHeight / 2;
+        const radiusX = container.clientWidth / 2;
+        const radiusY = container.clientHeight / 2;
+    
+        const keys = Object.keys(data);
+        for (let i = 0; i < keys.length; i++) {
+            const angle = (i * 2 * Math.PI) / keys.length;
+            const x = centerX + radiusX * Math.cos(angle);
+            const y = centerY + radiusY * Math.sin(angle);
+    
+            let peer = document.getElementById(keys[i]);
+            if (!peer) {
+                peer = makePeer(keys[i], data[keys[i]].user, container);
+            }
+            peer.style.left = `${x}px`;
+            peer.style.top = `${y}px`;
+        }
+    }
+}
+*/
 
 function makePeer(id, user, container) {
     const template = document.getElementById("room_item_template");
@@ -678,7 +721,7 @@ async function updateSlide(changed) {
         
         case 'room':
             const roomContainer = document.getElementById('room_container');
-            makeRoom(roomContainer, config.peers);
+            layoutPeers(roomContainer);
             break;
 
         case 'determination':
