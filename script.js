@@ -67,7 +67,7 @@ function init() {
         ssidList = await fetchWiFiNetworks();
 
         peers.push(...await fetchPeers());
-        onPeersChanged();
+        //onPeersChanged();
 
         const determinationText = document.getElementById('determination_individual');
         const determinationListener = debounce((e) => {
@@ -514,7 +514,7 @@ function generateLandingText() {
             }
             else {
                 text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network';
-                if(savedNetwork !== '') text += ', it couldn\'t find <span class=\'ssid\'>' + savedNetwork + '</span>. ';
+                if(savedNetwork !== '') text += ', it couldn\'t connect to <span class=\'ssid\'>' + savedNetwork + '</span>. ';
                 else text += '. ';
 
                 if(localConnected() && !sphereIsUp()) {
@@ -542,6 +542,36 @@ function generateLandingText() {
     //text += ' display-mode is ' + getDisplayMode() + '. ';
     //text += ' userAgent is ' + userAgent + '. ';
     
+    return text.trim();
+}
+
+function generateWiFiText() {
+    let text = 'Your sphere is ';
+
+    if(!captivePortalRunning()) {
+        text += 'connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
+    }
+    else {
+        text += 'not connected to a WiFi network';
+        if(savedNetwork !== '') text += ', it couldn\'t connect to <span class=\'ssid\'>' + savedNetwork + '</span>. ';
+        else text += '. ';
+
+        text += 'Select a network, enter the password and press connect. ';
+    }
+
+    return text.trim();
+}
+
+function generateServerText() {
+    let text = 'Your sphere is ';
+
+    if(remoteConnected()) {
+        text += 'connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
+    }
+    else {
+        text += 'not connected to a Resound server. ';
+    }
+
     return text.trim();
 }
 
@@ -620,8 +650,9 @@ async function updateSlide(changed) {
             document.getElementById('server_channel').value = config?.server?.room?.channel ?? '';
 
             document.getElementById('server_button').addEventListener('click', function(e) {onServerSaveEvent(e);});
+            lastRow.innerHTML = generateServerText();
             break;
-
+            
         case 'wifi':
             const ssid = document.getElementById('wifi_ssid');
             ssid.disabled = true;
@@ -636,6 +667,7 @@ async function updateSlide(changed) {
             });
 
             populateWiFiForm(config, ssidList);
+            lastRow.innerHTML = generateWiFiText();
             break;
         
         case 'room':
@@ -1043,13 +1075,13 @@ function parseLocalDebugMessage(json) {
     console.log('debug', json);
 }
 
-function onPeersChanged() {
-    addPeerConsoleText('[');
-    peers.forEach(function(id) {
-        addPeerConsoleText(id + '(' + config?.peers[id]?.user + '),');
-    });
-    addPeerConsoleText(']\n');
-}
+// function onPeersChanged() {
+//     addPeerConsoleText('[');
+//     peers.forEach(function(id) {
+//         addPeerConsoleText(id + '(' + config?.peers[id]?.user + '),');
+//     });
+//     addPeerConsoleText(']\n');
+// }
 
 function parseLocalPeerMessage(json) {
     //{"type":"peer","status":19,"id":48461,"arrived":true}
@@ -1061,7 +1093,7 @@ function parseLocalPeerMessage(json) {
         else if (!json.arrived && index >= 0) {
             peers.splice(index, 1);
         }
-        onPeersChanged();
+        //onPeersChanged();
         updatePeer(json.id, json.arrived);
     }
 }
