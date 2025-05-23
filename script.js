@@ -47,7 +47,7 @@ function init() {
         splide = new Splide('#carousel', {
             type: 'slide',  //don't use loop it duplicates the conent and screws up the forms
             perPage: 1,
-            drag: false, // Enable drag by default
+            drag: true,
         }).mount();
         allowInteraction(false);
 
@@ -613,12 +613,14 @@ function generateWiFiText() {
 
 function generateServerText() {
     let text = 'Your sphere is ';
-
-    if(!captivePortalRunning() && remoteConnected()){
-        text += 'connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
-    }
+    if(captivePortalRunning()) text += 'not connected to the Internet. ';
     else {
-        text += 'not connected to a Resound server. ';
+        if(remoteConnected()){
+            text += 'connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
+        }
+        else {
+            text += 'not connected to a Resound server. ';
+        }
     }
 
     return text.trim();
