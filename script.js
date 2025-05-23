@@ -47,7 +47,7 @@ function init() {
         splide = new Splide('#carousel', {
             type: 'slide',  //don't use loop it duplicates the conent and screws up the forms
             perPage: 1,
-            drag: true,
+            drag: false,
         }).mount();
         allowInteraction(false);
 
@@ -72,7 +72,7 @@ function init() {
 
         peers.push(...await fetchPeers());
         //onPeersChanged();
-        makePeers(roomContainer, config.peers);
+        makePeers(document.getElementById('room_container'), config.peers);
 
         const determinationText = document.getElementById('determination_individual');
         const determinationListener = debounce((e) => {
