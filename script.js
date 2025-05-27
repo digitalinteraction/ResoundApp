@@ -47,13 +47,19 @@ function init() {
         splide = new Splide('#carousel', {
             type: 'slide',  //don't use loop it duplicates the conent and screws up the forms
             perPage: 1,
-            drag: false,
+            drag: true,    //also swipe
         }).mount();
         allowInteraction(false);
 
-        window.addEventListener('resize', () => {
+        document.addEventListener('focus', function(event) {
+            if (event.target.parentElement.classList.contains('yo-yo-form')) {
+                console.log('Dynamic element focused:', event.target);
+            }
+        }, true);
+
+        window.addEventListener('resize', debounce(() => {
             updateSlide(false);
-        });
+        }, 300));
 
         splide.on('active', (slideElement) => {
             updateSlide(true);
@@ -526,6 +532,10 @@ function updatePeer(peer, online) {
     }
 }
 
+function isStandalone() {
+    return getDisplayMode() === 'standalone';
+}
+
 function getDisplayMode() {
     const modes = ['fullscreen', 'standalone', 'minimal-ui', 'browser'];
     for (const mode of modes) {
@@ -537,8 +547,21 @@ function getDisplayMode() {
 }
 
 function getDeviceType() {
-    const isPhone = /iPhone|Android.*Mobile|Windows Phone|BlackBerry|webOS/i.test(navigator.userAgent);
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+    const isPhone = /iPhone|Android.*Mobile|Windows Phone|BlackBerry|webOS/i.test(ua);
     return isPhone ? "phone" : "computer";
+}
+
+function getOS() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+    if (/Android/i.test(ua)) return "android";
+    if (/Windows NT/i.test(ua)) return "windows";
+    if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+    if (/Macintosh|Mac OS X/i.test(ua)) return "macos";
+
+    return "unknown";
 }
 
 function generateLandingText() {
@@ -558,6 +581,9 @@ function generateLandingText() {
                 else if(remoteConnected()) {
                     text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
                     text += 'Everything looks good. ';
+                }
+                if(!isStandalone()) {
+                    //text += ' userAgent is ' + userAgent + '. ';
                 }
             }
             else {
@@ -587,8 +613,6 @@ function generateLandingText() {
         text += 'Make sure this '+ getDeviceType() + ' is on that network too. Please close this window. ';
         
     }
-    //text += ' display-mode is ' + getDisplayMode() + '. ';
-    //text += ' userAgent is ' + userAgent + '. ';
     
     return text.trim();
 }
@@ -597,7 +621,7 @@ function generateWiFiText() {
     const savedNetwork = config?.wifi?.ssid ?? '';
     let text = 'Your sphere is ';
 
-    if(!captivePortalRunning()) {
+    if(!captivePortalRunning() && sphereIsOnline()) {
         text += 'connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
     }
     else {
