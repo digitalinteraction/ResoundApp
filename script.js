@@ -42,6 +42,8 @@ let onTouchOneTime = null;
 
 const peers = [];
 
+let lastSplideIndex = -1;
+
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
@@ -52,17 +54,25 @@ function init() {
         allowInteraction(false);
 
         document.addEventListener('focus', function(event) {
-            if (event.target.parentElement.classList.contains('yo-yo-form')) {
-                console.log('Dynamic element focused:', event.target);
+            if(event.target.parentElement.classList.contains('yo-yo-form')) {
+                allowSwipe(false);
             }
         }, true);
+
+        document.addEventListener('blur', function(event) {
+            if(event.target.parentElement.classList.contains('yo-yo-form')) {
+                allowSwipe(true);
+            }
+        }, true); // also capture phase
 
         window.addEventListener('resize', debounce(() => {
             updateSlide(false);
         }, 300));
 
         splide.on('active', (slideElement) => {
-            updateSlide(true);
+            //prevent splide.refresh() calls causing updateSlide() events:
+            if(lastSplideIndex !== splide.index) updateSlide(true);
+            lastSplideIndex = splide.index;
         });
         updateSlide(true);
 
@@ -381,25 +391,27 @@ async function onSlideMoved() {
     console.log('onSlideMoved');
 }
 
-async function activateTuning(v = true) { //wideListenig?
+async function activateTuning(v = true) { //wideListening?
     let result = false;
 
-    if (v && webSocketConnected) {
-        //isTuning = true; // Set tuning to true - samples will be added to histogram
-        filter = {
-            frequency: wideFilterFrequencyHz,
-            bandwidth: wideFilterBandwidthHz
-        };
-        setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
-        result = true;
-        //tuneSphere();
-    } else {
-        //isTuning = false; // Set tuning to false
-        clearTimeout(tuningTimeOutId);
-        tuningTimeOutId = undefined;
-        setMic(); //return to defaults
+    if(v !== (tuningTimeOutId !== undefined)) {
+        if (v && webSocketConnected) {
+            //isTuning = true; // Set tuning to true - samples will be added to histogram
+            filter = {
+                frequency: wideFilterFrequencyHz,
+                bandwidth: wideFilterBandwidthHz
+            };
+            setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
+            result = true;
+            //tuneSphere();
+        } else {
+            //isTuning = false; // Set tuning to false
+            clearTimeout(tuningTimeOutId);
+            tuningTimeOutId = undefined;
+            setMic(); //return to defaults
+        }
     }
-
+    
     return result;
 }
 
@@ -667,12 +679,21 @@ function generateTuningText() {
     return text.trim();
 }
 
-function allowInteraction(visible) {
+function allowInteraction(v) {
+    allowSwipe(v);
+
     const arrows = document.querySelector('.splide__arrows');
     const pagination = document.querySelector('.splide__pagination');
 
-    if (arrows) arrows.style.display = visible ? 'block' : 'none';
-    if (pagination) pagination.style.display = visible ? 'flex' : 'none';
+    if (arrows) arrows.style.display = v ? 'block' : 'none';
+    if (pagination) pagination.style.display = v ? 'flex' : 'none';
+}
+
+function allowSwipe(v) {
+    if(v !== splide.options.drag) {
+        splide.options = { drag: v };
+        splide.refresh();
+    }
 }
 
 async function updateSlide(changed) {
