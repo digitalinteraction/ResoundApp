@@ -1102,8 +1102,8 @@ async function onServerSaveEvent(event) {
         "server": {
             "name": name,
             "host": host,
-            "channel": {
-                "room": channel
+            "room": {
+                "channel": channel
             }
         }
     });
