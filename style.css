@@ -261,3 +261,8 @@ body {
 .ssid {
     font-style: italic;
 }
+
+/* Keep the input text large enough that Safari doesn't need to zoom it on iOS */
+input, button, textarea, select {
+    font-size: 16px;
+}
