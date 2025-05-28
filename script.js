@@ -1,6 +1,8 @@
 let rebootTimeoutId = undefined;
 let saveConfigTimeOutId = undefined;
 let tuningTimeOutId = undefined;
+let peerTimeOutId = {};
+const peerTimeoutMs = 3000;
 
 let webSocket;
 let webSocketConnected = false;
@@ -535,11 +537,17 @@ function onUserClicked(id) {
 }
 
 function updatePeer(peer, online) {
-    console.log('updatePeer', peer, online);
-
     if(peer) {
-        const img = peer.querySelector("img");
-        if(online) img.src = 'img/sphere-up.png';
+        if (peerTimeOutId[peer.id]) clearTimeout(peerTimeOutId[peer.id]);
+
+        const img = peer.querySelector("img"); 
+        if(online) {
+            img.src = 'img/sphere-up.png';
+
+            peerTimeOutId[peer.id] = setTimeout(() => {
+                updatePeer(peer, false);
+            }, peerTimeoutMs);
+        }
         else img.src = 'img/sphere-down.png';
     }
 }
