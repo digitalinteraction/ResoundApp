@@ -74,7 +74,7 @@ function init() {
         splide.on('active', (slideElement) => {
             //prevent splide.refresh() calls causing updateSlide() events:
             if(lastSplideIndex !== splide.index) updateSlide(true);
-            lastSplideIndex = splide.index;
+            if(sphereIsOnline()) lastSplideIndex = splide.index;
         });
         updateSlide(true);
 
@@ -273,23 +273,18 @@ function onWebSocketConnected(v = true) {
     }
 }
 
-// function showCarousel(v) {
-//     var carousel = document.getElementById('carousel');
-//     carousel.style.visibility = v ? 'visible' : 'hidden';
-//     carousel.style['pointer-events'] = v ? 'auto' : 'none';
-// }
-
 function onOnline() {
     console.log("onOnline");
     rebootTimeoutId = undefined;
-    // showCarousel(true);
     document.querySelector('#sphereImage').style.filter = 'none';
+    //allowInteraction(true) needs to wait for the web socket to reconnect
+    
+    console.log('lastSplideIndex', lastSplideIndex);
 }
 
 function onOffline() {
     console.log("onOffline");
     onWebSocketConnected(false);
-    //showCarousel(false);
     showSlide('landing');
     document.querySelector('#sphereImage').style.filter = 'invert(30%)';
     allowInteraction(false);
