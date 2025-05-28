@@ -578,46 +578,57 @@ function getDeviceType() {
 }
 
 function getOS() {
+    let os = "unknown";
+
     const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if (/Android/i.test(ua))    os = "android";
+    if (/Windows NT/i.test(ua)) os = "windows";
+    if (/iPhone|iPad|iPod/i.test(ua))   os = "ios";
+    if (/Macintosh|Mac OS X/i.test(ua)) os = "macos";
 
-    if (/Android/i.test(ua)) return "android";
-    if (/Windows NT/i.test(ua)) return "windows";
-    if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
-    if (/Macintosh|Mac OS X/i.test(ua)) return "macos";
+    return os;
+}
 
-    return "unknown";
+function getBrowser() {
+    let browser = "unknown";
+
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if (/crios|chrome/i.test(ua)) browser = "chrome";
+    else if (/safari/i.test(ua)) browser = "safari";
+
+    return browser;
 }
 
 function generateLandingText() {
     const savedNetwork = config?.wifi?.ssid ?? '';
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
     let text = '';
 
     if(!sphereWillReboot()) {
-        text += 'Your sphere ';
         if(sphereIsOnline()) {
-            if(!captivePortalRunning()) {
-                text += 'is connect' + (localConnected() ? 'ed' : 'ing') + ' to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
-                if(!localConnected()) {
-                    text += '<br>Please wait. ';
-                }
-                else if(remoteConnected()) {
-                    text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
-                    text += 'Everything looks good. ';
-                }
-                if(!isStandalone()) {
-                    text += ' Install for ' + userAgent + '. ';
-                }
-            }
-            else {
-                text += 'needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network';
+            if(captivePortalRunning()) {
+                text += 'Your sphere needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network';
                 if(savedNetwork !== '') text += ', it couldn\'t connect to <span class=\'ssid\'>' + savedNetwork + '</span>. ';
                 else text += '. ';
 
                 if(localConnected() && !sphereIsUp()) {
                     text += 'To get started, please turn the sphere over. ';
                     onSphereUp = function() { onStart() };
+                }
+            }
+            else {
+                if(isStandalone()) {
+                    text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
+                    if(!localConnected()) {
+                        text += '<br>Please wait. ';
+                    }
+                    else if(remoteConnected()) {
+                        text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
+                        text += 'Everything looks good. ';
+                    }
+                }
+                else {
+                    text += generateWebAppInstallText();
                 }
             }
         }
@@ -638,6 +649,15 @@ function generateLandingText() {
         
     }
     
+    return text.trim();
+}
+
+function generateWebAppInstallText() {
+    let text = '';
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    text += ' Install for ' + getOS() + '/' + getBrowser();
+
     return text.trim();
 }
 
@@ -703,9 +723,7 @@ function allowInteraction(v) {
 }
 
 function allowSwipe(v) {
-    console.log('allowSwipe', v);
     if(v !== splide.options.drag) {
-        console.log('HERE');
         splide.options = { drag: v };
         splide.refresh();
     }
