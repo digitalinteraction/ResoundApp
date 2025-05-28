@@ -289,6 +289,7 @@ function onOffline() {
     showSlideID('landing');
     document.querySelector('#sphereImage').style.filter = 'invert(30%)';
     allowInteraction(false);
+    targetWarmth = 0;
 }
 
 async function getConfiguration() {
