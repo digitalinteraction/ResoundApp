@@ -583,9 +583,9 @@ function getOS() {
 
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if (/Android/i.test(ua))    os = "android";
-    if (/Windows NT/i.test(ua)) os = "windows";
-    if (/iPhone|iPad|iPod/i.test(ua))   os = "ios";
-    if (/Macintosh|Mac OS X/i.test(ua)) os = "macos";
+    else if (/Windows NT/i.test(ua)) os = "windows";
+    else if (/iPhone|iPad|iPod/i.test(ua))   os = "ios";
+    else if (/Macintosh|Mac OS X/i.test(ua)) os = "macos";
 
     return os;
 }
