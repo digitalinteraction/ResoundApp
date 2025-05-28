@@ -49,9 +49,9 @@ let lastSplideIndex = -1;
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
-            type: 'slide',  //don't use loop it duplicates the conent and screws up the forms
+            type: 'slide',  //don't use loop it duplicates the content and screws up the forms
             perPage: 1,
-            drag: true,    //also swipe
+            drag: false,    //also swipe
         }).mount();
         allowInteraction(false);
 
@@ -65,7 +65,7 @@ function init() {
             if(event.target.parentElement.classList.contains('yo-yo-form')) {
                 allowSwipe(true);
             }
-        }, true); // also capture phase
+        }, true);
 
         window.addEventListener('resize', debounce(() => {
             updateSlide(false);
@@ -85,6 +85,10 @@ function init() {
 
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
+
+        document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
+        document.getElementById('sphereversion').innerText = config?.version ?? '';
+
         manageWebSocket(() => onStart());
         ssidList = await fetchWiFiNetworks();
 
@@ -195,6 +199,7 @@ async function getStatus() {
 function sphereWillReboot() {
     return rebootTimeoutId;
 }
+
 function reboot() {
     postJson('/yoyo/reboot');
 }
@@ -356,37 +361,40 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 function onStart() {
     console.log("onStart", config);
 
-    //addPeerConsoleText(JSON.stringify(config.peers)+'\n');
+    if(!config?.wifi?.ssid || captivePortalRunning()) {
+        showSlide('wifi');
+    }
+    else {
+        if(!config?.server?.host || !remoteConnected()) {
+            showSlide('server');
+        }
+        else {
+            showSlide('landing');
+        }
+    }
 
-    if(getSlideIdByIndex(splide.index) === 'landing'){
-        if(sphereIsUp()) {
-            setMic({r:-1});
-    
-            if(!config?.mic?.frequency) {
-                showSlide('tuning');
-            }
+    /*
+    if(sphereIsUp()) {
+        setMic({r:-1});
+
+        if(!config?.mic?.frequency) {
+            showSlide('tuning');
+        }
+        else {
+            console.log(config.mic);
+            
             else {
-                console.log(config.mic);
-                if(!config?.server?.host) {
-                    showSlide('server');
-                }
+                console.log(config.server);
+                
                 else {
-                    console.log(config.server);
-                    if(!config?.wifi?.ssid || captivePortalRunning()) {
-                        showSlide('wifi');
-                    }
-                    else {
-                        console.log(config.wifi);
-                        showSlide('room');
-                    }
+                    console.log(config.wifi);
+                    showSlide('room');
                 }
             }
         }
-        else showSlide('landing');
     }
-
-    document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
-    document.getElementById('sphereversion').innerText = config?.version ?? '';
+    else showSlide('landing');
+    */
 }
 
 async function onSlideMoved() {
@@ -538,7 +546,7 @@ function onUserClicked(id) {
 
 function updatePeer(peer, online) {
     if(peer) {
-        if (peerTimeOutId[peer.id]) clearTimeout(peerTimeOutId[peer.id]);
+        if(peerTimeOutId[peer.id]) clearTimeout(peerTimeOutId[peer.id]);
 
         const img = peer.querySelector("img"); 
         if(online) {
@@ -594,7 +602,7 @@ function generateLandingText() {
         text += 'Your sphere ';
         if(sphereIsOnline()) {
             if(!captivePortalRunning()) {
-                text += 'is connect' + (localConnected() ? 'ed' : 'ing') + ' to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network (' + getHost() +'). ';
+                text += 'is connect' + (localConnected() ? 'ed' : 'ing') + ' to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
                 if(!localConnected()) {
                     text += '<br>Please wait. ';
                 }
@@ -603,7 +611,7 @@ function generateLandingText() {
                     text += 'Everything looks good. ';
                 }
                 if(!isStandalone()) {
-                    //text += ' userAgent is ' + userAgent + '. ';
+                    text += ' Install for ' + userAgent + '. ';
                 }
             }
             else {
@@ -649,7 +657,8 @@ function generateWiFiText() {
         if(savedNetwork !== '') text += ', it couldn\'t connect to <span class=\'ssid\'>' + savedNetwork + '</span>. ';
         else text += '. ';
 
-        text += 'Select a network, enter the password and press connect. ';
+        if(ssidList.length > 0) text += 'Select a network, enter the password and press connect. ';
+        else text += 'Unable to see any networks to connect to. ';
     }
 
     return text.trim();
@@ -698,7 +707,9 @@ function allowInteraction(v) {
 }
 
 function allowSwipe(v) {
+    console.log('allowSwipe', v);
     if(v !== splide.options.drag) {
+        console.log('HERE');
         splide.options = { drag: v };
         splide.refresh();
     }
@@ -779,6 +790,7 @@ async function updateSlide(changed) {
             secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
 
             const button = document.getElementById('wifi_button');
+            button.disabled = true;
             button.addEventListener('click', function(e) {
                 onWiFiSaveEvent(e);
             });
@@ -1076,8 +1088,9 @@ function populateWiFiForm(config, ssidList = []) {
         noNetworks.disabled = true;
         networks.appendChild(noNetworks);
     } else {
-        document.getElementById('wifi_secret').removeAttribute("disabled");
         networks.removeAttribute("disabled");
+        document.getElementById('wifi_secret').removeAttribute("disabled");
+        document.getElementById('wifi_button').removeAttribute("disabled");
     }
 }
 
