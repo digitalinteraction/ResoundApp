@@ -250,7 +250,7 @@ function onStatus(s) {
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
         switch (getSlideIdByIndex(splide.index)) {
-            case 'landing':  getSlideById('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
+            case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
         }
 	    drawSphere(statuscode);
     }
@@ -279,13 +279,14 @@ function onOnline() {
     document.querySelector('#sphereImage').style.filter = 'none';
     //allowInteraction(true) needs to wait for the web socket to reconnect
     
-    console.log('lastSplideIndex', lastSplideIndex);
+    //return to last active page:
+    showSlideIndex(lastSplideIndex);
 }
 
 function onOffline() {
     console.log("onOffline");
     onWebSocketConnected(false);
-    showSlide('landing');
+    showSlideID('landing');
     document.querySelector('#sphereImage').style.filter = 'invert(30%)';
     allowInteraction(false);
 }
@@ -333,7 +334,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 
         if(success) {
             if(post && rebootDelayMs >= 0) {
-                showSlide('landing');
+                showSlideID('landing');
                 allowInteraction(false);
                 onSphereDown = undefined;
                 rebootTimeoutId = setTimeout(function () {
@@ -357,14 +358,14 @@ function onStart() {
     console.log("onStart", config);
 
     if(!config?.wifi?.ssid || captivePortalRunning()) {
-        showSlide('wifi');
+        showSlideID('wifi');
     }
     else {
         if(!config?.server?.host || !remoteConnected()) {
-            showSlide('server');
+            showSlideID('server');
         }
         else {
-            showSlide('landing');
+            showSlideID('landing');
         }
     }
 
@@ -373,7 +374,7 @@ function onStart() {
         setMic({r:-1});
 
         if(!config?.mic?.frequency) {
-            showSlide('tuning');
+            showSlideID('tuning');
         }
         else {
             console.log(config.mic);
@@ -383,12 +384,12 @@ function onStart() {
                 
                 else {
                     console.log(config.wifi);
-                    showSlide('room');
+                    showSlideID('room');
                 }
             }
         }
     }
-    else showSlide('landing');
+    else showSlideID('landing');
     */
 }
 
@@ -716,7 +717,7 @@ async function updateSlide(changed) {
     onSphereDown = undefined;
     onSphereUp = undefined;
 
-    //onTouchOneTime = function() { showSlide('volume'); };
+    //onTouchOneTime = function() { showSlideID('volume'); };
 
     const id = getSlideIdByIndex(splide.index);
 
@@ -728,7 +729,7 @@ async function updateSlide(changed) {
         console.log('slide changed');
     }
 
-    const lastRow = getSlideById(id).querySelectorAll('.slide-content .row')[2];
+    const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
             lastRow.innerHTML = generateLandingText();
@@ -932,23 +933,20 @@ function showNextSlide() {
     splide.go('>');
 }
 
-let lastSlideIndex = -1;
-function showSlide(id) {
-    console.log('showSlide', id);
+function showSlideID(id) {
+    console.log('showSlideID', id);
+    showSlideIndex(getSlideIndexByID(id));
+}
+
+function showSlideIndex(i) {
     if(splide) {
-        const i = getSlideIndexById(id);
-        lastSlideIndex = splide.index;
-        if(i >= 0 && i != lastSlideIndex) {
+        if(i >= 0 && i != splide.index) {
             splide.go(i);
         }
     }
 }
 
-function showLastSlide() {
-    showSlide(lastSlideIndex);
-}
-
-function getSlideById(id) {
+function getSlideByID(id) {
     const track = document.querySelector('.splide__track');
     const slides = track.querySelectorAll('.splide__slide');
 
@@ -961,7 +959,7 @@ function getSlideById(id) {
     return null;
 }
 
-function getSlideIndexById(id) {
+function getSlideIndexByID(id) {
     const track = document.querySelector('.splide__track'); // Select the track container
     const slides = track.querySelectorAll('.splide__slide'); // Get all slides within the track
     let index = -1; // Default to -1 in case the slide ID is not found
@@ -1264,7 +1262,7 @@ function parseLocalGestureMessage(json) {
 
     const type = json['t'];
     if(type === 'clk' || type === 'anti') {
-        showSlide('volume');
+        showSlideID('volume');
     }
 }
 
