@@ -69,7 +69,7 @@ function init() {
         }, true);
 
         window.addEventListener('resize', debounce(() => {
-            updateSlide(false);
+            updateSlide();
         }, 300));
 
         splide.on('active', (slideElement) => {
@@ -149,10 +149,10 @@ function loop() {
                 // });
             }
             tuningTimeOutId = undefined;
-            updateSlide(false);
+            updateSlide();
             peakEnergy = 0;
         }, tuneWindowMs);
-        updateSlide(false);
+        updateSlide();
     }
 
     draw();
@@ -270,7 +270,7 @@ function onWebSocketConnected(v = true) {
             //if(tuningTimeOutId) activateTuning(false); 
         }
         webSocketConnected = v;
-        //allowInteraction(v);
+        updateSlide();
     }
 }
 
@@ -741,7 +741,7 @@ function allowSwipe(v) {
     }
 }
 
-async function updateSlide(changed) {
+async function updateSlide(changed = false) {
     console.log('updateSlide()');
 
     onSphereDown = undefined;
@@ -761,7 +761,7 @@ async function updateSlide(changed) {
 
     //only interactive once installed and the web socket is connected:
     allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
-    
+
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
@@ -782,8 +782,8 @@ async function updateSlide(changed) {
             //     config.mic.level = v;
             //     setConfiguration({mic: config.mic});
             // });
-            onSphereDown = function() { updateSlide(false); console.log('TODO: tuning - onSphereDown'); };
-            onSphereUp = function() { updateSlide(false); console.log('TODO: tuning - onSphereUp'); };
+            onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
+            onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
             
             if(!sphereIsUp()) {
                 lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_down_text").innerHTML;
@@ -850,8 +850,8 @@ async function updateSlide(changed) {
             };
             onVolumeChanged(config?.volume ?? 1.0, false);
 
-            onSphereDown = function() { updateSlide(false); console.log('TODO: volume - onSphereDown'); };
-            onSphereUp = function() { updateSlide(false); console.log('TODO: volume - onSphereUp'); };
+            onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
+            onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
 
             lastRow.querySelector("span").innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
