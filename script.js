@@ -673,10 +673,14 @@ function generateWebAppInstallText() {
     text += '<ol>'
     switch (getBrowser()) {
         case 'safari':
-            text += '<li>Tap the Share button <img class="icon" src="/img/safari-share.png"/>.</li><li>Select <i>Add to Home Screen</i>.</li><li>Confirm <i>Add</i></li>';
+            text += '<li>Press the <i>Share</i> button (<img class="icon" src="/img/safari-share.png"/>).</li>';
+            text += '<li>Select <i>Add to ' + 'Home Screen' + '</i>.</li>';
+            text += '<li>Confirm <i>Add</i></li>';
             break;
         case 'chrome':
-            text += '<li>Tap the three-dot menu in the top-right corner.</li><li>Select Add to Home screen or Install App.</li><li>Confirm by tapping Add.</li>';
+            text += '<li>Press the <i>More</i> button (<img class="icon" src="/img/chrome-more.png"/>).</li>';
+            text += '<li>Select Add to Home screen or Install App.</li>';
+            text += '<li>Confirm by tapping Add.</li>';
             break;
         default:
             text += '<li>Find instructions for your browser.</li>';
