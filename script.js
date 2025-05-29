@@ -53,6 +53,7 @@ function init() {
             perPage: 1,
             drag: false,    //also swipe
         }).mount();
+        positionSphereImage();
         showSlideID('landing');
         allowInteraction(false);
 
@@ -69,6 +70,7 @@ function init() {
         }, true);
 
         window.addEventListener('resize', debounce(() => {
+            positionSphereImage();
             updateSlide();
         }, 300));
 
@@ -108,6 +110,17 @@ function init() {
         }, 2000);
         determinationText.addEventListener('input', determinationListener);
     } );
+}
+
+function positionSphereImage() {
+    const middleRow = document.querySelector('.middle-row');
+    const backgroundImage = document.querySelector('.background-image');
+
+    if (middleRow && backgroundImage) {
+        const middleRect = middleRow.getBoundingClientRect();
+        backgroundImage.style.top = `${middleRect.top + window.scrollY}px`;
+        backgroundImage.style.height = `${middleRect.height}px`;
+    }
 }
 
 function debounce(fn, delay) {
@@ -657,17 +670,19 @@ function generateWebAppInstallText() {
     let text = '<span>';
     text += 'Now install the Resound App';
 
+    text += '<ol>'
     switch (getBrowser()) {
         case 'safari':
-            text += '<ol><li>Tap the Share button (the square with an arrow).</li><li>Select the Add to Home Screen option.</li><li>Tap Add in the top right.</li></ol>';
+            text += '<li>Tap the Share button (the square with an arrow).</li><li>Select the Add to Home Screen option.</li><li>Tap Add in the top right.</li>';
             break;
         case 'chrome':
-            text += '<ol><li>Tap the three-dot menu in the top-right corner.</li><li>Select Add to Home screen or Install App.</li><li>Confirm by tapping Add.</li></ol>';
+            text += '<li>Tap the three-dot menu in the top-right corner.</li><li>Select Add to Home screen or Install App.</li><li>Confirm by tapping Add.</li>';
             break;
         default:
-            text += '<ol><li>Find instructions for your browser.</li></ol>';
+            text += '<li>Find instructions for your browser.</li>';
     }
-    text += '<ol><li>When complete, close this window.</li></ol>';
+    text += '<li>When complete, close this window.</li>';
+    text += '</ol>'
     text += '</span>';
        
     return text.trim();
