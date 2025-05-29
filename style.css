@@ -266,3 +266,9 @@ body {
 input, button, textarea, select {
     font-size: 16px;
 }
+
+ol {
+  margin-left: 0;
+  padding-left: 1em;
+  text-align: left;
+}
