@@ -801,7 +801,7 @@ async function updateSlide(changed = false) {
             document.getElementById('server_channel').value = config?.server?.room?.channel ?? '';
 
             const serverButton = document.getElementById('server_button');
-            button.disabled = remoteConnected();
+            serverButton.disabled = remoteConnected();
             serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
             lastRow.innerHTML = generateServerText();
             break;
