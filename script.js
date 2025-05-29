@@ -605,7 +605,15 @@ function generateLandingText() {
 
     let text = '';
 
-    if(!sphereWillReboot()) {
+    if(sphereWillReboot()) {
+        if(sphereIsUp()) text += 'Turn the sphere over now and it ';
+        else text += 'The sphere will now';
+
+        text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
+        
+        text += 'Make sure this '+ getDeviceType() + ' is on that network too, then close this window and scan the new QR code. ';
+    }
+    else {
         if(sphereIsOnline()) {
             if(captivePortalRunning()) {
                 text += 'Your sphere needs to be ' + (!(config?.mic?.frequency && config?.server?.host) ? 'configured and ' : '') + 'connected to a WiFi network';
@@ -634,31 +642,32 @@ function generateLandingText() {
             }
         }
         else {
-            text += 'appears to be offline. ';
+            text += 'Your sphere appears to be offline. ';
             if(savedNetwork !== '') {
                 text += 'It was last connected to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. Is the sphere plugged in? Is this '+ getDeviceType() + ' on that network too?';
             }
         }
-    }
-    else {
-        if(sphereIsUp()) text += 'Turn the sphere over now and it ';
-        else text += 'The sphere will now';
-
-        text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
-        
-        text += 'Make sure this '+ getDeviceType() + ' is on that network too. Please close this window. ';
-        
     }
     
     return text.trim();
 }
 
 function generateWebAppInstallText() {
-    let text = '';
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    let text = '<span>';
+    text += 'Now install the Resound App';
 
-    text += ' Install for ' + getOS() + '/' + getBrowser();
-
+    switch (getBrowser()) {
+        case 'safari':
+            text += '<ol><li>Tap the Share button (the square with an arrow).</li><li>Scroll down and tap Add to Home Screen.</li><li>Tap Add in the top right.</li></ol>';
+            break;
+        case 'chrome':
+            text += '<ol><li>Tap the three-dot menu in the top-right corner.</li><li>Select Add to Home screen or Install App.</li><li>Confirm by tapping Add.</li></ol>';
+            break;
+        default:
+            text += 'unknown';
+    }
+    text += '</span>';
+       
     return text.trim();
 }
 
@@ -751,6 +760,7 @@ async function updateSlide(changed) {
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
+            allowInteraction(isStandalone());   //only interactive once installed
             lastRow.innerHTML = generateLandingText();
             break;
         case 'tuning':
