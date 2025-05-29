@@ -50,7 +50,7 @@
                             <input id="server_host" class="form-control" placeholder="Server" type="text">
                             <input id="server_channel" class="form-control" placeholder="Channel" type="text">
                             <input id="server_name" class="form-control" placeholder="Name" type="text">
-                            <button id="server_button" type="button">Save</button>
+                            <button id="server_button" type="button">Connect</button>
                           </form>
                         </div>
                         <div class="row"></div>
@@ -69,8 +69,8 @@
                             </div> -->
                           </div>
                           <div class="row">
-                            <template class="sphere_up_text">Chant NMRK until the light warms to orange.</template>
-                            <template class="sphere_down_text">To get started, please turn the sphere over.</template>
+                            <template class="sphere_up_text">Chant NMRK until the light warms to orange, then swipe left.</template>
+                            <template class="sphere_down_text">To get started, please turn the sphere over or swipe left.</template>
                             <span class="content"></span>
                           </div>
                       </div>
@@ -84,8 +84,8 @@
                             </div>
                           </div>
                           <div class="row">
-                            <template class="sphere_up_text">Make your sphere louder by turning your finger clockwise or quieter by turning it anti-clockwise.</template>
-                            <template class="sphere_down_text">To get started, please turn the sphere over.</template>
+                            <template class="sphere_up_text">Make your sphere louder by turning your finger clockwise or quieter by turning it anti-clockwise, then swipe left.</template>
+                            <template class="sphere_down_text">To get started, please turn the sphere over or swipe left.</template>
                             <span class="content"></span>
                           </div>
                       </div>
@@ -93,18 +93,8 @@
                     <li class="splide__slide" data-id="landing">
                       <div class="slide-content">
                         <div class="row top-row">Hello!</div>
-                        <div class="row"></div>
-                        <div class="row"></div>
-                      </div>
-                    </li>
-                    <li class="splide__slide" data-id="room">
-                      <div class="slide-content">
-                        <div class="row top-row">
-                          See who is in your group!
-                        </div>
-                        <div class="row middle-row">
-                          <!-- <canvas id="room_canvas"></canvas> -->
-                          <div id="room_container"></div>
+                        <div class="row">
+                          <div id="room_container middle-row"></div>
                           <template id="room_item_template">
                             <div class="room_item">
                                 <img src="">
@@ -112,9 +102,7 @@
                             </div>
                           </template>
                         </div>
-                        <div class="row">
-                          <!-- <textarea id="peerconsole" readonly></textarea> -->
-                        </div>
+                        <div class="row"></div>
                       </div>
                     </li>
                     <li class="splide__slide" data-id="determination">
