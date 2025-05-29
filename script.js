@@ -270,7 +270,7 @@ function onWebSocketConnected(v = true) {
             //if(tuningTimeOutId) activateTuning(false); 
         }
         webSocketConnected = v;
-        allowInteraction(v);
+        //allowInteraction(v);
     }
 }
 
@@ -659,14 +659,15 @@ function generateWebAppInstallText() {
 
     switch (getBrowser()) {
         case 'safari':
-            text += '<ol><li>Tap the Share button (the square with an arrow).</li><li>Scroll down and tap Add to Home Screen.</li><li>Tap Add in the top right.</li></ol>';
+            text += '<ol><li>Tap the Share button (the square with an arrow).</li><li>Select the Add to Home Screen option.</li><li>Tap Add in the top right.</li></ol>';
             break;
         case 'chrome':
             text += '<ol><li>Tap the three-dot menu in the top-right corner.</li><li>Select Add to Home screen or Install App.</li><li>Confirm by tapping Add.</li></ol>';
             break;
         default:
-            text += 'unknown';
+            text += '<ol><li>Find instructions for your browser.</li></ol>';
     }
+    text += '<ol><li>When complete, close this window.</li></ol>';
     text += '</span>';
        
     return text.trim();
@@ -758,10 +759,12 @@ async function updateSlide(changed) {
         console.log('slide changed');
     }
 
+    //only interactive once installed and the web socket is connected:
+    allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
+    
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
-            allowInteraction(isStandalone());   //only interactive once installed
             lastRow.innerHTML = generateLandingText();
             break;
         case 'tuning':
