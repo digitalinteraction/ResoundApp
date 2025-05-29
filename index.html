@@ -23,10 +23,36 @@
         <section id="carousel" class="splide">
           <div class="splide__track">
                 <ul class="splide__list">
-                    <li class="splide__slide" data-id="landing">
+                    <li class="splide__slide" data-id="wifi">
                       <div class="slide-content">
-                        <div class="row top-row">Hello!</div>
+                        <div class="row top-row">
+                          Connect the sphere to your WiFi!
+                        </div>
+                        <div class="row middle-row">
+                          <form class="yo-yo-form">
+                                <select class="form-control" id="wifi_ssid">
+                                  <option value="" disabled selected>WiFi networks</option>
+                                </select>
+                                <input id="wifi_secret" class="form-control" placeholder="Password" type="password">
+                                <button id="wifi_button" type="button">Connect</button>
+                          </form>
+                        </div>
                         <div class="row"></div>
+                      </div>
+                    </li>
+                    <li class="splide__slide" data-id="server">
+                      <div class="slide-content">
+                        <div class="row top-row">
+                          Connect the sphere with your community! 
+                        </div>
+                        <div class="row middle-row">
+                          <form class="yo-yo-form">
+                            <input id="server_host" class="form-control" placeholder="Server" type="text">
+                            <input id="server_channel" class="form-control" placeholder="Channel" type="text">
+                            <input id="server_name" class="form-control" placeholder="Name" type="text">
+                            <button id="server_button" type="button">Save</button>
+                          </form>
+                        </div>
                         <div class="row"></div>
                       </div>
                     </li>
@@ -64,36 +90,10 @@
                           </div>
                       </div>
                     </li>
-                    <li class="splide__slide" data-id="server">
+                    <li class="splide__slide" data-id="landing">
                       <div class="slide-content">
-                        <div class="row top-row">
-                          Connect the sphere with your community! 
-                        </div>
-                        <div class="row middle-row">
-                          <form class="yo-yo-form">
-                            <input id="server_host" class="form-control" placeholder="Server" type="text">
-                            <input id="server_channel" class="form-control" placeholder="Channel" type="text">
-                            <input id="server_name" class="form-control" placeholder="Name" type="text">
-                            <button id="server_button" type="button">Save</button>
-                          </form>
-                        </div>
+                        <div class="row top-row">Hello!</div>
                         <div class="row"></div>
-                      </div>
-                    </li>
-                    <li class="splide__slide" data-id="wifi">
-                      <div class="slide-content">
-                        <div class="row top-row">
-                          Connect the sphere to your WiFi!
-                        </div>
-                        <div class="row middle-row">
-                          <form class="yo-yo-form">
-                                <select class="form-control" id="wifi_ssid">
-                                  <option value="" disabled selected>WiFi networks</option>
-                                </select>
-                                <input id="wifi_secret" class="form-control" placeholder="Password" type="password">
-                                <button id="wifi_button" type="button">Connect</button>
-                          </form>
-                        </div>
                         <div class="row"></div>
                       </div>
                     </li>
