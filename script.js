@@ -53,6 +53,7 @@ function init() {
             perPage: 1,
             drag: false,    //also swipe
         }).mount();
+        showSlideID('landing');
         allowInteraction(false);
 
         document.addEventListener('focus', function(event) {
