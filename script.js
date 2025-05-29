@@ -399,7 +399,7 @@ function onStart() {
                 
                 else {
                     console.log(config.wifi);
-                    showSlideID('room');
+                    //showSlideID('room');
                 }
             }
         }
@@ -508,31 +508,6 @@ function layoutPeers(container) {
         }
     }
 }
-
-/*
-function makeRoom(container, data) {
-    if(container && data) {
-        const centerX = container.clientWidth / 2;
-        const centerY = container.clientHeight / 2;
-        const radiusX = container.clientWidth / 2;
-        const radiusY = container.clientHeight / 2;
-    
-        const keys = Object.keys(data);
-        for (let i = 0; i < keys.length; i++) {
-            const angle = (i * 2 * Math.PI) / keys.length;
-            const x = centerX + radiusX * Math.cos(angle);
-            const y = centerY + radiusY * Math.sin(angle);
-    
-            let peer = document.getElementById(keys[i]);
-            if (!peer) {
-                peer = makePeer(keys[i], data[keys[i]].user, container);
-            }
-            peer.style.left = `${x}px`;
-            peer.style.top = `${y}px`;
-        }
-    }
-}
-*/
 
 function makePeer(id, user, container) {
     const template = document.getElementById("room_item_template");
@@ -674,11 +649,11 @@ function generateWebAppInstallText() {
     switch (getBrowser()) {
         case 'safari':
             text += '<li>Press the <i>Share</i> button (<img class="icon" src="/img/safari-share.png"/>).</li>';
-            text += '<li>Select <i>Add to ' + (getOS() === 'ios' ? 'Home Screen' : 'Dock') + ' and confirm</i>.</li>';
+            text += '<li>Select <i>Add to ' + (getOS() === 'ios' ? 'Home Screen' : 'Dock') + '</i> and confirm.</li>';
             break;
         case 'chrome':
             text += '<li>Press the <i>More</i> button (<img class="icon" src="/img/chrome-more.png"/>).</li>';
-            text += '<li>Select Add to Home screen or Install App and confirm.</li>';
+            text += '<li>Select <i>Add to Home screen</i> or <i>Install App</i> and confirm.</li>';
             break;
         default:
             text += '<li>Find instructions for your browser.</li>';
@@ -782,6 +757,8 @@ async function updateSlide(changed = false) {
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
+            const roomContainer = document.getElementById('room_container');
+            layoutPeers(roomContainer);
             lastRow.innerHTML = generateLandingText();
             break;
         case 'tuning':
@@ -823,7 +800,9 @@ async function updateSlide(changed = false) {
             document.getElementById('server_host').value = config?.server?.host ?? '';
             document.getElementById('server_channel').value = config?.server?.room?.channel ?? '';
 
-            document.getElementById('server_button').addEventListener('click', function(e) {onServerSaveEvent(e);});
+            const serverButton = document.getElementById('server_button');
+            button.disabled = remoteConnected();
+            serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
             lastRow.innerHTML = generateServerText();
             break;
             
@@ -843,11 +822,6 @@ async function updateSlide(changed = false) {
 
             populateWiFiForm(config, ssidList);
             lastRow.innerHTML = generateWiFiText();
-            break;
-        
-        case 'room':
-            const roomContainer = document.getElementById('room_container');
-            layoutPeers(roomContainer);
             break;
 
         case 'determination':
