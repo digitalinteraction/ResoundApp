@@ -1,0 +1,36 @@
+name: Minify JavaScript
+
+on:
+  push:
+    paths:
+      - '**.js'       # only run when JS files are changed
+    branches:
+      - main          # or your preferred branch
+
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install terser
+      run: npm install -g terser
+
+    - name: Minify JavaScript
+      run: |
+        find . -name "*.js" ! -name "*.min.js" -exec terser {} -o {}.min.js \;
+
+    - name: Commit minified files
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add .
+        git commit -m "Auto-minified JS files" || echo "No changes to commit"
+        git push
