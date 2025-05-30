@@ -6,7 +6,7 @@ on:
       target_folder:
         description: 'Folder to minify'
         required: false
-        default: 'src'
+        default: ''
   push:
     paths:
       - '**.js'
