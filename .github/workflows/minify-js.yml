@@ -1,6 +1,12 @@
 name: Minify JavaScript
 
 on:
+  workflow_dispatch:
+    inputs:
+      target_folder:
+        description: 'Folder to minify'
+        required: false
+        default: 'src'
   push:
     paths:
       - '**.js'       # only run when JS files are changed
