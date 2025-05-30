@@ -31,7 +31,7 @@ jobs:
 
     - name: Minify JavaScript
       run: |
-        find . -name "*.js" ! -name "*.min.js" -exec terser {} -o {}.min.js \;
+        find . -name "*.js" ! -name "*.min.js" -exec sh -c 'for f; do terser "$f" -o "${f%.js}.min.js"; done' sh {} +
 
     - name: Commit minified files
       run: |
