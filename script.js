@@ -839,8 +839,8 @@ async function updateSlide(changed = false) {
 
             fetchWiFiNetworks().then(ssidList => {
                 populateWiFiForm(config, ssidList);
+                lastRow.innerHTML = generateWiFiText();
             });
-            lastRow.innerHTML = generateWiFiText();
             break;
 
         case 'determination':
