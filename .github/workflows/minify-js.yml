@@ -32,7 +32,6 @@ jobs:
     - name: Minify JavaScript
       run: |
         FOLDER="${{ github.event.inputs.target_folder }}"
-        if [ -z "$FOLDER" ]; then FOLDER="src"; fi
         mkdir -p dist
         find "$FOLDER" -name "*.js" ! -name "*.min.js" -exec sh -c '
           for f; do
