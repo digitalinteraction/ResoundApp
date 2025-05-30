@@ -616,12 +616,15 @@ function generateLandingText() {
             }
             else {
                 if(isStandalone()) {
-                    text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
+                    text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network ';
                     if(!localConnected()) {
-                        text += '<br>Please wait. ';
+                        text += '.<br>Please wait. ';
                     }
-                    else if(remoteConnected()) {
-                        text += 'It is also connected to a Resound server (' + (config?.server?.host ?? '') + '). ';
+                    else if(!remoteConnected()) {
+                        text += 'but not a Resound server. ';
+                    }
+                    else {
+                        text += 'and a Resound server. ';
                         text += 'Everything looks good. ';
                     }
                 }
@@ -754,10 +757,12 @@ async function updateSlide(changed = false) {
     //only interactive once installed and the web socket is connected:
     allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
 
+    const roomContainer = document.getElementById('room_container');
+    roomContainer.style.display = sphereIsOnline() ? 'block' : 'none';
+
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
-            const roomContainer = document.getElementById('room_container');
             layoutPeers(roomContainer);
             lastRow.innerHTML = generateLandingText();
             break;
@@ -796,13 +801,22 @@ async function updateSlide(changed = false) {
             break;
 
         case 'server':
-            document.getElementById('server_name').value = config?.server?.name ?? '';
-            document.getElementById('server_host').value = config?.server?.host ?? '';
-            document.getElementById('server_channel').value = config?.server?.room?.channel ?? '';
+            const name = document.getElementById('server_name');
+            const host = document.getElementById('server_host');
+            const channel = document.getElementById('server_channel');
+            const buttom = document.getElementById('server_button');
 
-            const serverButton = document.getElementById('server_button');
-            serverButton.disabled = remoteConnected();
-            serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
+            name.value = config?.server?.name ?? '';
+            host.value = config?.server?.host ?? '';
+            channel.value = config?.server?.room?.channel ?? '';
+            buttom.disabled = true;
+
+             //disable the button unless the creditals are changed:
+            name.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
+            host.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
+            channel.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
+
+            buttom.addEventListener('click', function(e) {onServerSaveEvent(e);});
             lastRow.innerHTML = generateServerText();
             break;
             
@@ -819,6 +833,10 @@ async function updateSlide(changed = false) {
             button.addEventListener('click', function(e) {
                 onWiFiSaveEvent(e);
             });
+
+            //disable the button unless the creditals are changed:
+            ssid.addEventListener("change", function(e) { document.getElementById('wifi_button').disabled = false;});
+            secret.addEventListener("input", function(e) { document.getElementById('wifi_button').disabled = false;});
 
             populateWiFiForm(config, ssidList);
             lastRow.innerHTML = generateWiFiText();
