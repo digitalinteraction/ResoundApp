@@ -6,7 +6,7 @@ on:
       target_folder:
         description: 'Folder to minify'
         required: false
-        default: 'src'
+        default: '.'
   push:
     paths:
       - '**.js'
@@ -32,18 +32,21 @@ jobs:
     - name: Minify JavaScript
       run: |
         FOLDER="${{ github.event.inputs.target_folder }}"
-        if [ -z "$FOLDER" ]; then FOLDER="src"; fi
-        mkdir -p dist
         find "$FOLDER" -name "*.js" ! -name "*.min.js" -exec sh -c '
           for f; do
-            out="dist/${f%.js}.min.js"
-            mkdir -p "$(dirname "$out")"
-            terser "$f" -o "$out"
+            terser "$f" -o "${f%.js}.min.js"
           done
         ' sh {} +
 
-    - name: Package minified files
-      run: zip -r minified-js.zip dist
+    - name: Package project (excluding .git, .github, etc.)
+      run: |
+        zip -r project.zip . \
+          -x "*.git*" \
+             ".github/*" \
+             ".gitignore" \
+             ".gitattributes" \
+             "project.zip" \
+             "*.zip"
 
     - name: Create GitHub Release
       id: create_release
@@ -51,7 +54,7 @@ jobs:
       with:
         tag_name: "auto-release-${{ github.run_number }}"
         name: "Automated Release ${{ github.run_number }}"
-        body: "Minified JS files from folder: ${{ github.event.inputs.target_folder || 'src' }}"
-        files: minified-js.zip
+        body: "Release including minified JS files from folder: ${{ github.event.inputs.target_folder || '.' }}"
+        files: project.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
