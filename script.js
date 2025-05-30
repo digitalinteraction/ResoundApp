@@ -93,7 +93,6 @@ function init() {
         document.getElementById('sphereversion').innerText = config?.version ?? '';
 
         manageWebSocket(() => onStart());
-        ssidList = await fetchWiFiNetworks();
 
         peers.push(...await fetchPeers());
         //onPeersChanged();
@@ -838,7 +837,9 @@ async function updateSlide(changed = false) {
             ssid.addEventListener("change", function(e) { document.getElementById('wifi_button').disabled = false;});
             secret.addEventListener("input", function(e) { document.getElementById('wifi_button').disabled = false;});
 
-            populateWiFiForm(config, ssidList);
+            fetchWiFiNetworks().then(ssidList => {
+                populateWiFiForm(config, ssidList);
+            });
             lastRow.innerHTML = generateWiFiText();
             break;
 
