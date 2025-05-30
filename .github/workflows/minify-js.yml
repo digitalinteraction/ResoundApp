@@ -1,4 +1,4 @@
-name: Minify JavaScript
+name: Minify JavaScript and Create Release
 
 on:
   workflow_dispatch:
@@ -9,12 +9,12 @@ on:
         default: 'src'
   push:
     paths:
-      - '**.js'       # only run when JS files are changed
+      - '**.js'
     branches:
-      - main          # or your preferred branch
+      - main
 
 jobs:
-  minify:
+  minify-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,12 +31,27 @@ jobs:
 
     - name: Minify JavaScript
       run: |
-        find . -name "*.js" ! -name "*.min.js" -exec sh -c 'for f; do terser "$f" -o "${f%.js}.min.js"; done' sh {} +
+        FOLDER="${{ github.event.inputs.target_folder }}"
+        if [ -z "$FOLDER" ]; then FOLDER="src"; fi
+        mkdir -p dist
+        find "$FOLDER" -name "*.js" ! -name "*.min.js" -exec sh -c '
+          for f; do
+            out="dist/${f%.js}.min.js"
+            mkdir -p "$(dirname "$out")"
+            terser "$f" -o "$out"
+          done
+        ' sh {} +
 
-    - name: Commit minified files
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git add .
-        git commit -m "Auto-minified JS files" || echo "No changes to commit"
-        git push
+    - name: Package minified files
+      run: zip -r minified-js.zip dist
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: "auto-release-${{ github.run_number }}"
+        name: "Automated Release ${{ github.run_number }}"
+        body: "Minified JS files from folder: ${{ github.event.inputs.target_folder || 'src' }}"
+        files: minified-js.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
