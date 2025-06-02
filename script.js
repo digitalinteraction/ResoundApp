@@ -657,7 +657,8 @@ function generateWebAppInstallText() {
             break;
         case 'chrome':
             text += '<li>Press the <i>More</i> button (<img class="icon" src="/img/chrome-more.png"/>).</li>';
-            text += '<li>Select <i>Add to Home screen</i> or <i>Install App</i> and confirm.</li>';
+            // text += '<li>Select <i>Add to Home screen</i> or <i>Install App</i> and confirm.</li>';
+            text += '<li>Select <i>Cast, save and share</i> then <i>Install page as app...</i> and confirm.</li>';
             break;
         default:
             text += '<li>Find instructions for your browser.</li>';
