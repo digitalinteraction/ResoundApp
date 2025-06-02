@@ -718,7 +718,7 @@ function generateTuningText() {
                 text += 'Your sphere isn\'t tuned.<br>'
                 + 'Start chanting NMRK to tune it. ';
             }
-            text += 'Swipe left when you\'re done. ';
+            //text += 'Swipe left when you\'re done. ';
         }
         else {
             text += 'Listening. ';
@@ -846,7 +846,7 @@ async function updateSlide(changed = false) {
             });
 
             //disable the button unless the creditals are changed:
-            ssid.addEventListener("change", function(e) { console.log('XXX'); document.getElementById('wifi_button').disabled = false;});
+            ssid.addEventListener("change", function(e) { document.getElementById('wifi_button').disabled = false;});
             secret.addEventListener("input", function(e) { document.getElementById('wifi_button').disabled = false;});
 
             fetchWiFiNetworks().then(ssidList => {
