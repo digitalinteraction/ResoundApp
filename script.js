@@ -706,17 +706,27 @@ function generateServerText() {
 function generateTuningText() {
     let text = '';
 
-    const f = config?.mic?.frequency;   //?? filter.frequency;
-    if(f) {
-        text += 'Your sphere is tuned to ' + f + 'Hz' 
-        + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
-        + 'Start chanting NMRK to retune it.';
+    if(!sphereIsUp()) {
+        if (!tuningTimeOutId) {
+            const f = config?.mic?.frequency;   //?? filter.frequency;
+            if(f) {
+                text += 'Your sphere is tuned to ' + f + 'Hz' 
+                + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
+                + 'Start chanting NMRK to retune it.';
+            }
+            else {
+                text += 'Your sphere isn\'t tuned.<br>'
+                + 'Start chanting NMRK to tune it.';
+            }
+            text += 'Swipe left when you\'re done. ';
+        }
+        else {
+            text += 'Listening. ';
+        }
     }
     else {
-        text += 'Your sphere isn\'t tuned.<br>'
-        + 'Start chanting NMRK to tune it.';
+        text += 'To get started, please turn the sphere over. ';
     }
-    text += 'Swipe left when you\'re done. ';
 
     return text.trim();
 }
@@ -787,18 +797,7 @@ async function updateSlide(changed = false) {
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
             
-            if(!sphereIsUp()) {
-                lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_down_text").innerHTML;
-            }
-            else {
-                if (!tuningTimeOutId) {
-                    lastRow.querySelector("span").innerHTML = generateTuningText();
-                  } else {
-                    lastRow.querySelector("span").innerHTML = 'listening';
-                  }
-                //lastRow.querySelector("span").innerHTML = lastRow.querySelector(".sphere_up_text").innerHTML;
-            }
-
+            lastRow.querySelector("span").innerHTML = generateTuningText();
             //lastRow.querySelector("span").innerHTML += ' f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
             
             break;
