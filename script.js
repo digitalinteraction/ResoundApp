@@ -348,8 +348,6 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 
         if(success) {
             if(post && rebootDelayMs >= 0) {
-                showSlideID('landing');
-                allowInteraction(false);
                 onSphereDown = undefined;
                 rebootTimeoutId = setTimeout(function () {
                     if(sphereIsUp()) {
@@ -359,6 +357,8 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                     }
                     else reboot();
                 }, rebootDelayMs);
+                showSlideID('landing');
+                allowInteraction(false);
             }
         }
     }
@@ -372,9 +372,11 @@ function onStart() {
     console.log("onStart", config);
 
     if(!config?.wifi?.ssid || captivePortalRunning()) {
+        allowInteraction(false);
         showSlideID('wifi');
     }
     else {
+        //allowInteraction(localConnected);
         if(!config?.server?.host || !remoteConnected()) {
             showSlideID('server');
         }
@@ -667,7 +669,7 @@ function generateWebAppInstallText() {
     return text.trim();
 }
 
-function generateWiFiText() {
+function generateWiFiText(networksAvailable) {
     const savedNetwork = config?.wifi?.ssid ?? '';
     let text = 'Your sphere is ';
 
@@ -679,7 +681,7 @@ function generateWiFiText() {
         if(savedNetwork !== '') text += ', it couldn\'t connect to <span class=\'ssid\'>' + savedNetwork + '</span>. ';
         else text += '. ';
 
-        if(ssidList.length > 0) text += 'Select a network, enter the password and press connect. ';
+        if(networksAvailable) text += 'Select a network, enter the password and press connect. ';
         else text += 'Unable to see any networks to connect to. ';
     }
 
@@ -754,7 +756,7 @@ async function updateSlide(changed = false) {
     }
 
     //only interactive once installed and the web socket is connected:
-    allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
+    //allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
 
     const roomContainer = document.getElementById('room_container');
     roomContainer.style.display = sphereIsOnline() ? 'block' : 'none';
@@ -839,7 +841,7 @@ async function updateSlide(changed = false) {
 
             fetchWiFiNetworks().then(ssidList => {
                 populateWiFiForm(config, ssidList);
-                lastRow.innerHTML = generateWiFiText();
+                lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
             });
             break;
 
