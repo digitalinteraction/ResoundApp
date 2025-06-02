@@ -706,7 +706,7 @@ function generateServerText() {
 function generateTuningText() {
     let text = '';
 
-    const f = config?.mic?.frequency ?? filter.frequency;
+    const f = config?.mic?.frequency;   //?? filter.frequency;
     if(f) {
         text += 'Your sphere is tuned to ' + f + 'Hz' 
         + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
@@ -716,6 +716,7 @@ function generateTuningText() {
         text += 'Your sphere isn\'t tuned.<br>'
         + 'Start chanting NMRK to tune it.';
     }
+    text += 'Swipe left when you\'re done. ';
 
     return text.trim();
 }
@@ -766,6 +767,7 @@ async function updateSlide(changed = false) {
         case 'landing':
             layoutPeers(roomContainer);
             lastRow.innerHTML = generateLandingText();
+            allowInteraction(isStandalone() && webSocketConnected);
             break;
         case 'tuning':
             // document.getElementById('tune_button').addEventListener('click', function (e) {
@@ -836,13 +838,14 @@ async function updateSlide(changed = false) {
             });
 
             //disable the button unless the creditals are changed:
-            ssid.addEventListener("change", function(e) { document.getElementById('wifi_button').disabled = false;});
+            ssid.addEventListener("change", function(e) { console.log('XXX'); document.getElementById('wifi_button').disabled = false;});
             secret.addEventListener("input", function(e) { document.getElementById('wifi_button').disabled = false;});
 
             fetchWiFiNetworks().then(ssidList => {
                 populateWiFiForm(config, ssidList);
                 lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
             });
+            allowInteraction(isStandalone() && webSocketConnected);
             break;
 
         case 'determination':
