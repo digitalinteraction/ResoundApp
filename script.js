@@ -706,17 +706,17 @@ function generateServerText() {
 function generateTuningText() {
     let text = '';
 
-    if(!sphereIsUp()) {
+    if(sphereIsUp()) {
         if (!tuningTimeOutId) {
             const f = config?.mic?.frequency;   //?? filter.frequency;
             if(f) {
                 text += 'Your sphere is tuned to ' + f + 'Hz' 
                 + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
-                + 'Start chanting NMRK to retune it.';
+                + 'Start chanting NMRK to retune it. ';
             }
             else {
                 text += 'Your sphere isn\'t tuned.<br>'
-                + 'Start chanting NMRK to tune it.';
+                + 'Start chanting NMRK to tune it. ';
             }
             text += 'Swipe left when you\'re done. ';
         }
@@ -732,20 +732,29 @@ function generateTuningText() {
 }
 
 function allowInteraction(v) {
+    showCarouselControls(v);
     allowSwipe(v);
+}
 
+function allowSwipe(v) {
+    if(v !== splide.options.drag) {
+        const arrows = document.querySelector('.splide__arrows');
+        const pagination = document.querySelector('.splide__pagination');
+
+        const controlVisible = (arrows.style.display === 'block' && pagination.style.display === 'flex');
+
+        splide.options = { drag: v };
+        splide.refresh();   //will reset the visibility of the controls
+        showCarouselControls(controlVisible);
+    }
+}
+
+function showCarouselControls(v) {
     const arrows = document.querySelector('.splide__arrows');
     const pagination = document.querySelector('.splide__pagination');
 
     if (arrows) arrows.style.display = v ? 'block' : 'none';
     if (pagination) pagination.style.display = v ? 'flex' : 'none';
-}
-
-function allowSwipe(v) {
-    if(v !== splide.options.drag) {
-        splide.options = { drag: v };
-        splide.refresh();
-    }
 }
 
 async function updateSlide(changed = false) {
