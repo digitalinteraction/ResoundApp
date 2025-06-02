@@ -2,7 +2,7 @@ let rebootTimeoutId = undefined;
 let saveConfigTimeOutId = undefined;
 let tuningTimeOutId = undefined;
 let peerTimeOutId = {};
-const peerTimeoutMs = 3000;
+const peerTimeoutMs = 10000;
 
 let webSocket;
 let webSocketConnected = false;
