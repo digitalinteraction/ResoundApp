@@ -1,4 +1,4 @@
-name: Minify JavaScript and Commit
+name: Minify JS/CSS and commit
 
 on:
   workflow_dispatch:
@@ -28,9 +28,11 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install terser
-      run: npm install -g terser
-
+    - name: Install terser and clean-css
+      run: |
+        npm install -g terser
+        npm install -g clean-css-cli
+      
     - name: Minify JavaScript
       run: |
         FOLDER="${{ github.event.inputs.target_folder || '.' }}"
@@ -41,14 +43,25 @@ jobs:
           done
         ' sh {} +
 
+    - name: Minify CSS
+      run: |
+        FOLDER="${{ github.event.inputs.target_folder }}"
+        FOLDER=${FOLDER:-.}
+        find "$FOLDER" -name "*.css" ! -name "*.min.css" -exec sh -c '
+          for f; do
+            echo "Minifying: $f"
+            cleancss -o "${f%.css}.min.css" "$f"
+          done
+        ' sh {} +
+
     - name: Commit and push minified files
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git add '*.min.js'
+        git add '*.min.js' '*.min.css'
         if git diff --cached --quiet; then
           echo "No changes to commit."
         else
-          git commit -m "Auto-minified JS files [skip ci]"
+          git commit -m "auto-minified"
           git push
         fi
