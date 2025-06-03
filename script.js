@@ -46,6 +46,8 @@ const peers = [];
 
 let lastSplideIndex = -1;
 
+const enableSwipe = false;
+
 function init() {
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
@@ -619,16 +621,16 @@ function generateLandingText() {
             }
             else {
                 if(isStandalone()) {
-                    text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network ';
+                    text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network';
                     if(!localConnected()) {
-                        text += '.<br>Please wait. ';
+                        text += ' .<br>Please wait. ';
                     }
                     else if(!remoteConnected()) {
-                        text += 'but not a Resound server. ';
+                        text += ' but not a Resound server. ';
                     }
                     else {
-                        text += 'and a Resound server. ';
-                        text += 'Everything looks good. ';
+                        text += ' and a Resound server. ';
+                        text += ' Everything looks good. ';
                     }
                 }
                 else {
@@ -740,6 +742,8 @@ function allowInteraction(v) {
 }
 
 function allowSwipe(v) {
+    v = v && enableSwipe;
+
     if(v !== splide.options.drag) {
         const arrows = document.querySelector('.splide__arrows');
         const pagination = document.querySelector('.splide__pagination');
