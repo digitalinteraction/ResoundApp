@@ -371,6 +371,8 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 function onStart() {
     console.log("onStart", config);
 
+    if(isStandalone()) fetch('/yoyo/pair');
+
     if(!config?.wifi?.ssid || captivePortalRunning()) {
         allowInteraction(false);
         showSlideID('wifi');
