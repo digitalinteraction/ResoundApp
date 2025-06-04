@@ -975,8 +975,10 @@ async function postJson(endpoint, json) {
 
 async function setMic(options, save = false) {
     console.log('setMic', options);
+    Object.assign(mic, options);
     console.log('mic', mic);
 
+    postJson('/yoyo/mic', {...mic, save: save});
     //level, sampleRate, bandwidth, frequency
     /*
     filter = {
