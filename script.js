@@ -680,14 +680,13 @@ function generateServerText() {
 
 function generateTuningText() {
     let text = '';
-    const isTuned = (config?.mic?.frequency !== undefined);
+    const f = config?.mic?.frequency;
+    const isTuned = (f !== undefined);
 
     if(!isTuned) {
         text += 'Your sphere isn\'t tuned.<br>';
     }
     else {
-        const f = config?.mic?.frequency;
-
         text += 'Your sphere is tuned to ' + f + 'Hz' 
         + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>';
     }
