@@ -146,7 +146,7 @@ function onTuningComplete() {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
         console.log('micLevel', micLevel);
-        setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
+        setMic({frequency: peak.frequency}, true, true);  //parseFloat(micLevel.toFixed(1))
     }
     tuningTimeOutId = undefined;
     updateSlide();
@@ -394,14 +394,14 @@ async function activateTuning(v = true) {
 
     if (v) {
         //let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
-        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false, false);
     }
     else {
         if(tuningTimeOutId !== undefined) {
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
         }
-        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
+        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, false, true); //return to default rate
     }
 }
 
@@ -962,16 +962,18 @@ async function postJson(endpoint, json) {
     return success;
 }
 
-async function setMic(options, save = false) {
+async function setMic(options, triggered = false, save = false) {
     Object.assign(mic, options);
+    if(triggered) mic['triggered'] = true;
 
     //Constrain the bandwidth to fit within limits:
     const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
     const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
     mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
 
-    console.log('setMic', mic, save);
+    console.log('setMic', mic, mic['triggered'], save);
 
+    save = save && mic['triggered'];
     if(save) {
         config.mic = config.mic ?? {};
         config.mic.frequency = mic.frequency;
