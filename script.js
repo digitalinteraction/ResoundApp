@@ -390,7 +390,8 @@ async function activateTuning(v = true) {
     console.log('activateTuning', v);
 
     if (v) {
-        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        const frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
+        setMic({level: 1, frequency: frequency, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
     }
     else {
         if(tuningTimeOutId !== undefined) {
@@ -672,8 +673,9 @@ function generateTuningText() {
     let text = '';
 
     if(sphereIsUp()) {
-        const f = mic?.frequency;
-        if(f) {
+        if(config?.mic?.frequency) {
+            const f = mic?.frequency ?? config?.mic?.frequency;
+
             text += 'Your sphere is tuned to ' + f + 'Hz' 
             + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
             + 'Chant NMRK to retune it. ';
@@ -967,7 +969,14 @@ async function postJson(endpoint, json) {
 async function setMic(options, save = false) {
     Object.assign(mic, options);
     console.log('setMic', mic, save);
+
     postJson('/yoyo/mic', {...mic, save: save});
+    if(save) {
+        config.mic = config.mic ?? {};
+        config.mic.frequency = mic.frequency;
+        config.mic.bandwidth = mic.bandwidth;
+        config.mic.level = mic.level;
+    }
 }
 
 async function setSound(json) {
