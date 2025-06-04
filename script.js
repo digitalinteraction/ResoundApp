@@ -145,6 +145,7 @@ function onTuningComplete() {
     if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
+        console.log('micLevel', micLevel);
         setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
     }
     tuningTimeOutId = undefined;
@@ -392,8 +393,8 @@ async function activateTuning(v = true) {
     console.log('activateTuning', v);
 
     if (v) {
-        let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
-        setMic({level: 1, frequency: frequency, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        //let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
+        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
     }
     else {
         if(tuningTimeOutId !== undefined) {
@@ -680,7 +681,7 @@ function generateTuningText() {
         text += 'Your sphere isn\'t tuned.<br>';
     }
     else {
-        text += 'Your sphere is tuned to ' + f + 'Hz' 
+        text += 'Your sphere is tuned to a frequency of ' + f + 'Hz' 
         + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>';
     }
 
@@ -964,13 +965,11 @@ async function postJson(endpoint, json) {
 async function setMic(options, save = false) {
     Object.assign(mic, options);
 
-    if(!save) {
-        //Constrain the frequency and bandwidth to fit within limits:
-        const f0 = Math.max(mic.frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
-        const f1 = Math.min(mic.frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
-        mic.bandwidth = f1 - f0;
-        mic.frequency = f0 + (mic.bandwidth/2);
-    }
+    //Constrain the bandwidth to fit within limits:
+    const f0 = Math.max(mic.frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
+    const f1 = Math.min(mic.frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
+    mic.bandwidth = 2 * Math.min(mic.frequency - f0, f1 - mic.frequency);
+
     console.log('setMic', mic, save);
 
     if(save) {
