@@ -389,6 +389,7 @@ async function onSlideMoved() {
 async function activateTuning(v = true) { //wideListening?
     let result = false;
 
+    console.log('activateTuning', v);
     /*
     console.log('tuningTimeOutId', tuningTimeOutId);
 
@@ -402,7 +403,7 @@ async function activateTuning(v = true) { //wideListening?
     } else {
         clearTimeout(tuningTimeOutId);
         tuningTimeOutId = undefined;
-        setMic({rate: -1}, false); //return to default rate
+        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
     }
     
     return result;
@@ -743,11 +744,8 @@ async function updateSlide(changed = false) {
     const id = getSlideIdByIndex(splide.index);
 
     if(changed) {
-        if(id === 'tuning') {
-            activateTuning(true);
-        }
-        else activateTuning(false);
-        console.log('slide changed');
+        if(id === 'tuning') activateTuning(true);
+        else if(getSlideIdByIndex(lastSplideIndex) === 'tuning') activateTuning(false);
     }
 
     //only interactive once installed and the web socket is connected:
