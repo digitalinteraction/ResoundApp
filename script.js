@@ -672,7 +672,7 @@ function generateTuningText() {
     let text = '';
 
     if(sphereIsUp()) {
-        const f = config?.mic?.frequency;
+        const f = mic?.frequency;
         if(f) {
             text += 'Your sphere is tuned to ' + f + 'Hz' 
             + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
@@ -967,12 +967,6 @@ async function postJson(endpoint, json) {
 async function setMic(options, save = false) {
     Object.assign(mic, options);
     console.log('setMic', mic, save);
-    if(save) {
-        config.mic = config.mic ?? {};
-        config.mic.frequency = mic.frequency;
-        config.mic.bandwidth = mic.bandwidth;
-        config.mic.level = mic.level;
-    }
     postJson('/yoyo/mic', {...mic, save: save});
 }
 
