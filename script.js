@@ -393,14 +393,7 @@ async function activateTuning(v = true) {
 
     if (v) {
         let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
-
-        //Modify the frequency and bandwidth to fit within limits:
-        const f0 = Math.max(frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
-        const f1 = Math.min(frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
-        let bandwidth = f1 - f0;
-        frequency = f0 + (bandwidth/2);
-
-        setMic({level: 1, frequency: frequency, bandwidth: bandwidth, rate: highMicSampleRate}, false);
+        setMic({level: 1, frequency: frequency, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
     }
     else {
         if(tuningTimeOutId !== undefined) {
@@ -970,6 +963,13 @@ async function postJson(endpoint, json) {
 
 async function setMic(options, save = false) {
     Object.assign(mic, options);
+
+    //Constrain the frequency and bandwidth to fit within limits:
+    const f0 = Math.max(mic.frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
+    const f1 = Math.min(mic.frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
+    mic.bandwidth = f1 - f0;
+    mic.frequency = f0 + (mic.bandwidth/2);
+
     console.log('setMic', mic, save);
 
     if(save) {
