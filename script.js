@@ -968,6 +968,7 @@ async function setMic(options, save = false) {
     Object.assign(mic, options);
     console.log('setMic', mic, save);
     if(save) {
+        config.mic = config.mic ?? {};
         config.mic.frequency = mic.frequency;
         config.mic.bandwidth = mic.bandwidth;
         config.mic.level = mic.level;
