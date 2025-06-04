@@ -143,7 +143,7 @@ function onTuningComplete() {
     if(peak.frequency > 0 && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-        setMic({frequency: peak.frequency}, false);  //parseFloat(micLevel.toFixed(1))
+        setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
     }
     tuningTimeOutId = undefined;
     updateSlide();
@@ -386,24 +386,22 @@ async function onSlideMoved() {
     console.log('onSlideMoved');
 }
 
-async function activateTuning(v = true) { //wideListening?
-    let result = false;
-
+async function activateTuning(v = true) {
     console.log('activateTuning', v);
-    /*
-    console.log('tuningTimeOutId', tuningTimeOutId);
 
-    if(v !== (tuningTimeOutId !== undefined)) {
-    }
-    */
+    let result = false;
+    let save = false;
 
     if (v && webSocketConnected) {
-        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, save);
         result = true;
     } else {
-        clearTimeout(tuningTimeOutId);
-        tuningTimeOutId = undefined;
-        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
+        if(tuningTimeOutId !== undefined) {
+            clearTimeout(tuningTimeOutId);
+            tuningTimeOutId = undefined;
+            save = true;    //there was some activity the filter may have changed
+        }
+        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, save); //return to default rate
     }
     
     return result;
@@ -973,24 +971,8 @@ async function postJson(endpoint, json) {
 }
 
 async function setMic(options, save = false) {
-    console.log('setMic', options);
     Object.assign(mic, options);
-    console.log('mic', mic);
-
     postJson('/yoyo/mic', {...mic, save: save});
-    //level, sampleRate, bandwidth, frequency
-    /*
-    filter = {
-        frequency: wideFilterFrequencyHz,
-        bandwidth: wideFilterBandwidthHz
-    };
-
-    json = {f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate}
-
-    if(save) json['save'] = save;
-    console.log('setMic ' +  JSON.stringify(json));
-    postJson('/yoyo/mic', json);
-    */
 }
 
 async function setSound(json) {
