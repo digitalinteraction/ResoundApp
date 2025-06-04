@@ -22,6 +22,7 @@ const maxWarmth = 5.0;
 let isTuning = false;
 let peakEnergy = 0;
 
+const minFilterFrequencyHz = 90;
 const wideFilterFrequencyHz = 165;
 const narrowFilterBandwidthHz = 15;
 const wideFilterBandwidthHz = 150;
@@ -140,7 +141,7 @@ function onTuningComplete() {
     console.log('stop tuning');
     const peak = getGoodHistogramPeak(histogram);
     console.log('getGoodHistogramPeak ', peak);
-    if(peak.frequency > 0 && peakEnergy > 0) {
+    if(peak.frequency > minFilterFrequencyHz && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
         setMic({frequency: peak.frequency}, false);  //parseFloat(micLevel.toFixed(1))
@@ -671,26 +672,20 @@ function generateServerText() {
 
 function generateTuningText() {
     let text = '';
+    const isTuned = config?.mic?.frequency !== undefined;
+
+    if(!isTuned) {
+        text += 'Your sphere isn\'t tuned.<br>';
+    }
+    else {
+        const f = mic?.frequency ?? config?.mic?.frequency;
+
+        text += 'Your sphere is tuned to ' + f + 'Hz' 
+        + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>';
+    }
 
     if(sphereIsUp()) {
-        if(config?.mic?.frequency) {
-            const f = mic?.frequency ?? config?.mic?.frequency;
-
-            text += 'Your sphere is tuned to ' + f + 'Hz' 
-            + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
-            + 'Chant NMRK to retune it. ';
-        }
-        else {
-            text += 'Your sphere isn\'t tuned.<br>'
-            + 'Chant NMRK to tune it. ';
-        }
-        //text += 'Swipe left when you\'re done. ';
-
-        // if (!tuningTimeOutId) {
-        // }
-        // else {
-        //     text += 'Listening. ';
-        // }
+        text += 'Chant NMRK to ' + (isTuned ? 're' : '') + 'tune it. ';
     }
     else {
         text += 'To get started, please turn the sphere over. ';
