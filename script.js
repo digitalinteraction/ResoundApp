@@ -966,8 +966,8 @@ async function setMic(options, save = false) {
     Object.assign(mic, options);
 
     //Constrain the bandwidth to fit within limits:
-    const f0 = Math.max(mic.frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
-    const f1 = Math.min(mic.frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
+    const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
+    const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
     mic.bandwidth = 2 * Math.min(mic.frequency - f0, f1 - mic.frequency);
 
     console.log('setMic', mic, save);
