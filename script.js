@@ -143,7 +143,7 @@ function onTuningComplete() {
     if(peak.frequency > 0 && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-        setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
+        setMic({frequency: peak.frequency}, false);  //parseFloat(micLevel.toFixed(1))
     }
     tuningTimeOutId = undefined;
     updateSlide();
@@ -388,17 +388,16 @@ async function onSlideMoved() {
 
 async function activateTuning(v = true) {
     console.log('activateTuning', v);
-    let save = false;
 
     if (v) {
-        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, save);
+        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
     }
     else {
         if(tuningTimeOutId !== undefined) {
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
         }
-        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, save); //return to default rate
+        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
     }
 }
 
