@@ -388,14 +388,12 @@ async function onSlideMoved() {
 
 async function activateTuning(v = true) {
     console.log('activateTuning', v);
-
-    let result = false;
     let save = false;
 
-    if (v && webSocketConnected) {
+    if (v) {
         setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, save);
-        result = true;
-    } else {
+    }
+    else {
         if(tuningTimeOutId !== undefined) {
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
@@ -403,8 +401,6 @@ async function activateTuning(v = true) {
         }
         setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, save); //return to default rate
     }
-    
-    return result;
 }
 
 function drawEllipse(canvas, width, height) {
