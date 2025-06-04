@@ -23,6 +23,7 @@ let isTuning = false;
 let peakEnergy = 0;
 
 const minFilterFrequencyHz = 90;
+const maxFilterFrequencyHz = 250;
 const wideFilterFrequencyHz = 165;
 const narrowFilterBandwidthHz = 15;
 const wideFilterBandwidthHz = 150;
@@ -141,7 +142,7 @@ function onTuningComplete() {
     console.log('stop tuning');
     const peak = getGoodHistogramPeak(histogram);
     console.log('getGoodHistogramPeak ', peak);
-    if(peak.frequency > minFilterFrequencyHz && peakEnergy > 0) {
+    if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
         setMic({frequency: peak.frequency}, false);  //parseFloat(micLevel.toFixed(1))
@@ -391,10 +392,15 @@ async function activateTuning(v = true) {
     console.log('activateTuning', v);
 
     if (v) {
-        const frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
-        frequency = Math.max(frequency, minFilterFrequencyHz + (wideFilterBandwidthHz/2));
+        let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
 
-        setMic({level: 1, frequency: frequency, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        //Modify the frequency and bandwidth to fit within limits:
+        const f0 = Math.max(frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
+        const f1 = Math.min(frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
+        let bandwidth = f1 - f0;
+        frequency = f0 + (bandwidth/2);
+
+        setMic({level: 1, frequency: frequency, bandwidth: bandwidth, rate: highMicSampleRate}, false);
     }
     else {
         if(tuningTimeOutId !== undefined) {
@@ -674,13 +680,13 @@ function generateServerText() {
 
 function generateTuningText() {
     let text = '';
-    const isTuned = config?.mic?.frequency !== undefined;
+    const isTuned = (config?.mic?.frequency !== undefined);
 
     if(!isTuned) {
         text += 'Your sphere isn\'t tuned.<br>';
     }
     else {
-        const f = mic?.frequency ?? config?.mic?.frequency;
+        const f = config?.mic?.frequency;
 
         text += 'Your sphere is tuned to ' + f + 'Hz' 
         + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>';
@@ -967,13 +973,13 @@ async function setMic(options, save = false) {
     Object.assign(mic, options);
     console.log('setMic', mic, save);
 
-    postJson('/yoyo/mic', {...mic, save: save});
     if(save) {
         config.mic = config.mic ?? {};
         config.mic.frequency = mic.frequency;
         config.mic.bandwidth = mic.bandwidth;
         config.mic.level = mic.level;
     }
+    postJson('/yoyo/mic', {...mic, save: save});
 }
 
 async function setSound(json) {
