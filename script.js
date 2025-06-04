@@ -26,10 +26,7 @@ const wideFilterFrequencyHz = 165;
 const narrowFilterBandwidthHz = 15;
 const wideFilterBandwidthHz = 150;
 
-let filter = {
-    frequency: wideFilterFrequencyHz,
-    bandwidth: wideFilterBandwidthHz
-};
+let mic = {};
 
 const numberOfHistogramBins = 8;
 const histogram = Array(numberOfHistogramBins).fill(0);
@@ -146,10 +143,7 @@ function onTuningComplete() {
     if(peak.frequency > 0 && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-        setMic({
-            f: peak.frequency,
-            //l: parseFloat(micLevel.toFixed(1))
-        }, false);
+        setMic({frequency: peak.frequency}, false);  //parseFloat(micLevel.toFixed(1))
     }
     tuningTimeOutId = undefined;
     updateSlide();
@@ -399,19 +393,12 @@ async function activateTuning(v = true) { //wideListening?
 
     if(v !== (tuningTimeOutId !== undefined)) {
         if (v && webSocketConnected) {
-            //isTuning = true; // Set tuning to true - samples will be added to histogram
-            filter = {
-                frequency: wideFilterFrequencyHz,
-                bandwidth: wideFilterBandwidthHz
-            };
-            setMic({f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate});
+            setMic({sampleRate: highMicSampleRate}, false);
             result = true;
-            //tuneSphere();
         } else {
-            //isTuning = false; // Set tuning to false
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
-            setMic(); //return to defaults
+            setMic({}, false); //return to defaults
         }
     }
     
@@ -689,7 +676,7 @@ function generateTuningText() {
     let text = '';
 
     if(sphereIsUp()) {
-        const f = config?.mic?.frequency;   //?? filter.frequency;
+        const f = config?.mic?.frequency;
         if(f) {
             text += 'Your sphere is tuned to ' + f + 'Hz' 
             + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
@@ -904,44 +891,6 @@ function isCold() {
     return warmth < (0.15 * maxWarmth);
 }
 
-function tuneSphere() {
-    //console.log('tuneSphere', tuning);
-
-    if(false && isTuning) {
-        const peakFrequency = getGoodHistogramPeak(histogram);
-        clearHistogram(histogram);
-        
-        let done = true;
-        if(peakFrequency != -1) {
-            if(isWarm()) {
-            }
-            else {
-                console.log("peakFrequency:" + peakFrequency);
-                done = false;
-            }
-        }
-        else done = false;
-
-        if(!done) {
-            setTimeout(() => {
-                tuneSphere();
-            }, tuneWindowMs);
-        }
-        else {
-            activateTuning(false);
-
-            const bw = 30;  //Math.ceil(filter.bandwidth / histogram.length);
-            filter = {
-                frequency: peakFrequency,
-                bandwidth: bw
-            };
-            
-            console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
-            setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
-        }
-    }
-}
-
 function showNextSlide() {
     splide.go('>');
 }
@@ -1022,10 +971,23 @@ async function postJson(endpoint, json) {
     return success;
 }
 
-async function setMic(json = {}, save = false) {
+async function setMic(options, save = false) {
+    console.log('setMic', options);
+    console.log('mic', mic);
+
+    //level, sampleRate, bandwidth, frequency
+    /*
+    filter = {
+        frequency: wideFilterFrequencyHz,
+        bandwidth: wideFilterBandwidthHz
+    };
+
+    json = {f:filter.frequency, bw:filter.bandwidth, r:highMicSampleRate}
+
     if(save) json['save'] = save;
     console.log('setMic ' +  JSON.stringify(json));
     postJson('/yoyo/mic', json);
+    */
 }
 
 async function setSound(json) {
@@ -1324,9 +1286,9 @@ function setBackgroundFromValue(value) {
 }
 
 function addSampleToHistogram(f, v) {
-    const fl = filter.frequency - (filter.bandwidth/2);
-    const fh = filter.frequency + (filter.bandwidth/2);
-    const binSize = filter.bandwidth/histogram.length;
+    const fl = mic.frequency - (mic.bandwidth/2);
+    const fh = mic.frequency + (mic.bandwidth/2);
+    const binSize = mic.bandwidth/histogram.length;
 
     const n = Math.floor((f - fl)/binSize);
     if(n >= 0 && n < histogram.length){
@@ -1369,8 +1331,8 @@ function getGoodHistogramPeak(histogram) {
         const peak = findHistogramPeak(histogram);
 
         if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
-            const binWidth = filter.bandwidth / histogram.length;
-            frequency = Math.floor(filter.frequency - (filter.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
+            const binWidth = mic.bandwidth / histogram.length;
+            frequency = Math.floor(mic.frequency - (mic.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
             value = peak.value;
         }
     }
