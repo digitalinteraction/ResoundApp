@@ -389,17 +389,19 @@ async function onSlideMoved() {
 async function activateTuning(v = true) { //wideListening?
     let result = false;
 
+    /*
     console.log('tuningTimeOutId', tuningTimeOutId);
 
     if(v !== (tuningTimeOutId !== undefined)) {
-        if (v && webSocketConnected) {
-            setMic({sampleRate: highMicSampleRate}, false);
-            result = true;
-        } else {
-            clearTimeout(tuningTimeOutId);
-            tuningTimeOutId = undefined;
-            setMic({}, false); //return to defaults
-        }
+    }
+    */
+    if (v && webSocketConnected) {
+        setMic({sampleRate: highMicSampleRate}, false);
+        result = true;
+    } else {
+        clearTimeout(tuningTimeOutId);
+        tuningTimeOutId = undefined;
+        setMic({}, false); //return to defaults
     }
     
     return result;
