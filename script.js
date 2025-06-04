@@ -146,7 +146,8 @@ function onTuningComplete() {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
         console.log('micLevel', micLevel);
-        setMic({frequency: peak.frequency}, true, true);  //parseFloat(micLevel.toFixed(1))
+        setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
+        goodPeakFound = true;
     }
     tuningTimeOutId = undefined;
     updateSlide();
@@ -389,19 +390,21 @@ async function onSlideMoved() {
     console.log('onSlideMoved');
 }
 
+let goodPeakFound = false;
 async function activateTuning(v = true) {
     console.log('activateTuning', v);
 
     if (v) {
         //let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
-        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false, false);
+        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        goodPeakFound = false;
     }
     else {
         if(tuningTimeOutId !== undefined) {
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
         }
-        setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, false, true); //return to default rate
+        setMic({rate: -1, frequency: goodPeakFound ? mic.frequency : config.mic.frequency, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
     }
 }
 
@@ -962,18 +965,16 @@ async function postJson(endpoint, json) {
     return success;
 }
 
-async function setMic(options, triggered = false, save = false) {
+async function setMic(options, save = false) {
     Object.assign(mic, options);
-    if(triggered) mic['triggered'] = true;
 
     //Constrain the bandwidth to fit within limits:
     const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
     const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
     mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
 
-    console.log('setMic', mic, mic['triggered'], save);
+    console.log('setMic', mic, save);
 
-    save = save && mic['triggered'];
     if(save) {
         config.mic = config.mic ?? {};
         config.mic.frequency = mic.frequency;
