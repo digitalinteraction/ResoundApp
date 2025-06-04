@@ -39,6 +39,7 @@ const lowMicSampleRate = 1;
 const highMicSampleRate = 5;
 
 let audioCtx = undefined;
+//if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let onTouchOneTime = null;
 
@@ -138,33 +139,30 @@ function preloadImage(url) {
 }
 
 let micLevel = 0;
+function onTuningComplete() {
+    console.log('stop tuning');
+    const peak = getGoodHistogramPeak(histogram);
+    console.log('getGoodHistogramPeak ', peak);
+    if(peak.frequency > 0 && peakEnergy > 0) {
+        //Adjust microphone so the sphere will turn orange at this chanting volume
+        micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
+        setMic({
+            f: peak.frequency,
+            //l: parseFloat(micLevel.toFixed(1))
+        }, false);
+    }
+    tuningTimeOutId = undefined;
+    updateSlide();
+    peakEnergy = 0;
+}
+
 function loop() {
     const id = getSlideIdByIndex(splide.index);
     if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
         console.log('start tuning');
         clearHistogram(histogram);
         tuningTimeOutId = setTimeout(() => {
-            console.log('stop tuning');
-            const peak = getGoodHistogramPeak(histogram);
-            console.log('getGoodHistogramPeak ', peak);
-            if(peak.frequency > 0 && peakEnergy > 0) {
-                //Adjust microphone so the sphere will turn orange at this chanting volume
-                micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-                setMic({
-                    f: peak.frequency,
-                    l: parseFloat(micLevel.toFixed(1))
-                });
-                // setConfiguration({
-                //     "mic": {
-                //         "frequency": peak.frequency,
-                //         "bandwidth": narrowFilterBandwidthHz,
-                //         "level": micLevel
-                //     }
-                // });
-            }
-            tuningTimeOutId = undefined;
-            updateSlide();
-            peakEnergy = 0;
+            onTuningComplete();
         }, tuneWindowMs);
         updateSlide();
     }
@@ -388,29 +386,6 @@ function onStart() {
             showSlideID('landing');
         }
     }
-
-    /*
-    if(sphereIsUp()) {
-        setMic({r:-1});
-
-        if(!config?.mic?.frequency) {
-            showSlideID('tuning');
-        }
-        else {
-            console.log(config.mic);
-            
-            else {
-                console.log(config.server);
-                
-                else {
-                    console.log(config.wifi);
-                    //showSlideID('room');
-                }
-            }
-        }
-    }
-    else showSlideID('landing');
-    */
 }
 
 async function onSlideMoved() {
@@ -419,6 +394,8 @@ async function onSlideMoved() {
 
 async function activateTuning(v = true) { //wideListening?
     let result = false;
+
+    console.log('tuningTimeOutId', tuningTimeOutId);
 
     if(v !== (tuningTimeOutId !== undefined)) {
         if (v && webSocketConnected) {
@@ -712,22 +689,23 @@ function generateTuningText() {
     let text = '';
 
     if(sphereIsUp()) {
-        if (!tuningTimeOutId) {
-            const f = config?.mic?.frequency;   //?? filter.frequency;
-            if(f) {
-                text += 'Your sphere is tuned to ' + f + 'Hz' 
-                + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
-                + 'Start chanting NMRK to retune it. ';
-            }
-            else {
-                text += 'Your sphere isn\'t tuned.<br>'
-                + 'Start chanting NMRK to tune it. ';
-            }
-            //text += 'Swipe left when you\'re done. ';
+        const f = config?.mic?.frequency;   //?? filter.frequency;
+        if(f) {
+            text += 'Your sphere is tuned to ' + f + 'Hz' 
+            + (getNoteName(f) ? ' (the note of ' + getNoteName(f) + ')' : '') + '.<br>' 
+            + 'Chant NMRK to retune it. ';
         }
         else {
-            text += 'Listening. ';
+            text += 'Your sphere isn\'t tuned.<br>'
+            + 'Chant NMRK to tune it. ';
         }
+        //text += 'Swipe left when you\'re done. ';
+
+        // if (!tuningTimeOutId) {
+        // }
+        // else {
+        //     text += 'Listening. ';
+        // }
     }
     else {
         text += 'To get started, please turn the sphere over. ';
@@ -796,25 +774,10 @@ async function updateSlide(changed = false) {
             allowInteraction(isStandalone() && webSocketConnected);
             break;
         case 'tuning':
-            // document.getElementById('tune_button').addEventListener('click', function (e) {
-            //     console.log('tune_button clicked');
-            //     if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            //     activateTuning(!isTuning);
-            // });
-            // const miclevel = document.getElementById('miclevel');
-            // miclevel.disabled = !sphereIsUp();
-            // miclevel.value = (config?.mic?.level ?? 1.0) * 10;
-            // miclevel.addEventListener('change', function() {
-            //     const v = Math.max(0.1, miclevel.value/10);
-            //     setMic({l:v});
-            //     config.mic.level = v;
-            //     setConfiguration({mic: config.mic});
-            // });
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
             
             lastRow.querySelector("span").innerHTML = generateTuningText();
-            //lastRow.querySelector("span").innerHTML += ' f=' + config?.mic?.frequency + 'Hz, bw=' + config?.mic?.bandwidth + 'Hz, level=' + config?.mic?.level;
             
             break;
 
@@ -975,19 +938,6 @@ function tuneSphere() {
             
             console.log('*** peak frequency is: ', filter.frequency, filter.bandwidth);
             setMic({f:filter.frequency, bw:filter.bandwidth, r:-1});
-            
-            // setConfiguration({
-            //     "mic": {
-            //         "frequency": peakFrequency,
-            //         "bandwidth": bw
-            //     }
-            // });
-
-            // const toneDurationMs = 4000;
-            // playTone(filter.frequency, toneDurationMs, 0.5);
-            // setTimeout(function() {
-            //     showNextSlide();
-            // }, toneDurationMs);
         }
     }
 }
