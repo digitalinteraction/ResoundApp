@@ -397,7 +397,6 @@ async function activateTuning(v = true) {
         if(tuningTimeOutId !== undefined) {
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
-            save = true;    //there was some activity the filter may have changed
         }
         setMic({rate: -1, bandwidth: narrowFilterBandwidthHz}, save); //return to default rate
     }
@@ -968,6 +967,7 @@ async function postJson(endpoint, json) {
 
 async function setMic(options, save = false) {
     Object.assign(mic, options);
+    console.log('setMic', mic, save);
     postJson('/yoyo/mic', {...mic, save: save});
 }
 
