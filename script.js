@@ -395,13 +395,14 @@ async function activateTuning(v = true) { //wideListening?
     if(v !== (tuningTimeOutId !== undefined)) {
     }
     */
+
     if (v && webSocketConnected) {
-        setMic({sampleRate: highMicSampleRate}, false);
+        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
         result = true;
     } else {
         clearTimeout(tuningTimeOutId);
         tuningTimeOutId = undefined;
-        setMic({}, false); //return to defaults
+        setMic({rate: -1}, false); //return to default rate
     }
     
     return result;
