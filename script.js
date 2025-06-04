@@ -145,7 +145,7 @@ function onTuningComplete() {
     if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
         //Adjust microphone so the sphere will turn orange at this chanting volume
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-        setMic({frequency: peak.frequency}, false);  //parseFloat(micLevel.toFixed(1))
+        setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
     }
     tuningTimeOutId = undefined;
     updateSlide();
