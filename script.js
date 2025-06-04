@@ -964,12 +964,13 @@ async function postJson(endpoint, json) {
 async function setMic(options, save = false) {
     Object.assign(mic, options);
 
-    //Constrain the frequency and bandwidth to fit within limits:
-    const f0 = Math.max(mic.frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
-    const f1 = Math.min(mic.frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
-    mic.bandwidth = f1 - f0;
-    mic.frequency = f0 + (mic.bandwidth/2);
-
+    if(!save) {
+        //Constrain the frequency and bandwidth to fit within limits:
+        const f0 = Math.max(mic.frequency - (wideFilterBandwidthHz/2), minFilterFrequencyHz);
+        const f1 = Math.min(mic.frequency + (wideFilterBandwidthHz/2), maxFilterFrequencyHz);
+        mic.bandwidth = f1 - f0;
+        mic.frequency = f0 + (mic.bandwidth/2);
+    }
     console.log('setMic', mic, save);
 
     if(save) {
