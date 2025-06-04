@@ -392,6 +392,8 @@ async function activateTuning(v = true) {
 
     if (v) {
         const frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
+        frequency = Math.max(frequency, minFilterFrequencyHz + (wideFilterBandwidthHz/2));
+
         setMic({level: 1, frequency: frequency, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
     }
     else {
