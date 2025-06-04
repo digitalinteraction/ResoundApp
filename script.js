@@ -24,9 +24,9 @@ let peakEnergy = 0;
 
 const minFilterFrequencyHz = 90;
 const maxFilterFrequencyHz = 250;
-const wideFilterFrequencyHz = 165;
+const wideFilterFrequencyHz = (minFilterFrequencyHz + maxFilterFrequencyHz)/2;
+const wideFilterBandwidthHz = maxFilterFrequencyHz - minFilterFrequencyHz;
 const narrowFilterBandwidthHz = 15;
-const wideFilterBandwidthHz = 150;
 
 let mic = {};
 
@@ -968,7 +968,7 @@ async function setMic(options, save = false) {
     //Constrain the bandwidth to fit within limits:
     const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
     const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
-    mic.bandwidth = 2 * Math.min(mic.frequency - f0, f1 - mic.frequency);
+    mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
 
     console.log('setMic', mic, save);
 
