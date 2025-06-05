@@ -404,7 +404,8 @@ async function activateTuning(v = true) {
             clearTimeout(tuningTimeOutId);
             tuningTimeOutId = undefined;
         }
-        setMic({rate: -1, frequency: goodPeakFound ? mic.frequency : config.mic.frequency, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
+        const f = goodPeakFound ? mic.frequency : config?.mic?.frequency;
+        setMic({rate: -1, frequency: f, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
     }
 }
 
@@ -977,9 +978,9 @@ async function setMic(options, save = false) {
 
     if(save) {
         config.mic = config.mic ?? {};
-        config.mic.frequency = mic.frequency;
-        config.mic.bandwidth = mic.bandwidth;
-        config.mic.level = mic.level;
+        config.mic.frequency = mic?.frequency;
+        config.mic.bandwidth = mic?.bandwidth;
+        config.mic.level = mic?.level;
     }
     postJson('/yoyo/mic', {...mic, save: save});
 }
