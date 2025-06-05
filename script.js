@@ -1,6 +1,5 @@
 let rebootTimeoutId = undefined;
 let saveConfigTimeOutId = undefined;
-let tuningTimeOutId = undefined;
 let peerTimeOutId = {};
 const peerTimeoutMs = 10000;
 
@@ -19,8 +18,13 @@ const frameRate = 20;
 let warmth = 0;
 let targetWarmth = 0;
 const maxWarmth = 5.0;
-let isTuning = false;
 let peakEnergy = 0;
+
+const tuningState = {
+    running: false,
+    goodPeakFound: false,
+    timeOutId: undefined
+}
 
 const minFilterFrequencyHz = 90;
 const maxFilterFrequencyHz = 250;
@@ -147,19 +151,19 @@ function onTuningComplete() {
         micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
         console.log('micLevel', micLevel);
         setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
-        goodPeakFound = true;
+        tuningState.goodPeakFound = true;
     }
-    tuningTimeOutId = undefined;
+    tuningState.timeOutId = undefined;
     updateSlide();
     peakEnergy = 0;
 }
 
 function loop() {
     const id = getSlideIdByIndex(splide.index);
-    if(id === 'tuning' && !tuningTimeOutId && !isCold()) {
+    if(id === 'tuning' && !tuningState.timeOutId && !isCold()) {
         console.log('start tuning');
         clearHistogram(histogram);
-        tuningTimeOutId = setTimeout(() => {
+        tuningState.timeOutId = setTimeout(() => {
             onTuningComplete();
         }, tuneWindowMs);
         updateSlide();
@@ -277,7 +281,7 @@ function onWebSocketConnected(v = true) {
             }
         }
         else {
-            //if(tuningTimeOutId) activateTuning(false); 
+            //if(tuningState.timeOutId) activateTuning(false); 
         }
         webSocketConnected = v;
         updateSlide();
@@ -390,23 +394,24 @@ async function onSlideMoved() {
     console.log('onSlideMoved');
 }
 
-let goodPeakFound = false;
 async function activateTuning(v = true) {
-    console.log('activateTuning', v);
-
-    if (v) {
+    if (v && !tuningState.running) {
         //let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
         setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
-        goodPeakFound = false;
+        tuningState.running = true;
+        tuningState.goodPeakFound = false;
     }
-    else {
-        if(tuningTimeOutId !== undefined) {
-            clearTimeout(tuningTimeOutId);
-            tuningTimeOutId = undefined;
+    else if (!v && tuningState.running) {
+        if(tuningState.timeOutId !== undefined) {
+            clearTimeout(tuningState.timeOutId);
+            tuningState.timeOutId = undefined;
         }
-        const f = goodPeakFound ? mic.frequency : config?.mic?.frequency;
+        const f = tuningState.goodPeakFound ? mic.frequency : config?.mic?.frequency;
         setMic({rate: -1, frequency: f, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
+        tuningState.running = false;
     }
+
+    console.log('activateTuning', v, tuningState);
 }
 
 function drawEllipse(canvas, width, height) {
@@ -738,10 +743,10 @@ async function updateSlide(changed = false) {
     const id = getSlideIdByIndex(splide.index);
 
     if(changed) {
-        if(id === 'tuning') activateTuning(true);
-        else if(getSlideIdByIndex(lastSplideIndex) === 'tuning') activateTuning(false);
+        if(id === 'tuning' && sphereIsUp()) activateTuning(true);
+        else if(getSlideIdByIndex(lastSplideIndex) === 'tuning' && tuningState.running) activateTuning(false);
     }
-
+    
     //only interactive once installed and the web socket is connected:
     //allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
 
@@ -1207,16 +1212,16 @@ function addPeerConsoleText(text) {
 }
 
 function parseLocalSoundMessage(json) {
-    if(tuningTimeOutId) console.log('parseLocalSoundMessage' + JSON.stringify(json));
+    if(tuningState.timeOutId) console.log('parseLocalSoundMessage' + JSON.stringify(json));
 
     const f = json['f'];
     const v = json['v'];
     const e = json['e'];
     
     targetWarmth = e;
-    if(tuningTimeOutId) addSampleToHistogram(f,v);
+    if(tuningState.timeOutId) addSampleToHistogram(f,v);
 
-    peakEnergy = tuningTimeOutId ? Math.max(e, peakEnergy) : 0;
+    peakEnergy = tuningState.timeOutId ? Math.max(e, peakEnergy) : 0;
 }
 
 function parseLocalTouchMessage(json) {
