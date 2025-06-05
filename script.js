@@ -146,7 +146,7 @@ function preloadImage(url) {
 function onTuningComplete() {
     if(tuningState.running) {
         console.log('stop tuning');
-        const peak = getGoodHistogramPeak(histogram);
+        const peak = getGoodHistogramPeak(histogram, minHistogramPeakValue * (mic?.level ?? 1));
         console.log('getGoodHistogramPeak ', peak);
         if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
             //Adjust microphone so the sphere will turn orange at this chanting volume
@@ -1323,7 +1323,7 @@ function calculateHistogramStats(histogram) {
     return { mean, sd };
 }
 
-function getGoodHistogramPeak(histogram) {
+function getGoodHistogramPeak(histogram, threshold) {
     let frequency = -1;
     let value = -1;
 
@@ -1331,7 +1331,7 @@ function getGoodHistogramPeak(histogram) {
         const { mean, sd } = calculateHistogramStats(histogram);
         const peak = findHistogramPeak(histogram);
 
-        if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
+        if (peak.value > threshold && peak.value > mean + (2 * sd)) {
             console.log('---peak.value---', peak.value);
 
             const binWidth = mic.bandwidth / histogram.length;
