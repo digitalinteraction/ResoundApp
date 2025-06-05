@@ -150,7 +150,7 @@ function onTuningComplete() {
         console.log('getGoodHistogramPeak ', peak);
         if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
             //Adjust microphone so the sphere will turn orange at this chanting volume
-            const micLevel = 1; //(mic?.level ?? 1) * (maxWarmth/peakEnergy);
+            const micLevel = (mic?.level ?? 1) * (maxWarmth/peakEnergy);
             setMic({frequency: peak.frequency, level: parseFloat(micLevel.toFixed(2))}, true);
             tuningState.goodPeakFound = true;
 
