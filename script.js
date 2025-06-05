@@ -399,8 +399,7 @@ async function onSlideMoved() {
 
 async function activateTuning(v = true) {
     if (v && !tuningState.running) {
-        //let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
-        setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        setMic({level: (mic?.level ?? 1), frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
         tuningState.timeOutId = undefined;
         tuningState.goodPeakFound = false;
         tuningState.running = true;
