@@ -970,19 +970,20 @@ async function setMic(options, save = false) {
     Object.assign(mic, options);
 
     //Constrain the bandwidth to fit within limits:
-    const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
-    const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
-    mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
-
-    console.log('setMic', mic, save);
-
-    if(save) {
-        config.mic = config.mic ?? {};
-        config.mic.frequency = mic?.frequency;
-        config.mic.bandwidth = mic?.bandwidth;
-        config.mic.level = mic?.level;
+    if(mic.frequency &&  mic.bandwidth) {
+        const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
+        const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
+        mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
+    
+        if(save) {
+            config.mic = config.mic ?? {};
+            config.mic.frequency = mic?.frequency;
+            config.mic.bandwidth = mic?.bandwidth;
+            config.mic.level = mic?.level;
+        }
+        postJson('/yoyo/mic', {...mic, save: save});
     }
-    postJson('/yoyo/mic', {...mic, save: save});
+    console.log('setMic', mic, save);
 }
 
 async function setSound(json) {
