@@ -576,7 +576,7 @@ function generateLandingText() {
 
     if(sphereWillReboot()) {
         if(sphereIsUp()) text += 'Turn the sphere over now and it ';
-        else text += 'The sphere will now';
+        else text += 'The sphere';
 
         text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
         
