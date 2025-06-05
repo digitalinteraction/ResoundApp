@@ -143,18 +143,21 @@ function preloadImage(url) {
 
 let micLevel = 0;
 function onTuningComplete() {
-    console.log('stop tuning');
-    const peak = getGoodHistogramPeak(histogram);
-    console.log('getGoodHistogramPeak ', peak);
-    if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
-        //Adjust microphone so the sphere will turn orange at this chanting volume
-        micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
-        console.log('micLevel', micLevel);
-        setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
-        tuningState.goodPeakFound = true;
+    if(tuningState.running) {
+        console.log('stop tuning');
+        const peak = getGoodHistogramPeak(histogram);
+        console.log('getGoodHistogramPeak ', peak);
+        if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
+            //Adjust microphone so the sphere will turn orange at this chanting volume
+            micLevel = (config?.mic?.level ?? 1) * (maxWarmth/peakEnergy);
+            console.log('micLevel', micLevel);
+            setMic({frequency: peak.frequency}, true);  //parseFloat(micLevel.toFixed(1))
+            tuningState.goodPeakFound = true;
+
+            updateSlide();
+        }
     }
     tuningState.timeOutId = undefined;
-    updateSlide();
     peakEnergy = 0;
 }
 
