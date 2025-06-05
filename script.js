@@ -41,6 +41,8 @@ const tuneWindowMs = 3000;
 const lowMicSampleRate = 1;
 const highMicSampleRate = 5;
 
+const minHistogramPeakValue = 1.0;  //at highMicSampleRate (5 per second) and tuneWindowMs (3000)
+
 let audioCtx = undefined;
 //if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -148,7 +150,7 @@ function onTuningComplete() {
         console.log('getGoodHistogramPeak ', peak);
         if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
             //Adjust microphone so the sphere will turn orange at this chanting volume
-            const micLevel = (mic?.level ?? 1) * (maxWarmth/peakEnergy);
+            const micLevel = 1; //(mic?.level ?? 1) * (maxWarmth/peakEnergy);
             setMic({frequency: peak.frequency, level: parseFloat(micLevel.toFixed(2))}, true);
             tuningState.goodPeakFound = true;
 
@@ -1321,7 +1323,6 @@ function calculateHistogramStats(histogram) {
     return { mean, sd };
 }
 
-const minHistogramPeakValue = 1.0;  //at highMicSampleRate (5 per second) and tuneWindowMs (3000)
 function getGoodHistogramPeak(histogram) {
     let frequency = -1;
     let value = -1;
@@ -1331,6 +1332,8 @@ function getGoodHistogramPeak(histogram) {
         const peak = findHistogramPeak(histogram);
 
         if (peak.value > minHistogramPeakValue && peak.value > mean + (2 * sd)) {
+            console.log('---peak.value---', peak.value);
+
             const binWidth = mic.bandwidth / histogram.length;
             frequency = Math.floor(mic.frequency - (mic.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
             value = peak.value;
