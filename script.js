@@ -401,8 +401,9 @@ async function activateTuning(v = true) {
     if (v && !tuningState.running) {
         //let frequency = config?.mic?.frequency ?? wideFilterFrequencyHz;
         setMic({level: 1, frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
-        tuningState.running = true;
+        tuningState.timeOutId = undefined;
         tuningState.goodPeakFound = false;
+        tuningState.running = true;
     }
     else if (!v && tuningState.running) {
         if(tuningState.timeOutId !== undefined) {
@@ -411,6 +412,7 @@ async function activateTuning(v = true) {
         }
         const f = tuningState.goodPeakFound ? mic.frequency : config?.mic?.frequency;
         setMic({rate: -1, frequency: f, bandwidth: narrowFilterBandwidthHz}, true); //return to default rate
+        tuningState.goodPeakFound = false;
         tuningState.running = false;
     }
 
@@ -745,10 +747,8 @@ async function updateSlide(changed = false) {
 
     const id = getSlideIdByIndex(splide.index);
 
-    if(changed) {
-        if(id === 'tuning' && sphereIsUp()) activateTuning(true);
-        else if(getSlideIdByIndex(lastSplideIndex) === 'tuning' && tuningState.running) activateTuning(false);
-    }
+    if(id === 'tuning') activateTuning(sphereIsUp());
+    else activateTuning(false);
     
     //only interactive once installed and the web socket is connected:
     //allowInteraction((id === 'landing') ? isStandalone() : webSocketConnected);
