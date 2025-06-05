@@ -662,7 +662,7 @@ function generateWiFiText(networksAvailable) {
         else text += '. ';
 
         if(networksAvailable) text += 'Select a network, enter the password and press connect. ';
-        else text += 'Unable to see any networks to connect to. ';
+ //       else text += 'Unable to see any networks to connect to. ';
     }
 
     return text.trim();
