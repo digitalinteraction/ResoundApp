@@ -61,21 +61,23 @@ function init() {
             perPage: 1,
             drag: false,    //also swipe
         }).mount();
+        showCarousel(false);
         positionSphereImage();
-        showSlideID('landing');
         allowInteraction(false);
 
-        document.addEventListener('focus', function(event) {
-            if(event.target.parentElement.classList.contains('yo-yo-form')) {
-                allowSwipe(false);
-            }
-        }, true);
+        if(enableSwipe) {
+            document.addEventListener('focus', function(event) {
+                if(event.target.parentElement.classList.contains('yo-yo-form')) {
+                    allowSwipe(false);
+                }
+            }, true);
 
-        document.addEventListener('blur', function(event) {
-            if(event.target.parentElement.classList.contains('yo-yo-form')) {
-                allowSwipe(true);
-            }
-        }, true);
+            document.addEventListener('blur', function(event) {
+                if(event.target.parentElement.classList.contains('yo-yo-form')) {
+                    allowSwipe(true);
+                }
+            }, true);
+        }
 
         window.addEventListener('resize', debounce(() => {
             positionSphereImage();
@@ -117,6 +119,12 @@ function init() {
         }, 2000);
         determinationText.addEventListener('input', determinationListener);
     } );
+}
+
+function showCarousel(v) {
+    var carousel = document.getElementById('carousel');
+    carousel.style.visibility = v ? 'visible' : 'hidden';
+    carousel.style['pointer-events'] = v ? 'auto' : 'none';
 }
 
 function positionSphereImage() {
@@ -391,6 +399,7 @@ function onStart() {
             showSlideID('landing');
         }
     }
+    showCarousel(true);
 }
 
 async function onSlideMoved() {
