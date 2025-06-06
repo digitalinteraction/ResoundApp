@@ -47,6 +47,7 @@ let audioCtx = undefined;
 //if(audioCtx === undefined) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 let onTouchOneTime = null;
+let onMovedOneTime = null;
 
 const peers = [];
 
@@ -84,6 +85,13 @@ function init() {
             updateSlide();
         }, 300));
 
+        splide.on('moved', (slideIndex) => {
+            if(onMovedOneTime) {
+                onMovedOneTime();
+                onMovedOneTime = undefined;
+            }
+        });
+
         splide.on('active', (slideElement) => {
             //prevent splide.refresh() calls causing updateSlide() events:
             if(lastSplideIndex !== splide.index) updateSlide(true);
@@ -119,12 +127,6 @@ function init() {
         }, 2000);
         determinationText.addEventListener('input', determinationListener);
     } );
-}
-
-function showCarousel(v) {
-    var carousel = document.getElementById('carousel');
-    carousel.style.visibility = v ? 'visible' : 'hidden';
-    carousel.style['pointer-events'] = v ? 'auto' : 'none';
 }
 
 function positionSphereImage() {
@@ -386,20 +388,20 @@ function onStart() {
 
     if(isStandalone()) fetch('/yoyo/pair');
 
+    const f = function() { showCarousel(true); };
     if(!config?.wifi?.ssid || captivePortalRunning()) {
         allowInteraction(false);
-        showSlideID('wifi');
+        showSlideID('wifi', f);
     }
     else {
         //allowInteraction(localConnected);
         if(!config?.server?.host || !remoteConnected()) {
-            showSlideID('server');
+            showSlideID('server', f);
         }
         else {
-            showSlideID('landing');
+            showSlideID('landing', f);
         }
     }
-    showCarousel(true);
 }
 
 async function onSlideMoved() {
@@ -735,6 +737,12 @@ function allowSwipe(v) {
     }
 }
 
+function showCarousel(v) {
+    var carousel = document.getElementById('carousel');
+    carousel.style.visibility = v ? 'visible' : 'hidden';
+    carousel.style['pointer-events'] = v ? 'auto' : 'none';
+}
+
 function showCarouselControls(v) {
     const arrows = document.querySelector('.splide__arrows');
     const pagination = document.querySelector('.splide__pagination');
@@ -904,15 +912,18 @@ function showNextSlide() {
     splide.go('>');
 }
 
-function showSlideID(id) {
-    console.log('showSlideID', id);
-    showSlideIndex(getSlideIndexByID(id));
+function showSlideID(id, onMoved = undefined) {
+    showSlideIndex(getSlideIndexByID(id), onMoved);
 }
 
-function showSlideIndex(i) {
+function showSlideIndex(i, onMoved = undefined) {
     if(splide) {
-        if(i >= 0 && i != splide.index) {
-            splide.go(i);
+        if(i >= 0) {
+            if(i != splide.index) {
+                onMovedOneTime = onMoved;
+                splide.go(i);
+            }
+            else if(onMoved) onMoved();
         }
     }
 }
