@@ -822,27 +822,29 @@ async function updateSlide(changed = false) {
             
         case 'wifi':
             const wifiForm = document.getElementById('wifi_form');
-            wifiForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                onWiFiSaveEvent(new FormData(wifiForm));
-            });
+            if(changed) {
+                wifiForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    onWiFiSaveEvent(new FormData(wifiForm));
+                });
 
-            const ssid = document.getElementById('wifi_ssid');
-            ssid.disabled = true;
-            
-            const secret = document.getElementById('wifi_secret');
-            secret.disabled = true;
-            // secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
+                const ssid = document.getElementById('wifi_ssid');
+                ssid.disabled = true;
+                
+                const secret = document.getElementById('wifi_secret');
+                secret.disabled = true;
+                // secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
 
-            const wifiButton = document.getElementById('wifi_button');
-            wifiButton.disabled = true;
-            // wifiButton.addEventListener('click', function(e) {
-            //     onWiFiSaveEvent(e);
-            // });
+                const wifiButton = document.getElementById('wifi_button');
+                wifiButton.disabled = true;
+                // wifiButton.addEventListener('click', function(e) {
+                //     onWiFiSaveEvent(e);
+                // });
 
-            //disable the button unless the creditals are changed:
-            ssid.addEventListener("change", function(e) { wifiButton.disabled = false;});
-            secret.addEventListener("input", function(e) { wifiButton.disabled = false;});
+                //disable the button unless the creditals are changed:
+                // ssid.addEventListener("change", function(e) { wifiButton.disabled = false;});
+                // secret.addEventListener("input", function(e) { wifiButton.disabled = false;});
+            }
             
             fetchWiFiNetworks().then(ssidList => {
                 populateWiFiForm(config, ssidList);
