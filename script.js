@@ -54,8 +54,16 @@ const peers = [];
 let lastSplideIndex = -1;
 
 const enableSwipe = false;
+let deferredInstallPrompt = undefined;
 
 function init() {
+    // Typical PWA install prompt trigger
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('-= beforeinstallprompt =-', e);
+        e.preventDefault();
+        deferredInstallPrompt = e;
+    });
+
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
             type: 'slide',  //don't use loop it duplicates the content and screws up the forms
@@ -278,7 +286,7 @@ function onStatus(s) {
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
         switch (getSlideIdByIndex(splide.index)) {
-            case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].innerHTML = generateLandingText();
+            case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].querySelector('span').innerHTML = generateLandingText();
         }
 	    drawSphere(statuscode);
     }
@@ -773,8 +781,15 @@ async function updateSlide(changed = false) {
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
+            const installButton = document.getElementById('install_button');
+            installButton.addEventListener('click', () => {
+                if (deferredInstallPrompt) {
+                    deferredInstallPrompt.prompt();
+                }
+            });
+
             layoutPeers(roomContainer);
-            lastRow.innerHTML = generateLandingText();
+            lastRow.querySelector('span').innerHTML = generateLandingText();
             allowInteraction(isStandalone() && webSocketConnected);
             break;
         case 'tuning':
@@ -789,19 +804,19 @@ async function updateSlide(changed = false) {
             const name = document.getElementById('server_name');
             const host = document.getElementById('server_host');
             const channel = document.getElementById('server_channel');
-            const buttom = document.getElementById('server_button');
+            const serverButton = document.getElementById('server_button');
 
             name.value = config?.server?.name ?? '';
             host.value = config?.server?.host ?? '';
             channel.value = config?.server?.room?.channel ?? '';
-            buttom.disabled = true;
+            serverButton.disabled = true;
 
              //disable the button unless the creditals are changed:
             name.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
             host.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
             channel.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
 
-            buttom.addEventListener('click', function(e) {onServerSaveEvent(e);});
+            serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
             lastRow.innerHTML = generateServerText();
             break;
             
@@ -813,9 +828,9 @@ async function updateSlide(changed = false) {
             secret.disabled = true;
             secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
 
-            const button = document.getElementById('wifi_button');
-            button.disabled = true;
-            button.addEventListener('click', function(e) {
+            const wifiButton = document.getElementById('wifi_button');
+            wifiButton.disabled = true;
+            wifiButton.addEventListener('click', function(e) {
                 onWiFiSaveEvent(e);
             });
 
