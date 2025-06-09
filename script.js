@@ -821,23 +821,29 @@ async function updateSlide(changed = false) {
             break;
             
         case 'wifi':
+            const wifiForm = document.getElementById('wifi_form');
+            wifiForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                onWiFiSaveEvent(new FormData(wifiForm));
+            });
+
             const ssid = document.getElementById('wifi_ssid');
             ssid.disabled = true;
             
             const secret = document.getElementById('wifi_secret');
             secret.disabled = true;
-            secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
+            // secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
 
             const wifiButton = document.getElementById('wifi_button');
             wifiButton.disabled = true;
-            wifiButton.addEventListener('click', function(e) {
-                onWiFiSaveEvent(e);
-            });
+            // wifiButton.addEventListener('click', function(e) {
+            //     onWiFiSaveEvent(e);
+            // });
 
             //disable the button unless the creditals are changed:
-            ssid.addEventListener("change", function(e) { document.getElementById('wifi_button').disabled = false;});
-            secret.addEventListener("input", function(e) { document.getElementById('wifi_button').disabled = false;});
-
+            ssid.addEventListener("change", function(e) { wifiButton.disabled = false;});
+            secret.addEventListener("input", function(e) { wifiButton.disabled = false;});
+            
             fetchWiFiNetworks().then(ssidList => {
                 populateWiFiForm(config, ssidList);
                 lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
@@ -1098,12 +1104,10 @@ function populateWiFiForm(config, ssidList = []) {
     }
 }
 
-async function onWiFiSaveEvent(event) {
+async function onWiFiSaveEvent(data) {
     console.log("onWiFiSaveEvent");
-    event.preventDefault();
-
-    const ssid = document.getElementById('wifi_ssid').value;
-    const secret = document.getElementById('wifi_secret').value;
+    const ssid = data.get('ssid');
+    const secret = data.get('secret');
 
     if(ssid && ssid.length > 0) {
         setConfiguration({
