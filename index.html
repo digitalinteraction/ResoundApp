@@ -46,11 +46,11 @@
                           Connect the sphere with your community! 
                         </div>
                         <div class="row middle-row">
-                          <form class="yo-yo-form">
-                            <input id="server_host" class="form-control" placeholder="Resound Server" type="text">
-                            <input id="server_channel" class="form-control" placeholder="Channel" type="text">
-                            <input id="server_name" class="form-control" placeholder="Name" type="text">
-                            <button id="server_button" type="button">Connect</button>
+                          <form class="yo-yo-form" id="server_form">
+                            <input name="host" id="server_host" class="form-control" placeholder="Resound Server" type="text">
+                            <input name="channel" id="server_channel" class="form-control" placeholder="Channel" type="text">
+                            <input name="name" id="server_name" class="form-control" placeholder="Name" type="text">
+                            <button id="server_button" type="submit">Connect</button>
                           </form>
                         </div>
                         <div class="row"></div>
@@ -60,13 +60,6 @@
                       <div class="slide-content">
                           <div class="row top-row">Tune the sphere to your voice!</div>
                           <div class="row middle-row">
-                            <!-- <form class="yo-yo-form">
-                              <button id="tune_button" type="button">Tune</button>
-                            </form>
-                            <div class="slider-container">
-                              <label for="volume">mic level</label>
-                              <input type="range" class="slider" id="miclevel" min="0" max="20" value="10">
-                            </div> -->
                           </div>
                           <div class="row">
                             <span class="content"></span>
@@ -100,8 +93,10 @@
                             </div>
                           </template>
                         </div>
-                        <div class="row"><span></span></div>
-                        <button id="install_button" type="button">Install</button>
+                        <div class="row">
+                          <span></span>
+                          <button id="install_button" type="button">Install</button>
+                        </div>
                       </div>
                     </li>
                     <li class="splide__slide" data-id="determination">

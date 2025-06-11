@@ -9,6 +9,9 @@ let onWebSocketConnectedOneTime = null;
 let webSocketReconnect = undefined;
 let config = {};
 
+let onSphereUp = undefined;
+let onSphereDown = undefined;
+
 const maxWifiNetworks = 16;
 let ssidList = [];
 
@@ -53,10 +56,13 @@ const peers = [];
 
 let lastSplideIndex = -1;
 
-const enableSwipe = false;
+const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 function init() {
+    preloadImage("img/sphere-down.png");
+    preloadImage("img/sphere-up.png");
+
     // Typical PWA install prompt trigger
     window.addEventListener('beforeinstallprompt', (e) => {
         console.log('-= beforeinstallprompt =-', e);
@@ -75,6 +81,7 @@ function init() {
         allowInteraction(false);
 
         if(enableSwipe) {
+            //stop form interactions starting a swipe gesture
             document.addEventListener('focus', function(event) {
                 if(event.target.parentElement.classList.contains('yo-yo-form')) {
                     allowSwipe(false);
@@ -93,6 +100,29 @@ function init() {
             updateSlide();
         }, 300));
 
+        const serverForm = document.getElementById('server_form');
+        serverForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            onServerSaveEvent(new FormData(serverForm));
+        });
+
+        const wifiForm = document.getElementById('wifi_form');
+        wifiForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            onWiFiSaveEvent(new FormData(wifiForm));
+        });
+
+        const determinationText = document.getElementById('determination_individual');
+        const determinationListener = debounce((e) => {
+            console.log('determinationListener');
+            const json = { server: { ...(config.server ?? {}) }};          
+            json.server.room = { ...(json.server.room ?? {}) };
+            json.server.room.determination = e.target.value;
+              
+            setConfiguration(json);
+        }, 2000);
+        determinationText.addEventListener('input', determinationListener);
+
         splide.on('moved', (slideIndex) => {
             if(onMovedOneTime) {
                 onMovedOneTime();
@@ -108,10 +138,6 @@ function init() {
         updateSlide(true);
 
         setInterval(() => { loop(); }, 1000/frameRate);
-
-        preloadImage("img/sphere-down.png");
-        preloadImage("img/sphere-up.png");
-
         setInterval(() => { onTick(); }, 10000);
         await getConfiguration();
 
@@ -123,17 +149,6 @@ function init() {
         peers.push(...await fetchPeers());
         //onPeersChanged();
         makePeers(document.getElementById('room_container'), config.peers);
-
-        const determinationText = document.getElementById('determination_individual');
-        const determinationListener = debounce((e) => {
-            console.log('determinationListener');
-            const json = { server: { ...(config.server ?? {}) }};          
-            json.server.room = { ...(json.server.room ?? {}) };
-            json.server.room.determination = e.target.value;
-              
-            setConfiguration(json);
-        }, 2000);
-        determinationText.addEventListener('input', determinationListener);
     } );
 }
 
@@ -267,7 +282,6 @@ function drawSphere(s) {
     else                sphereImage.src = 'img/sphere-down.png';
 }
 
-let onSphereUp = undefined, onSphereDown = undefined;
 function onStatus(s) {
     if(statuscode != s) {
         const lastStatus = statuscode;
@@ -286,7 +300,7 @@ function onStatus(s) {
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
         switch (getSlideIdByIndex(splide.index)) {
-            case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].querySelector('span').innerHTML = generateLandingText();
+            case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].querySelector("span").innerHTML = generateLandingText();
         }
 	    drawSphere(statuscode);
     }
@@ -388,8 +402,6 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 
     return success;
 }
-
-
 
 function onStart() {
     console.log("onStart", config);
@@ -796,7 +808,7 @@ async function updateSlide(changed = false) {
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
             
-            lastRow.querySelector("span").innerHTML = generateTuningText();
+            lastRow.querySelector('span').innerHTML = generateTuningText();
             
             break;
 
@@ -804,30 +816,24 @@ async function updateSlide(changed = false) {
             const name = document.getElementById('server_name');
             const host = document.getElementById('server_host');
             const channel = document.getElementById('server_channel');
-            const serverButton = document.getElementById('server_button');
+            //const serverButton = document.getElementById('server_button');
 
             name.value = config?.server?.name ?? '';
             host.value = config?.server?.host ?? '';
             channel.value = config?.server?.room?.channel ?? '';
-            serverButton.disabled = true;
+            //serverButton.disabled = true;
 
              //disable the button unless the creditals are changed:
-            name.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
-            host.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
-            channel.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
+            // name.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
+            // host.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
+            // channel.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
 
-            serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
+            //serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
             lastRow.innerHTML = generateServerText();
             break;
             
         case 'wifi':
-            const wifiForm = document.getElementById('wifi_form');
             if(changed) {
-                wifiForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    onWiFiSaveEvent(new FormData(wifiForm));
-                });
-
                 const ssid = document.getElementById('wifi_ssid');
                 ssid.disabled = true;
                 
@@ -873,7 +879,7 @@ async function updateSlide(changed = false) {
             onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
 
-            lastRow.querySelector("span").innerHTML = sphereIsUp()
+            lastRow.querySelector('span').innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
                 : lastRow.querySelector(".sphere_down_text").innerHTML;
 
@@ -1121,20 +1127,15 @@ async function onWiFiSaveEvent(data) {
     }
 }
 
-async function onServerSaveEvent(event) {
+async function onServerSaveEvent(data) {
     console.log("onServerSaveEvent");
-    event.preventDefault();
-
-    const name = document.getElementById('server_name').value;
-    const host = document.getElementById('server_host').value;
-    const channel = document.getElementById('server_channel').value;
 
     setConfiguration({
         "server": {
-            "name": name,
-            "host": host,
+            "name": data.get('name'),
+            "host": data.get('host'),
             "room": {
-                "channel": channel
+                "channel": data.get('channel')
             }
         }
     });
