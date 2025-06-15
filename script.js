@@ -1279,7 +1279,7 @@ function parseLocalGestureMessage(json) {
     console.log('gesture', json);
 
     const type = json['t'];
-    if(type === 'clk' || type === 'anti') {
+    if(isStandalone() && (type === 'clk' || type === 'anti')) {
         showSlideID('volume');
     }
 }
