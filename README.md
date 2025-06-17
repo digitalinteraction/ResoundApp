@@ -1,4 +1,4 @@
-<img src="img/resound_logo.svg" width="200" alt="Resound Logo">
+<p align="center"><img src="img/resound_logo.svg" width="200" alt="Resound Logo"></p>
 
 # Resound App
 
