@@ -1,10 +1,10 @@
+<img src="img/resound_logo.svg" width="200" alt="Resound Logo">
+
 # Resound App
 
 This web-based app is hosted on the Resound Sphere and is a submodule of the [Resound](https://github.com/digitalinteraction/Resound) project. It is also hosted on [GitHub Pages](https://digitalinteraction.github.io/ResoundApp/) and tested via the console. 
 
 The locally hosted app manages connection to WiFi, configuation of the sphere and displays the current state of the device and connected peers. It is intended to be installed as a Progressive Web App (PWA) on a smart phone.
-
-![Resound Sphere](img/resound_logo.svg)
 
 ---
 
@@ -56,5 +56,4 @@ The locally hosted app manages connection to WiFi, configuation of the sphere an
 
 ## License
 
-© 2025 Newcastle University
-This project is licensed under the [MIT License](LICENSE.txt).
+© 2025 Newcastle University. This project is licensed under the [MIT License](LICENSE.txt).
