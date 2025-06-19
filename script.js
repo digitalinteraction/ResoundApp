@@ -528,17 +528,19 @@ function makePeer(id, user, container) {
     if(user) peer.querySelector("span").textContent = user;
     updatePeer(peer, false);
 
-    peer.onclick = function() {
-        onUserClicked(peer.id);
-    };
-    
+    peer.addEventListener("mousedown", () => { onUserClicked(peer.id); });
+    peer.addEventListener("mouseup", () => { onUserClicked(peer.id, false); });
+    peer.addEventListener("touchstart", () => { onUserClicked(peer.id); });
+    peer.addEventListener("touchend", () => { onUserClicked(peer.id, false); });
+
     if(container) container.appendChild(peer);
 
     return peer;
 }
 
-function onUserClicked(id) {
-    console.log("onUserClicked: " + id);
+function onUserClicked(id, active = true) {
+    console.log("onUserClicked: " + id, active);
+    if(active) postJson('/yoyo/tone', {'index': id, 'amplitude': 0.5, 'duration': 1000, 'fade': 100});
 }
 
 function updatePeer(peer, online) {
