@@ -150,6 +150,23 @@ function init() {
         //onPeersChanged();
         makePeers(document.getElementById('room_container'), config.peers);
     } );
+
+    document.addEventListener("keydown", (event) => {
+        if(!event.repeat) onKeyPressed(event.key, true);
+    });
+
+    document.addEventListener("keyup", (event) => {
+        onKeyPressed(event.key, false);
+    });
+}
+
+function onKeyPressed(key, on) {
+    if(getSlideId() === 'landing') {
+        const number = Number(event.key);
+        if (!isNaN(number)) {
+            onUserClicked(number-1, on);
+        }
+    }
 }
 
 function positionSphereImage() {
@@ -195,7 +212,7 @@ function onTuningComplete() {
 }
 
 function loop() {
-    const id = getSlideIdByIndex(splide.index);
+    const id = getSlideId();
     if(id === 'tuning' && !tuningState.timeOutId && !isCold()) {
         console.log('start tuning');
         clearHistogram(histogram);
@@ -299,7 +316,7 @@ function onStatus(s) {
         if(!sphereIsOnline(lastStatus) && sphereIsOnline()) onOnline();
         if(sphereIsOnline(lastStatus) && !sphereIsOnline()) onOffline();
 
-        switch (getSlideIdByIndex(splide.index)) {
+        switch (getSlideId()) {
             case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].querySelector("span").innerHTML = generateLandingText();
         }
 	    drawSphere(statuscode);
@@ -540,7 +557,7 @@ function makePeer(id, user, container) {
 
 function onUserClicked(id, active = true) {
     console.log("onUserClicked: " + id, active);
-    if(active) postJson('/yoyo/tone', {'index': id, 'amplitude': 0.5, 'duration': 1000, 'fade': 100});
+    postJson('/yoyo/tone', {'index': id, 'amplitude': 0.5, 'duration': active ? 10000 : 100, 'fade': 100});
 }
 
 function updatePeer(peer, online) {
@@ -781,7 +798,7 @@ async function updateSlide(changed = false) {
 
     //onTouchOneTime = function() { showSlideID('volume'); };
 
-    const id = getSlideIdByIndex(splide.index);
+    const id = getSlideId();
 
     if(id === 'tuning') activateTuning(sphereIsUp());
     else activateTuning(false);
@@ -984,6 +1001,10 @@ function getSlideIndexByID(id) {
     });
 
     return index;
+}
+
+function getSlideId() {
+    return(getSlideIdByIndex(splide.index));
 }
 
 function getSlideIdByIndex(index) {
