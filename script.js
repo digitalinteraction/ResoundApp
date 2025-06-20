@@ -253,6 +253,8 @@ async function getStatus() {
             const json = await response.json();
             s = Number(json.statuscode);
             s = webSocketConnected ? s | 0x08 : s;
+
+            updateScore(json?.score ?? 0);
         }
     }
     catch (e) {
@@ -375,6 +377,7 @@ async function getConfiguration() {
                 onStatus(s);
                 delete json.statuscode;
             }
+            updateScore();
             setConfiguration(json, false);
         }
         else onStatus(0x00); // offline
@@ -556,7 +559,6 @@ function makePeer(id, user, container) {
 }
 
 function onUserClicked(id, active = true) {
-    console.log("onUserClicked: " + id, active);
     postJson('/yoyo/tone', {'index': id, 'amplitude': 0.5, 'duration': active ? 10000 : 100, 'fade': 100});
 }
 
@@ -790,6 +792,11 @@ function showCarouselControls(v) {
     if (pagination) pagination.style.display = v ? 'flex' : 'none';
 }
 
+function updateScore(score = 0) {
+    const scoreElement = document.getElementById('score');
+    scoreElement.textContent = Math.max(config?.server?.room?.score ?? 0, score);
+}
+
 async function updateSlide(changed = false) {
     console.log('updateSlide()');
 
@@ -881,9 +888,6 @@ async function updateSlide(changed = false) {
         case 'determination':
             const determinationText = document.getElementById('determination_individual');
             determinationText.value = config?.server?.room?.determination ?? '';
-
-            const score = document.getElementById('score');
-            score.textContent = config?.server?.room?.score ?? 0;
 
             break;
 
