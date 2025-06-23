@@ -59,9 +59,9 @@ let lastSplideIndex = -1;
 const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
-function init() {
-    preloadImage("img/sphere-down.png");
-    preloadImage("img/sphere-up.png");
+async function init() {
+    await preloadImage("img/sphere-down.png");
+    await preloadImage("img/sphere-up.png");
 
     // Typical PWA install prompt trigger
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -186,11 +186,15 @@ function debounce(fn, delay) {
       clearTimeout(timeout);
       timeout = setTimeout(() => fn.apply(this, args), delay);
     };
-  }
+}
 
 function preloadImage(url) {
-    const img = new Image();
-    img.src = url;
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (err) => reject(new Error(`Failed to preload image: ${url}`));
+        img.src = url;
+    });
 }
 
 function onTuningComplete() {
@@ -1140,7 +1144,7 @@ function populateWiFiForm(config, ssidList = []) {
 }
 
 async function onWiFiSaveEvent(data) {
-    console.log("onWiFiSaveEvent");
+    console.log("onWiFiSaveEvent", data);
     const ssid = data.get('ssid');
     const secret = data.get('secret');
 
@@ -1155,7 +1159,7 @@ async function onWiFiSaveEvent(data) {
 }
 
 async function onServerSaveEvent(data) {
-    console.log("onServerSaveEvent");
+    console.log("onServerSaveEvent", data);
 
     setConfiguration({
         "server": {
