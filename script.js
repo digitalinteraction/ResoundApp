@@ -440,9 +440,9 @@ function onStart() {
         showSlideID('wifi', f);
     }
     else {
-        if(isInstalled()) {
+        if(isPaired()) {
             allowInteraction(true);
-            fetch('/yoyo/pair');
+            //fetch('/yoyo/pair');
 
             if(!config?.server?.host || !remoteConnected()) {
                 showSlideID('server', f);
@@ -593,9 +593,8 @@ function updatePeer(peer, online) {
     }
 }
 
-function isInstalled() {
-    //chrome won't install the PWA - just have to report that it is installed to enable interaction
-    return (getBrowser() === 'safari' && getDisplayMode() === 'standalone') || getBrowser() === 'chrome';
+function isPaired() {
+    return(config?.pair);
 }
 
 function isStandalone() {
@@ -671,7 +670,7 @@ function generateLandingText() {
                 }
             }
             else {
-                if(isInstalled()) {
+                if(isPaired()) {
                     text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network';
                     if(!localConnected()) {
                         text += ' .<br>Please wait. ';
@@ -686,6 +685,7 @@ function generateLandingText() {
                 }
                 else {
                     text += generateWebAppInstallText();
+                    fetch('/yoyo/pair');
                 }
             }
         }
@@ -852,7 +852,7 @@ async function updateSlide(changed = false) {
 
             layoutPeers(roomContainer);
             lastRow.querySelector('span').innerHTML = generateLandingText();
-            allowInteraction(isInstalled() && webSocketConnected);
+            allowInteraction(isPaired() && webSocketConnected);
             break;
         case 'tuning':
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
@@ -906,7 +906,7 @@ async function updateSlide(changed = false) {
                 populateWiFiForm(config, ssidList);
                 lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
             });
-            allowInteraction(isInstalled() && webSocketConnected);
+            allowInteraction(isPaired() && webSocketConnected);
             break;
 
         case 'determination':
@@ -1330,7 +1330,7 @@ function parseLocalGestureMessage(json) {
     console.log('gesture', json);
 
     const type = json['t'];
-    if(isInstalled() && (type === 'clk' || type === 'anti')) {
+    if(isPaired() && (type === 'clk' || type === 'anti')) {
         showSlideID('volume');
     }
 }
