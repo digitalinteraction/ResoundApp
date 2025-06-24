@@ -437,6 +437,7 @@ function onStart() {
     }
     else {
         if(isStandalone()) {
+            allowInteraction(true);
             fetch('/yoyo/pair');
 
             if(!config?.server?.host || !remoteConnected()) {
@@ -447,7 +448,10 @@ function onStart() {
             }
             else showSlideID('landing', f);
         }
-        else showSlideID('landing', f);
+        else {
+            allowInteraction(false);
+            showSlideID('landing', f);
+        }
     }
 }
 
@@ -599,8 +603,12 @@ function getDisplayMode() {
     return 'unknown';
 }
 
+function getUserAgent() {
+    return(navigator.userAgent || navigator.vendor || window.opera);
+}
+
 function getDeviceType() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const ua = getUserAgent();
 
     const isPhone = /iPhone|Android.*Mobile|Windows Phone|BlackBerry|webOS/i.test(ua);
     return isPhone ? "phone" : "computer";
@@ -609,7 +617,7 @@ function getDeviceType() {
 function getOS() {
     let os = "unknown";
 
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const ua = getUserAgent();
     if (/Android/i.test(ua))    os = "android";
     else if (/Windows NT/i.test(ua)) os = "windows";
     else if (/iPhone|iPad|iPod/i.test(ua))   os = "ios";
@@ -621,7 +629,7 @@ function getOS() {
 function getBrowser() {
     let browser = "unknown";
 
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const ua = getUserAgent();
     if (/crios|chrome/i.test(ua)) browser = "chrome";
     else if (/safari/i.test(ua)) browser = "safari";
 
