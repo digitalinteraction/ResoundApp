@@ -707,7 +707,7 @@ function generateWebAppInstallText() {
             text += '<li>Select <i>Cast, save and share</i> then <i>Install page as app...</i> and confirm.</li>';
             break;
         default:
-            text += '<li>Find instructions for your browser.</li>' + getUserAgent();
+            text += '<li>Find instructions for your browser.</li>' + getUserAgent() + '<br>' + getDisplayMode();
     }
     text += '<li>Close this window and then open the app (<img class="icon" src="/img/icon.png"/>).</li>';
     text += '</ol>'
