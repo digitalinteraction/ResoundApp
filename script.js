@@ -365,29 +365,33 @@ function onOffline() {
     targetWarmth = 0;
 }
 
-async function getConfiguration() {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000); // Set timeout to abort fetch
+async function getConfiguration(timeoutMs = 5000, attempts = 5) {
+    for (let n = 0; n < attempts; n++) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs); // Set timeout to abort fetch
 
-    try {
-        const response = await fetch('/yoyo/config', { signal: controller.signal });
-        clearTimeout(timeout); // Clear timeout if fetch completes
+        try {
+            const response = await fetch('/yoyo/config', { signal: controller.signal });
+            clearTimeout(timeout); // Clear timeout if fetch completes
 
-        if (response.ok) {
-            const json = await response.json();
-            if(json.statuscode) {
-                let s = Number(json.statuscode);
-                s = webSocketConnected ? s | 0x08 : s;
-                onStatus(s);
-                delete json.statuscode;
+            if (response.ok) {
+                const json = await response.json();
+                if(json.statuscode) {
+                    let s = Number(json.statuscode);
+                    s = webSocketConnected ? s | 0x08 : s;
+                    onStatus(s);
+                    delete json.statuscode;
+                }
+                updateScore();
+                setConfiguration(json, false);
+                return; //success - break out
             }
-            updateScore();
-            setConfiguration(json, false);
+            else onStatus(0x00); // offline
         }
-        else onStatus(0x00); // offline
-    }
-    catch (e) {
-        onStatus(0x00); // offline
+        catch (e) {
+            onStatus(0x00); // offline
+        }
+        await new Promise(res => setTimeout(res, 1000));
     }
 }
 
@@ -436,7 +440,7 @@ function onStart() {
         showSlideID('wifi', f);
     }
     else {
-        if(isStandalone()) {
+        if(isInstalled()) {
             allowInteraction(true);
             fetch('/yoyo/pair');
 
@@ -589,6 +593,11 @@ function updatePeer(peer, online) {
     }
 }
 
+function isInstalled() {
+    //chrome won't install the PWA - just have to report that it is installed to enable interaction
+    return (getBrowser() === 'safari' && getDisplayMode() === 'standalone') || getBrowser() === 'chrome';
+}
+
 function isStandalone() {
     return getDisplayMode() === 'standalone';
 }
@@ -662,7 +671,7 @@ function generateLandingText() {
                 }
             }
             else {
-                if(isStandalone()) {
+                if(isInstalled()) {
                     text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network';
                     if(!localConnected()) {
                         text += ' .<br>Please wait. ';
@@ -843,7 +852,7 @@ async function updateSlide(changed = false) {
 
             layoutPeers(roomContainer);
             lastRow.querySelector('span').innerHTML = generateLandingText();
-            allowInteraction(isStandalone() && webSocketConnected);
+            allowInteraction(isInstalled() && webSocketConnected);
             break;
         case 'tuning':
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
@@ -897,7 +906,7 @@ async function updateSlide(changed = false) {
                 populateWiFiForm(config, ssidList);
                 lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
             });
-            allowInteraction(isStandalone() && webSocketConnected);
+            allowInteraction(isInstalled() && webSocketConnected);
             break;
 
         case 'determination':
@@ -1321,7 +1330,7 @@ function parseLocalGestureMessage(json) {
     console.log('gesture', json);
 
     const type = json['t'];
-    if(isStandalone() && (type === 'clk' || type === 'anti')) {
+    if(isInstalled() && (type === 'clk' || type === 'anti')) {
         showSlideID('volume');
     }
 }
