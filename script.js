@@ -430,21 +430,21 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
 function onStart() {
     console.log("onStart", config);
 
-    if(isStandalone()) fetch('/yoyo/pair');
-
     const f = function() { showCarousel(true); };
     if(!config?.wifi?.ssid || captivePortalRunning()) {
         allowInteraction(false);
         showSlideID('wifi', f);
     }
     else {
-        //allowInteraction(localConnected);
-        if(!config?.server?.host || !remoteConnected()) {
-            showSlideID('server', f);
+        if(isStandalone()) {
+            fetch('/yoyo/pair');
+
+            if(!config?.server?.host || !remoteConnected()) {
+                showSlideID('server', f);
+            }
+            else showSlideID('landing', f);
         }
-        else {
-            showSlideID('landing', f);
-        }
+        else showSlideID('landing', f);
     }
 }
 
