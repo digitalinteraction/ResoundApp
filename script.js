@@ -442,6 +442,9 @@ function onStart() {
             if(!config?.server?.host || !remoteConnected()) {
                 showSlideID('server', f);
             }
+            else if(!config?.mic?.frequency) {
+                showSlideID('tuning', f);
+            }
             else showSlideID('landing', f);
         }
         else showSlideID('landing', f);
