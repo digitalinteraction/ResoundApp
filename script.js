@@ -594,7 +594,7 @@ function updatePeer(peer, online) {
 }
 
 function isPaired() {
-    return(config?.pair);
+    return(!!config?.pair);
 }
 
 function isStandalone() {
