@@ -64,11 +64,11 @@ async function init() {
     // preloadImage("img/sphere-up.png");
     
     // Typical PWA install prompt trigger
-    window.addEventListener('beforeinstallprompt', (e) => {
-        console.log('-= beforeinstallprompt =-', e);
-        e.preventDefault();
-        deferredInstallPrompt = e;
-    });
+    // window.addEventListener('beforeinstallprompt', (e) => {
+    //     console.log('-= beforeinstallprompt =-', e);
+    //     e.preventDefault();
+    //     deferredInstallPrompt = e;
+    // });
 
     document.addEventListener( 'DOMContentLoaded', async function () {
         splide = new Splide('#carousel', {
@@ -108,6 +108,7 @@ async function init() {
 
         const wifiForm = document.getElementById('wifi_form');
         wifiForm.addEventListener('submit', function(e) {
+            console.log("wifiForm.addEventListener()");
             e.preventDefault();
             onWiFiSaveEvent(new FormData(wifiForm));
         });
@@ -851,12 +852,12 @@ async function updateSlide(changed = false) {
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
-            const installButton = document.getElementById('install_button');
-            installButton.addEventListener('click', () => {
-                if (deferredInstallPrompt) {
-                    deferredInstallPrompt.prompt();
-                }
-            });
+            // const installButton = document.getElementById('install_button');
+            // installButton.addEventListener('click', () => {
+            //     if (deferredInstallPrompt) {
+            //         deferredInstallPrompt.prompt();
+            //     }
+            // });
 
             layoutPeers(roomContainer);
             lastRow.querySelector('span').innerHTML = generateLandingText();
@@ -874,46 +875,21 @@ async function updateSlide(changed = false) {
             const name = document.getElementById('server_name');
             const host = document.getElementById('server_host');
             const channel = document.getElementById('server_channel');
-            //const serverButton = document.getElementById('server_button');
 
             name.value = config?.server?.name ?? '';
             host.value = config?.server?.host ?? '';
             channel.value = config?.server?.room?.channel ?? '';
-            //serverButton.disabled = true;
 
-             //disable the button unless the creditals are changed:
-            // name.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
-            // host.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
-            // channel.addEventListener("input", function(e) { document.getElementById('server_button').disabled = false;});
-
-            //serverButton.addEventListener('click', function(e) {onServerSaveEvent(e);});
             lastRow.innerHTML = generateServerText();
             break;
             
         case 'wifi':
             if(changed) {
-                const ssid = document.getElementById('wifi_ssid');
-                ssid.disabled = true;
-                
-                const secret = document.getElementById('wifi_secret');
-                secret.disabled = true;
-                // secret.addEventListener('keypress', function(e) {if (e.keyCode == 13) onWiFiSaveEvent(e);});
-
-                const wifiButton = document.getElementById('wifi_button');
-                wifiButton.disabled = true;
-                // wifiButton.addEventListener('click', function(e) {
-                //     onWiFiSaveEvent(e);
-                // });
-
-                //disable the button unless the creditals are changed:
-                // ssid.addEventListener("change", function(e) { wifiButton.disabled = false;});
-                // secret.addEventListener("input", function(e) { wifiButton.disabled = false;});
+                fetchWiFiNetworks().then(ssidList => {
+                    populateWiFiForm(config, ssidList);
+                    lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
+                });
             }
-            
-            fetchWiFiNetworks().then(ssidList => {
-                populateWiFiForm(config, ssidList);
-                lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
-            });
             allowInteraction(isPaired() && webSocketConnected);
             break;
 
