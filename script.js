@@ -164,7 +164,7 @@ function onKeyPressed(key, on) {
     if(getSlideId() === 'landing') {
         const number = Number(event.key);
         if (!isNaN(number)) {
-            onUserClicked(number-1, on);
+            onUserClicked({track: number-1}, on);
         }
     }
 }
@@ -563,18 +563,23 @@ function makePeer(id, user, container) {
     if(user) peer.querySelector("span").textContent = user;
     updatePeer(peer, false);
 
-    peer.addEventListener("mousedown", () => { onUserClicked(peer.id); });
-    peer.addEventListener("mouseup", () => { onUserClicked(peer.id, false); });
-    peer.addEventListener("touchstart", () => { onUserClicked(peer.id); });
-    peer.addEventListener("touchend", () => { onUserClicked(peer.id, false); });
+    peer.addEventListener("mousedown", () => { onUserClicked({id: peer.id}); });
+    peer.addEventListener("mouseup", () => { onUserClicked({id: peer.id}, false); });
+    peer.addEventListener("touchstart", () => { onUserClicked({id: peer.id}); });
+    peer.addEventListener("touchend", () => { onUserClicked({id: peer.id}, false); });
 
     if(container) container.appendChild(peer);
 
     return peer;
 }
 
-function onUserClicked(id, active = true) {
-    const json = {'index': id, 'amplitude': 0.5, 'duration': active ? 10000 : 100, 'fade': 100};
+function onUserClicked(json, active = true) {
+    json = {
+        ...json,
+        amplitude: 0.5,
+        duration: active ? 10000 : 100,
+        fade: 100
+    };
     console.log('onUserClicked', json);
 
     postJson('/yoyo/tone', json);
