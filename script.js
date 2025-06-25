@@ -60,9 +60,9 @@ const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 async function init() {
-    preloadImage("img/sphere-down.png");
-    preloadImage("img/sphere-up.png");
-
+    // preloadImage("img/sphere-down.png");
+    // preloadImage("img/sphere-up.png");
+    
     // Typical PWA install prompt trigger
     window.addEventListener('beforeinstallprompt', (e) => {
         console.log('-= beforeinstallprompt =-', e);
@@ -574,7 +574,10 @@ function makePeer(id, user, container) {
 }
 
 function onUserClicked(id, active = true) {
-    postJson('/yoyo/tone', {'index': id, 'amplitude': 0.5, 'duration': active ? 10000 : 100, 'fade': 100});
+    const json = {'index': id, 'amplitude': 0.5, 'duration': active ? 10000 : 100, 'fade': 100};
+    console.log('onUserClicked', json);
+
+    postJson('/yoyo/tone', json);
 }
 
 function updatePeer(peer, online) {
