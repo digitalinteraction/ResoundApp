@@ -258,7 +258,7 @@ async function getStatus() {
             s = Number(json.statuscode);
             s = webSocketConnected ? s | 0x08 : s;
 
-            updateScore(json?.score ?? 0);
+            updateCount(json?.count ?? 0);
         }
     }
     catch (e) {
@@ -382,7 +382,7 @@ async function getConfiguration(timeoutMs = 5000, attempts = 5) {
                     onStatus(s);
                     delete json.statuscode;
                 }
-                updateScore();
+                updateCount();
                 setConfiguration(json, false);
                 return; //success - break out
             }
@@ -816,9 +816,9 @@ function showCarouselControls(v) {
     if (pagination) pagination.style.display = v ? 'flex' : 'none';
 }
 
-function updateScore(score = 0) {
-    const scoreElement = document.getElementById('score');
-    scoreElement.textContent = Math.max(config?.server?.room?.score ?? 0, score);
+function updateCount(count = 0) {
+    const countElement = document.getElementById('count');
+    countElement.textContent = Math.max(config?.server?.room?.count ?? 0, count);
 }
 
 async function updateSlide(changed = false) {
