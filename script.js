@@ -165,7 +165,7 @@ function onKeyPressed(key, on) {
     if(getSlideId() === 'landing') {
         const number = Number(event.key);
         if (!isNaN(number)) {
-            onUserClicked({track: number-1}, on);
+            onUserClicked({track: number}, on);
         }
     }
 }
