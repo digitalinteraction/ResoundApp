@@ -1,4 +1,4 @@
-<p align="center"><img src="img/resound_logo.svg" width="200" alt="Resound Logo"></p>
+<p align="center"><img src="redirect/img/resound_logo.svg" width="200" alt="Resound Logo"></p>
 
 # Resound App
 
@@ -34,13 +34,14 @@ The locally hosted app manages connection to WiFi, configuation of the sphere an
 
 ```
 .
-├── img/                  # Images and icons (e.g., logo, sphere image)
-├── splide/               # Splide.js carousel library files
-├── style.css             # Main stylesheet
-├── script.js             # Main JavaScript logic
-├── app.webmanifest       # PWA manifest
-├── service-worker.js     # Service Worker for offline support
-└── index.html            # Main HTML interface
+├── index.html              # Local HTML interface
+├── redirect/               # Remote files
+  ├── img/                  # Images and icons (e.g., logo, sphere image)
+  ├── splide/               # Splide.js carousel library files
+  ├── style.css             # Main stylesheet
+  ├── script.js             # Main JavaScript logic
+  ├── app.webmanifest       # PWA manifest
+  └── service-worker.js     # Service Worker for offline support
 ```
 
 ---
