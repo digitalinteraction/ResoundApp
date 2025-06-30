@@ -35,7 +35,7 @@ The locally hosted app manages connection to WiFi, configuation of the sphere an
 ```
 .
 ├── index.html              # Local HTML interface
-├── redirect/               # Remote files
+└── redirect/               # Remote files
   ├── img/                  # Images and icons (e.g., logo, sphere image)
   ├── splide/               # Splide.js carousel library files
   ├── style.css             # Main stylesheet
