@@ -60,8 +60,8 @@ const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 async function init() {
-    // preloadImage("img/sphere-down.png");
-    // preloadImage("img/sphere-up.png");
+    // preloadImage("redirect/img/sphere-down.png");
+    // preloadImage("redirect/img/sphere-up.png");
     
     // Typical PWA install prompt trigger
     // window.addEventListener('beforeinstallprompt', (e) => {
@@ -302,8 +302,8 @@ function remoteConnected(s = statuscode) {
 function drawSphere(s) {
     const sphereImage = document.querySelector('#sphereImage');
 
-    if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
-    else                sphereImage.src = 'img/sphere-down.png';
+    if(sphereIsUp(s))   sphereImage.src = 'redirect/img/sphere-up.png';
+    else                sphereImage.src = 'redirect/img/sphere-down.png';
 }
 
 function onStatus(s) {
@@ -496,7 +496,7 @@ function drawEllipse(canvas, width, height) {
 }
 
 function drawEllipseWithImages(canvas, width, height) {
-    const imgSrc = 'img/sphere-up.png';
+    const imgSrc = 'redirect/img/sphere-up.png';
     const numImages = 3;
     const ctx = canvas.getContext("2d");
     //ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
@@ -592,13 +592,13 @@ function updatePeer(peer, online) {
 
         const img = peer.querySelector("img"); 
         if(online) {
-            img.src = 'img/sphere-up.png';
+            img.src = 'redirect/img/sphere-up.png';
 
             peerTimeOutId[peer.id] = setTimeout(() => {
                 updatePeer(peer, false);
             }, peerTimeoutMs);
         }
-        else img.src = 'img/sphere-down.png';
+        else img.src = 'redirect/img/sphere-down.png';
     }
 }
 
@@ -716,18 +716,18 @@ function generateWebAppInstallText() {
     text += '<ol>'
     switch (getBrowser()) {
         case 'safari':
-            text += '<li>Press the <i>Share</i> button (<img class="icon" src="/img/safari-share.png"/>).</li>';
+            text += '<li>Press the <i>Share</i> button (<img class="icon" src="redirect/img/safari-share.png"/>).</li>';
             text += '<li>Select <i>Add to ' + (getOS() === 'ios' ? 'Home Screen' : 'Dock') + '</i> and confirm.</li>';
             break;
         case 'chrome':
-            text += '<li>Press the <i>More</i> button (<img class="icon" src="/img/chrome-more.png"/>).</li>';
+            text += '<li>Press the <i>More</i> button (<img class="icon" src="redirect/img/chrome-more.png"/>).</li>';
             // text += '<li>Select <i>Add to Home screen</i> or <i>Install App</i> and confirm.</li>';
             text += '<li>Select <i>Cast, save and share</i> then <i>Install page as app...</i> and confirm.</li>';
             break;
         default:
             text += '<li>Find instructions for your browser.</li>' + getUserAgent() + '<br>' + getDisplayMode();
     }
-    text += '<li>Close this window and then open the app (<img class="icon" src="/img/icon.png"/>).</li>';
+    text += '<li>Close this window and then open the app (<img class="icon" src="redirect/img/icon.png"/>).</li>';
     text += '</ol>'
     text += '</span>';
        
