@@ -850,16 +850,13 @@ async function updateSlide(changed = false) {
     const roomContainer = document.getElementById('room_container');
     roomContainer.style.display = sphereIsOnline() ? 'block' : 'none';
 
+    if(changed) {
+        postJson('/yoyo/volume', {mute: id !== 'landing'});
+    }
+    
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
     switch (id) {
         case 'landing':
-            // const installButton = document.getElementById('install_button');
-            // installButton.addEventListener('click', () => {
-            //     if (deferredInstallPrompt) {
-            //         deferredInstallPrompt.prompt();
-            //     }
-            // });
-
             layoutPeers(roomContainer);
             lastRow.querySelector('span').innerHTML = generateLandingText();
             allowInteraction(isPaired() && webSocketConnected);
