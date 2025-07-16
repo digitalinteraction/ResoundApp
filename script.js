@@ -832,7 +832,7 @@ function updateCount(count = 0) {
 }
 
 async function updateSlide(changed = false) {
-    console.log('updateSlide()');
+    console.log('updateSlide()', changed);
 
     onSphereDown = undefined;
     onSphereUp = undefined;
