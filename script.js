@@ -682,7 +682,7 @@ function generateLandingText() {
                 if(isPaired()) {
                     text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network';
                     if(!localConnected()) {
-                        text += ' .<br>Please wait. ';
+                        text += '.<br>Please wait. ';
                     }
                     else if(!remoteConnected()) {
                         text += ' but not a Resound server. ';
