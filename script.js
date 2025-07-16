@@ -577,7 +577,7 @@ function makePeer(id, user, container) {
 function onUserClicked(json, active = true) {
     json = {
         ...json,
-        amplitude: 0.5,
+        amplitude: 0.25,
         duration: active ? 10000 : 100,
         fade: 100
     };
