@@ -149,7 +149,7 @@ async function init() {
 
         peers.push(...await fetchPeers());
         //onPeersChanged();
-        makePeers(document.getElementById('room_container'), config.peers);
+        makePeers(document.getElementById('room_container'), config.peers, true);
     } );
 
     document.addEventListener("keydown", (event) => {
@@ -522,7 +522,7 @@ function drawEllipseWithImages(canvas, width, height) {
     };
 }
 
-function makePeers(container, data) {
+function makePeers(container, data, layout = false) {
     if(container && data) {
         const keys = Object.keys(data);
         for (let i = 0; i < keys.length; i++) {
@@ -532,6 +532,7 @@ function makePeers(container, data) {
             }
         }
     }
+    if(layout) layoutPeers(container);
 }
 
 function layoutPeers(container) {
