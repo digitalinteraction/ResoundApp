@@ -82,14 +82,17 @@ async function init() {
 
         if(enableSwipe) {
             //stop form interactions starting a swipe gesture
-            document.addEventListener('focus', function(event) {
-                if(event.target.parentElement.classList.contains('yo-yo-form')) {
+            document.addEventListener('focusin', function(event) {
+                if(event.target?.closest && event.target.closest('.yo-yo-form')) {
                     allowSwipe(false);
                 }
             }, true);
 
-            document.addEventListener('blur', function(event) {
-                if(event.target.parentElement.classList.contains('yo-yo-form')) {
+            // focusout allows swipe again unless focus goes to another element inside the same form
+            document.addEventListener('focusout', function(event) {
+                const fromForm = event.target?.closest && event.target.closest('.yo-yo-form');
+                const toInsideSameForm = event.relatedTarget && event.relatedTarget.closest && event.relatedTarget.closest('.yo-yo-form') === event.target.closest('.yo-yo-form');
+                if(fromForm && !toInsideSameForm) {
                     allowSwipe(true);
                 }
             }, true);
@@ -101,24 +104,24 @@ async function init() {
         }, 300));
 
         const serverForm = document.getElementById('server_form');
-        serverForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+        serverForm.addEventListener('submit', function(event) {
+            event.preventDefault();
             onServerSaveEvent(new FormData(serverForm));
         });
 
         const wifiForm = document.getElementById('wifi_form');
-        wifiForm.addEventListener('submit', function(e) {
+        wifiForm.addEventListener('submit', function(event) {
             console.log("wifiForm.addEventListener()");
-            e.preventDefault();
+            event.preventDefault();
             onWiFiSaveEvent(new FormData(wifiForm));
         });
 
         const determinationText = document.getElementById('determination_individual');
-        const determinationListener = debounce((e) => {
+        const determinationListener = debounce((event) => {
             console.log('determinationListener');
             const json = { server: { ...(config.server ?? {}) }};          
             json.server.room = { ...(json.server.room ?? {}) };
-            json.server.room.determination = e.target.value;
+            json.server.room.determination = event.target.value;
               
             setConfiguration(json);
         }, 2000);
@@ -131,6 +134,7 @@ async function init() {
             }
         });
 
+        lastSplideIndex = splide.index;
         splide.on('active', (slideElement) => {
             //prevent splide.refresh() calls causing updateSlide() events:
             if(lastSplideIndex !== splide.index) updateSlide(true);
@@ -798,6 +802,8 @@ function allowInteraction(v) {
 }
 
 function allowSwipe(v) {
+    console.log('allowSwipe', v, splide.options.drag, enableSwipe);
+
     v = v && enableSwipe;
 
     if(v !== splide.options.drag) {
@@ -832,7 +838,7 @@ function updateCount(count = 0) {
 }
 
 async function updateSlide(changed = false) {
-    console.log('updateSlide()', changed);
+    console.log('updateSlide()', changed, lastSplideIndex, splide.index)
 
     onSphereDown = undefined;
     onSphereUp = undefined;
