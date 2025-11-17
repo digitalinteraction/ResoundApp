@@ -86,9 +86,9 @@ jobs:
         let html = fs.readFileSync(indexFile, 'utf8');
 
         // inline <script src="..."></script>
-        html = html.replace(/<script\\s+[^>]*src=["']([^"']+)["'][^>]*>\\s*<\\/script>/gi, (m, src) => {
+        html = html.replace(/<script\s+[^>]*src=["']([^"']+)["'][^>]*>\s*<\/script>/gi, (m, src) => {
           const srcPath = path.resolve(path.dirname(indexFile), src);
-          const minPath = srcPath.replace(/\\.js$/, '.min.js');
+          const minPath = srcPath.replace(/\.js$/, '.min.js');
           if (fs.existsSync(minPath)) {
             return '<script>' + fs.readFileSync(minPath, 'utf8') + '</script>';
           }
@@ -100,9 +100,9 @@ jobs:
         });
 
         // inline <link rel="stylesheet" href="...">
-        html = html.replace(/<link\\s+[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi, (m, href) => {
+        html = html.replace(/<link\s+[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi, (m, href) => {
           const hrefPath = path.resolve(path.dirname(indexFile), href);
-          const minPath = hrefPath.replace(/\\.css$/, '.min.css');
+          const minPath = hrefPath.replace(/\.css$/, '.min.css');
           if (fs.existsSync(minPath)) {
             return '<style>' + fs.readFileSync(minPath, 'utf8') + '</style>';
           }
