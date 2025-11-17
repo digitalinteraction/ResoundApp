@@ -153,10 +153,12 @@ jobs:
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git add '*.min.js' '*.min.css' || true
+        OUT="${{ github.event.inputs.output_file || 'package.html' }}"
+        # Add minified assets and the packaged HTML output
+        git add '*.min.js' '*.min.css' "$OUT" || true
         if git diff --cached --quiet; then
-          echo "No minified file changes to commit."
+          echo "No generated file changes to commit."
         else
-          git commit -m "auto-minified"
+          git commit -m "auto-minified and packaged: $OUT"
           git push
         fi
