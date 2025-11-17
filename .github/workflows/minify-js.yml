@@ -1,4 +1,4 @@
-name: Minify JS/CSS and commit
+name: Inline & Package HTML (minify + inline assets)
 
 on:
   workflow_dispatch:
@@ -7,45 +7,55 @@ on:
         description: 'Folder to minify'
         required: false
         default: '.'
+      index_file:
+        description: 'HTML entry file to inline (relative to repo root)'
+        required: false
+        default: 'index.html'
+      output_file:
+        description: 'Output inlined HTML filename'
+        required: false
+        default: 'package.html'
   push:
     paths:
       - '**.js'
+      - '**.css'
     branches:
       - main
 
 jobs:
-  minify-and-commit:
+  minify-and-inline:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Needed for pushing changes
+        fetch-depth: 0
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    - name: Install terser and clean-css
+    - name: Install tools (terser, clean-css, html-minifier-terser)
       run: |
         npm install -g terser
         npm install -g clean-css-cli
-      
+        npm install -g html-minifier-terser
+
     - name: Minify JavaScript
       run: |
         FOLDER="${{ github.event.inputs.target_folder || '.' }}"
         FOLDER=${FOLDER:-.}
         find "$FOLDER" -name "*.js" ! -name "*.min.js" -exec sh -c '
           for f; do
-            terser "$f" -o "${f%.js}.min.js"
+            terser "$f" -o "${f%.js}.min.js" --compress --mangle
           done
         ' sh {} +
 
     - name: Minify CSS
       run: |
-        FOLDER="${{ github.event.inputs.target_folder }}"
+        FOLDER="${{ github.event.inputs.target_folder || '.' }}"
         FOLDER=${FOLDER:-.}
         find "$FOLDER" -name "*.css" ! -name "*.min.css" -exec sh -c '
           for f; do
@@ -54,13 +64,98 @@ jobs:
           done
         ' sh {} +
 
-    - name: Commit and push minified files
+    - name: Create inline-assets script
+      run: |
+        mkdir -p .github/workflows/tmp
+        cat > .github/workflows/tmp/inline-assets.js <<'NODE'
+        const fs = require('fs');
+        const path = require('path');
+
+        const indexFile = process.argv[2] || 'index.html';
+        const outFile = process.argv[3] || 'package.html';
+
+        if(!fs.existsSync(indexFile)) {
+          console.error('Index file not found:', indexFile);
+          process.exit(2);
+        }
+
+        let html = fs.readFileSync(indexFile, 'utf8');
+
+        // inline <script src="..."></script>
+        html = html.replace(/<script\\s+[^>]*src=["']([^"']+)["'][^>]*>\\s*<\\/script>/gi, (m, src) => {
+          const srcPath = path.resolve(path.dirname(indexFile), src);
+          const minPath = srcPath.replace(/\\.js$/, '.min.js');
+          if (fs.existsSync(minPath)) {
+            return '<script>' + fs.readFileSync(minPath, 'utf8') + '</script>';
+          }
+          if (fs.existsSync(srcPath)) {
+            return '<script>' + fs.readFileSync(srcPath, 'utf8') + '</script>';
+          }
+          // leave external or missing scripts intact
+          return m;
+        });
+
+        // inline <link rel="stylesheet" href="...">
+        html = html.replace(/<link\\s+[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi, (m, href) => {
+          const hrefPath = path.resolve(path.dirname(indexFile), href);
+          const minPath = hrefPath.replace(/\\.css$/, '.min.css');
+          if (fs.existsSync(minPath)) {
+            return '<style>' + fs.readFileSync(minPath, 'utf8') + '</style>';
+          }
+          if (fs.existsSync(hrefPath)) {
+            return '<style>' + fs.readFileSync(hrefPath, 'utf8') + '</style>';
+          }
+          // leave external or missing links intact
+          return m;
+        });
+
+        fs.writeFileSync(outFile, html, 'utf8');
+        console.log('Wrote', outFile);
+        NODE
+
+    - name: Inline minified assets into HTML
+      run: |
+        INDEX_FILE="${{ github.event.inputs.index_file || 'index.html' }}"
+        OUT_FILE="${{ github.event.inputs.output_file || 'package.html' }}"
+        node .github/workflows/tmp/inline-assets.js "$INDEX_FILE" "$OUT_FILE"
+
+    - name: Minify inlined HTML
+      run: |
+        OUT="${{ github.event.inputs.output_file || 'package.html' }}"
+        if [ -f "$OUT" ]; then
+          html-minifier-terser "$OUT" \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true \
+            --remove-optional-tags \
+            --keep-closing-tags \
+            -o "$OUT"
+          echo "Minified $OUT"
+        else
+          echo "$OUT not found, skipping minify"
+        fi
+
+    - name: Show output file size
+      run: |
+        OUT="${{ github.event.inputs.output_file || 'package.html' }}"
+        ls -lh "$OUT" || true
+        wc -c "$OUT" || true
+
+    - name: Upload packaged artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: packaged-html
+        path: ${{ github.event.inputs.output_file || 'package.html' }}
+
+    - name: Commit and push generated .min files (optional)
+      if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git add '*.min.js' '*.min.css'
+        git add '*.min.js' '*.min.css' || true
         if git diff --cached --quiet; then
-          echo "No changes to commit."
+          echo "No minified file changes to commit."
         else
           git commit -m "auto-minified"
           git push
