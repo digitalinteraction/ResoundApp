@@ -1,5 +1,9 @@
 name: Inline & Package HTML (minify + inline assets)
 
+# allow workflow to write back to the repository
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -31,6 +35,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -59,7 +64,6 @@ jobs:
         FOLDER=${FOLDER:-.}
         find "$FOLDER" -name "*.css" ! -name "*.min.css" -exec sh -c '
           for f; do
-            echo "Minifying: $f"
             cleancss -o "${f%.css}.min.css" "$f"
           done
         ' sh {} +
@@ -148,17 +152,16 @@ jobs:
         name: packaged-html
         path: ${{ github.event.inputs.output_file || 'package.html' }}
 
-    - name: Commit and push generated .min files (optional)
-      if: ${{ github.event_name == 'workflow_dispatch' }}
+    - name: Commit and push generated files (always run)
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         OUT="${{ github.event.inputs.output_file || 'package.html' }}"
-        # Add minified assets and the packaged HTML output
+        # add generated assets and the packaged HTML output to the repo
         git add '*.min.js' '*.min.css' "$OUT" || true
         if git diff --cached --quiet; then
           echo "No generated file changes to commit."
         else
-          git commit -m "auto-minified and packaged: $OUT"
-          git push
+          git commit -m "auto-minified and packaged: $OUT [skip ci]"
+          git push origin HEAD:${{ github.ref_name || 'main' }}
         fi
