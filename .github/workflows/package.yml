@@ -55,7 +55,7 @@ jobs:
         FOLDER=${FOLDER:-.}
         find "$FOLDER" -name "*.js" ! -name "*.min.js" -exec sh -c '
           for f; do
-            terser "$f" -o "${f%.js}.min.js" --compress --mangle
+            terser "$f" -o "${f%.js}.min.js" --compress --mangle --comments false
           done
         ' sh {} +
 
@@ -65,7 +65,7 @@ jobs:
         FOLDER=${FOLDER:-.}
         find "$FOLDER" -name "*.css" ! -name "*.min.css" -exec sh -c '
           for f; do
-            cleancss -o "${f%.css}.min.css" "$f"
+            cleancss -o "${f%.css}.min.css" --s0 "$f"
           done
         ' sh {} +
 
