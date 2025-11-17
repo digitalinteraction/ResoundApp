@@ -133,7 +133,6 @@ jobs:
             --minify-css true \
             --minify-js true \
             --remove-optional-tags \
-            --keep-closing-tags \
             -o "$OUT"
           echo "Minified $OUT"
         else
