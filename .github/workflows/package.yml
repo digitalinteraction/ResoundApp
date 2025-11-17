@@ -65,7 +65,9 @@ jobs:
         FOLDER=${FOLDER:-.}
         find "$FOLDER" -name "*.css" ! -name "*.min.css" -exec sh -c '
           for f; do
-            cleancss -o "${f%.css}.min.css" --s0 "$f"
+            echo "Minifying: $f"
+            # use a supported option (or omit options entirely)
+            cleancss -o "${f%.css}.min.css" "$f" --level 2
           done
         ' sh {} +
 
