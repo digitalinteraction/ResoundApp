@@ -47,6 +47,7 @@ jobs:
         npm install -g terser
         npm install -g clean-css-cli
         npm install -g html-minifier-terser
+        npm install --no-save cheerio                # <-- add cheerio to runtime deps
 
     - name: Minify JavaScript
       run: |
@@ -74,6 +75,7 @@ jobs:
         cat > .github/workflows/tmp/inline-assets.js <<'NODE'
         const fs = require('fs');
         const path = require('path');
+        const cheerio = require('cheerio');
 
         const indexFile = process.argv[2] || 'index.html';
         const outFile = process.argv[3] || 'package.html';
@@ -83,37 +85,41 @@ jobs:
           process.exit(2);
         }
 
+        const baseDir = path.dirname(indexFile);
         let html = fs.readFileSync(indexFile, 'utf8');
+        const $ = cheerio.load(html, { decodeEntities: false });
 
-        // inline <script src="..."></script>
-        html = html.replace(/<script\s+[^>]*src=["']([^"']+)["'][^>]*>\s*<\/script>/gi, (m, src) => {
-          const srcPath = path.resolve(path.dirname(indexFile), src);
+        // inline scripts
+        $('script[src]').each((i, el) => {
+          const src = $(el).attr('src');
+          if (!src || /^https?:\/\//i.test(src)) return; // skip external
+          const srcPath = path.resolve(baseDir, src);
           const minPath = srcPath.replace(/\.js$/, '.min.js');
-          if (fs.existsSync(minPath)) {
-            return '<script>' + fs.readFileSync(minPath, 'utf8') + '</script>';
+          const usePath = fs.existsSync(minPath) ? minPath : (fs.existsSync(srcPath) ? srcPath : null);
+          if (usePath) {
+            const code = fs.readFileSync(usePath, 'utf8');
+            $(el).replaceWith(`<script>${code}</script>`);
           }
-          if (fs.existsSync(srcPath)) {
-            return '<script>' + fs.readFileSync(srcPath, 'utf8') + '</script>';
-          }
-          // leave external or missing scripts intact
-          return m;
         });
 
-        // inline <link rel="stylesheet" href="...">
-        html = html.replace(/<link\s+[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi, (m, href) => {
-          const hrefPath = path.resolve(path.dirname(indexFile), href);
+        // inline stylesheets (rel="stylesheet" or type="text/css")
+        $('link[href]').each((i, el) => {
+          const rel = ($(el).attr('rel') || '').toLowerCase();
+          const type = ($(el).attr('type') || '').toLowerCase();
+          if (rel !== 'stylesheet' && type !== 'text/css') return; // not a CSS link
+          const href = $(el).attr('href');
+          if (!href || /^https?:\/\//i.test(href)) return; // skip external
+          const hrefPath = path.resolve(baseDir, href);
           const minPath = hrefPath.replace(/\.css$/, '.min.css');
-          if (fs.existsSync(minPath)) {
-            return '<style>' + fs.readFileSync(minPath, 'utf8') + '</style>';
+          const usePath = fs.existsSync(minPath) ? minPath : (fs.existsSync(hrefPath) ? hrefPath : null);
+          if (usePath) {
+            const css = fs.readFileSync(usePath, 'utf8');
+            $(el).replaceWith(`<style>${css}</style>`);
           }
-          if (fs.existsSync(hrefPath)) {
-            return '<style>' + fs.readFileSync(hrefPath, 'utf8') + '</style>';
-          }
-          // leave external or missing links intact
-          return m;
         });
 
-        fs.writeFileSync(outFile, html, 'utf8');
+        // write out
+        fs.writeFileSync(outFile, $.html(), 'utf8');
         console.log('Wrote', outFile);
         NODE
 
