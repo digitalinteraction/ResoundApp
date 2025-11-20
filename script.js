@@ -856,7 +856,7 @@ async function updateSlide(changed = false) {
         case 'landing':
             layoutPeers(roomContainer);
             lastRow.querySelector('span').innerHTML = generateLandingText();
-            allowInteraction(isPaired() && webSocketConnected);
+            //allowInteraction(isPaired() && webSocketConnected);
             break;
         case 'tuning':
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
