@@ -420,12 +420,13 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
             if(post && rebootDelayMs >= 0) {
                 onSphereDown = undefined;
                 rebootTimeoutId = setTimeout(function () {
-                    if(sphereIsUp()) {
-                        onSphereDown = function () {
-                            reboot();
-                        };
-                    }
-                    else reboot();
+                    reboot();
+                    // if(sphereIsUp()) {
+                    //     onSphereDown = function () {
+                    //         reboot();
+                    //     };
+                    // }
+                    // else reboot();
                 }, rebootDelayMs);
                 showSlideID('landing');
                 allowInteraction(false);
@@ -442,14 +443,13 @@ function onStart() {
     const f = function() { showCarousel(true); };
     allowInteraction(true);
 
-    if(!config?.server?.host || !remoteConnected()) {
+    if(!config?.server?.host) {
         showSlideID('server', f);
     }
     else if(!config?.mic?.frequency) {
         showSlideID('tuning', f);
     }
     else if(!config?.wifi?.ssid || captivePortalRunning()) {
-        allowInteraction(false);
         showSlideID('wifi', f);
     }
     else showSlideID('landing', f);
