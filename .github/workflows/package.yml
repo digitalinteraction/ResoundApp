@@ -67,7 +67,7 @@ jobs:
           for f; do
             echo "Minifying: $f"
             # use a supported option (or omit options entirely)
-            cleancss -o "${f%.css}.min.css" "$f" --level 2
+            cleancss -o "${f%.css}.min.css" "$f"
           done
         ' sh {} +
 
