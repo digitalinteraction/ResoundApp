@@ -440,28 +440,19 @@ function onStart() {
     console.log("onStart", config);
 
     const f = function() { showCarousel(true); };
-    if(!config?.wifi?.ssid || captivePortalRunning()) {
+    allowInteraction(true);
+
+    if(!config?.server?.host || !remoteConnected()) {
+        showSlideID('server', f);
+    }
+    else if(!config?.mic?.frequency) {
+        showSlideID('tuning', f);
+    }
+    else if(!config?.wifi?.ssid || captivePortalRunning()) {
         allowInteraction(false);
         showSlideID('wifi', f);
     }
-    else {
-        if(isPaired()) {
-            allowInteraction(true);
-            //fetch('/yoyo/pair');
-
-            if(!config?.server?.host || !remoteConnected()) {
-                showSlideID('server', f);
-            }
-            else if(!config?.mic?.frequency) {
-                showSlideID('tuning', f);
-            }
-            else showSlideID('landing', f);
-        }
-        else {
-            allowInteraction(false);
-            showSlideID('landing', f);
-        }
-    }
+    else showSlideID('landing', f);
 }
 
 async function onSlideMoved() {
