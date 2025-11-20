@@ -885,7 +885,7 @@ async function updateSlide(changed = false) {
                     lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
                 });
             }
-            allowInteraction(isPaired() && webSocketConnected);
+            //allowInteraction(isPaired() && webSocketConnected);
             break;
 
         case 'determination':
