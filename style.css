@@ -7,7 +7,6 @@ html, body {
 }
 
 body {
-    color: #000;
     background-color: #f5f5f5;
     font-family: "Inter var", Inter, system-ui, sans-serif;
     font-size: 1.1rem;
@@ -244,6 +243,7 @@ body {
 /* Keep the input text large enough that Safari doesn't need to zoom it on iOS */
 input, button, textarea, select {
     font-size: 16px;
+    color: #000;
 }
 
 ol {

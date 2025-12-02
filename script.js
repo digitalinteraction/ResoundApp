@@ -284,7 +284,7 @@ function reboot() {
     showSlideID(id);
     const rows = getSlideByID(id).querySelectorAll('.slide-content .row');
     rows[0].innerHTML = 'Rebooting...';
-    rows[2].innerHTML = 'Close this window and scan the new QR code when the sphere has restarted.';
+    rows[2].innerHTML = 'Now close this window and scan the new QR code when the sphere has restarted.';
 
     postJson('/yoyo/reboot');
 }
@@ -859,14 +859,14 @@ async function updateSlide(changed = false) {
     switch (id) {
         case 'landing':
             layoutPeers(roomContainer);
-            lastRow.querySelector('span').innerHTML = generateLandingText();
+            if(lastRow) lastRow.querySelector('span').innerHTML = generateLandingText();
             //allowInteraction(isPaired() && webSocketConnected);
             break;
         case 'tuning':
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: tuning - onSphereUp'); };
             
-            lastRow.querySelector('span').innerHTML = generateTuningText();
+            if(lastRow) lastRow.querySelector('span').innerHTML = generateTuningText();
             
             break;
 
@@ -879,14 +879,14 @@ async function updateSlide(changed = false) {
             host.value = config?.server?.host ?? '';
             channel.value = config?.server?.room?.channel ?? '';
 
-            lastRow.innerHTML = generateServerText();
+            if(lastRow) lastRow.innerHTML = generateServerText();
             break;
             
         case 'wifi':
             if(changed) {
                 fetchWiFiNetworks().then(ssidList => {
                     populateWiFiForm(config, ssidList);
-                    lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
+                    if(lastRow) lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
                 });
             }
             //allowInteraction(isPaired() && webSocketConnected);
@@ -909,7 +909,7 @@ async function updateSlide(changed = false) {
             onSphereDown = function() { updateSlide(); console.log('TODO: volume - onSphereDown'); };
             onSphereUp = function() { updateSlide(); console.log('TODO: volume - onSphereUp'); };
 
-            lastRow.querySelector('span').innerHTML = sphereIsUp()
+            if(lastRow) lastRow.querySelector('span').innerHTML = sphereIsUp()
                 ? lastRow.querySelector(".sphere_up_text").innerHTML
                 : lastRow.querySelector(".sphere_down_text").innerHTML;
 
@@ -1157,7 +1157,7 @@ async function onWiFiSaveEvent(data) {
                 "ssid": ssid,
                 "secret": secret,
             },
-        }, true, 5000);
+        }, true, 1000);
     }
 }
 
