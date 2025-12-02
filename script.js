@@ -280,6 +280,12 @@ function sphereWillReboot() {
 }
 
 function reboot() {
+    const id = 'landing';
+    showSlideID(id);
+    const rows = getSlideByID(id).querySelectorAll('.slide-content .row');
+    rows[0].innerHTML = 'Rebooting...';
+    rows[2].innerHTML = 'Close this window and scan the new QR code when the sphere has restarted.';
+
     postJson('/yoyo/reboot');
 }
 
@@ -420,15 +426,13 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
             if(post && rebootDelayMs >= 0) {
                 onSphereDown = undefined;
                 rebootTimeoutId = setTimeout(function () {
-                    reboot();
-                    // if(sphereIsUp()) {
-                    //     onSphereDown = function () {
-                    //         reboot();
-                    //     };
-                    // }
-                    // else reboot();
+                    if(sphereIsUp()) {
+                        onSphereDown = function () {
+                            reboot();
+                        };
+                    }
+                    else reboot();
                 }, rebootDelayMs);
-                showSlideID('landing');
                 allowInteraction(false);
             }
         }
