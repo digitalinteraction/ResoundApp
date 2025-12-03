@@ -602,10 +602,6 @@ function updatePeer(peer, online) {
     }
 }
 
-function isPaired() {
-    return(!!config?.pair);
-}
-
 function isStandalone() {
     return getDisplayMode() === 'standalone';
 }
@@ -679,22 +675,16 @@ function generateLandingText() {
                 }
             }
             else {
-                if(isPaired()) {
-                    text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network';
-                    if(!localConnected()) {
-                        text += '.<br>Please wait. ';
-                    }
-                    else if(!remoteConnected()) {
-                        text += ' but not a Resound server. ';
-                    }
-                    else {
-                        text += ' and a Resound server. ';
-                        text += ' Everything looks good. ';
-                    }
+                text += 'Your sphere is connect' + (localConnected() ? 'ed' : 'ing') + ' to a WiFi network';
+                if(!localConnected()) {
+                    text += '.<br>Please wait. ';
+                }
+                else if(!remoteConnected()) {
+                    text += ' but not a Resound server. ';
                 }
                 else {
-                    text += generateWebAppInstallText();
-                    fetch('/yoyo/pair');
+                    text += ' and a Resound server. ';
+                    text += ' Everything looks good. ';
                 }
             }
         }
@@ -706,31 +696,6 @@ function generateLandingText() {
         }
     }
     
-    return text.trim();
-}
-
-function generateWebAppInstallText() {
-    let text = '<span>';
-    text += 'Now install the Resound App:';
-
-    text += '<ol>'
-    switch (getBrowser()) {
-        case 'safari':
-            text += '<li>Press the <i>Share</i> button (<img class="icon" src="img/safari-share.png"/>).</li>';
-            text += '<li>Select <i>Add to ' + (getOS() === 'ios' ? 'Home Screen' : 'Dock') + '</i> and confirm.</li>';
-            break;
-        case 'chrome':
-            text += '<li>Press the <i>More</i> button (<img class="icon" src="img/chrome-more.png"/>).</li>';
-            // text += '<li>Select <i>Add to Home screen</i> or <i>Install App</i> and confirm.</li>';
-            text += '<li>Select <i>Cast, save and share</i> then <i>Install page as app...</i> and confirm.</li>';
-            break;
-        default:
-            text += '<li>Find instructions for your browser.</li>' + getUserAgent() + '<br>' + getDisplayMode();
-    }
-    text += '<li>Close this window and then open the app (<img class="icon" src="img/icon.png"/>).</li>';
-    text += '</ol>'
-    text += '</span>';
-       
     return text.trim();
 }
 
@@ -860,7 +825,7 @@ async function updateSlide(changed = false) {
         case 'landing':
             layoutPeers(roomContainer);
             if(lastRow) lastRow.querySelector('span').innerHTML = generateLandingText();
-            //allowInteraction(isPaired() && webSocketConnected);
+            allowInteraction(webSocketConnected);
             break;
         case 'tuning':
             onSphereDown = function() { updateSlide(); console.log('TODO: tuning - onSphereDown'); };
@@ -889,7 +854,7 @@ async function updateSlide(changed = false) {
                     if(lastRow) lastRow.innerHTML = generateWiFiText(ssidList.length > 0);
                 });
             }
-            //allowInteraction(isPaired() && webSocketConnected);
+            allowInteraction(webSocketConnected);
             break;
 
         case 'determination':
@@ -1313,7 +1278,7 @@ function parseLocalGestureMessage(json) {
     console.log('gesture', json);
 
     const type = json['t'];
-    if(isPaired() && (type === 'clk' || type === 'anti')) {
+    if(type === 'clk' || type === 'anti') {
         showSlideID('volume');
     }
 }
