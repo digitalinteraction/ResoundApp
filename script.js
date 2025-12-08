@@ -140,7 +140,6 @@ async function init() {
             if(lastSplideIndex !== splide.index) updateSlide(true);
             if(sphereIsOnline()) lastSplideIndex = splide.index;
         });
-        updateSlide(true);
 
         setInterval(() => { loop(); }, 1000/frameRate);
         setInterval(() => { onTick(); }, 10000);
@@ -154,6 +153,8 @@ async function init() {
         peers.push(...await fetchPeers());
         //onPeersChanged();
         makePeers(document.getElementById('room_container'), config.peers, true);
+
+        updateSlide(true);
     } );
 
     document.addEventListener("keydown", (event) => {
