@@ -60,8 +60,8 @@ const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 async function init() {
-    // preloadImage("img/sphere-down.png");
-    // preloadImage("img/sphere-up.png");
+    preloadImage("img/sphere-down.png");
+    preloadImage("img/sphere-up.png");
     
     // Typical PWA install prompt trigger
     // window.addEventListener('beforeinstallprompt', (e) => {
