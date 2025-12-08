@@ -355,6 +355,7 @@ function onWebSocketConnected(v = true) {
         else {
             //if(tuningState.timeOutId) activateTuning(false); 
         }
+        allowInteraction(v);
         webSocketConnected = v;
         updateSlide();
     }
