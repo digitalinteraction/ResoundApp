@@ -284,7 +284,7 @@ function reboot() {
     showSlideID(id);
     const rows = getSlideByID(id).querySelectorAll('.slide-content .row');
     rows[0].innerHTML = 'Rebooting...';
-    rows[2].innerHTML = 'Now close this window and scan the new QR code when the sphere has restarted.';
+    rows[2].innerHTML = 'Now close this window. Then make sure this ' + getDeviceType() + ' is on the ' + savedNetwork + ' network too and scan the new QR code when the sphere has restarted.';
 
     postJson('/yoyo/reboot');
 }
@@ -660,8 +660,6 @@ function generateLandingText() {
         else text += 'The sphere';
 
         text += ' will try to connect to the <span class=\'ssid\'>' + savedNetwork + '</span> WiFi network. ';
-        
-        text += 'Make sure this '+ getDeviceType() + ' is on that network too, then close this window and scan the new QR code. ';
     }
     else {
         if(sphereIsOnline()) {
