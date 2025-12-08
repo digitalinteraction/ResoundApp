@@ -283,8 +283,10 @@ function reboot() {
     const id = 'landing';
     showSlideID(id);
     const rows = getSlideByID(id).querySelectorAll('.slide-content .row');
+
+    const savedNetwork = config?.wifi?.ssid ?? '';
     rows[0].innerHTML = 'Rebooting...';
-    rows[2].innerHTML = 'Now close this window. Then make sure this ' + getDeviceType() + ' is on the ' + savedNetwork + ' network too and scan the new QR code when the sphere has restarted.';
+    rows[2].innerHTML = 'Now close this window. Then make sure this ' + getDeviceType() + ' is on ' + ((savedNetwork !== '') ? 'the ' + savedNetwork : 'that')  + ' network too and scan the new QR code when the sphere has restarted.';
 
     postJson('/yoyo/reboot');
 }
