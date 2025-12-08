@@ -433,6 +433,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                     }
                     else reboot();
                 }, rebootDelayMs);
+                showSlideID('landing');
                 allowInteraction(false);
             }
         }
