@@ -432,6 +432,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 rebootTimeoutId = setTimeout(function () {
                     if(sphereIsUp()) {
                         onSphereDown = function () {
+                            drawSphere(statuscode);
                             reboot();
                         };
                     }
