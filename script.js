@@ -449,7 +449,7 @@ function onStart() {
     console.log("onStart", config);
 
     const f = function() { showCarousel(true); };
-    allowInteraction(true);
+    //allowInteraction(true);
 
     if(!config?.server?.host) {
         showSlideID('server', f);
