@@ -60,9 +60,18 @@ const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 async function init() {
-    preloadImage("img/sphere-down.png");
-    preloadImage("img/sphere-up.png");
-    
+    // preload sphere art and wait for it so later image swaps are instant
+    try {
+        const preloaded = await Promise.all([
+            preloadImage("img/sphere-down.png"),
+            preloadImage("img/sphere-up.png")
+        ]);
+        // keep references so browser doesn't GC the Image objects
+        window.__preloadedImages = preloaded;
+    } catch (e) {
+        console.warn('image preload failed', e);
+    }
+
     // Typical PWA install prompt trigger
     // window.addEventListener('beforeinstallprompt', (e) => {
     //     console.log('-= beforeinstallprompt =-', e);
