@@ -364,7 +364,7 @@ function onOnline() {
     console.log("onOnline");
     rebootTimeoutId = undefined;
     document.querySelector('#sphereImage').style.filter = 'none';
-    allowInteraction(true); //TODO: should wait for the web socket to reconnect
+    //allowInteraction(true); //TODO: should wait for the web socket to reconnect
     
     //return to last active page:
     showSlideIndex(lastSplideIndex);
