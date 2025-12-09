@@ -12,7 +12,7 @@ let config = {};
 let onSphereUp = undefined;
 let onSphereDown = undefined;
 
-const maxWifiNetworks = 16;
+const maxWifiNetworks = -1;
 let ssidList = [];
 
 let statuscode = 0x80;
@@ -1106,8 +1106,8 @@ function populateWiFiForm(config, ssidList = []) {
     let networks = document.getElementById('wifi_ssid');
     networks.innerHTML = ''; // Clear existing options
 
-    ssidList = ssidList.slice(0, maxWifiNetworks); // Limit the number of networks
-
+    if(maxWifiNetworks >= 0) ssidList = ssidList.slice(0, maxWifiNetworks); // Limit the number of networks
+    
     const savedNetwork = config?.wifi?.ssid ?? '';
 
     ssidList.forEach((ssid) => {
