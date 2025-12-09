@@ -2,9 +2,11 @@
 	"$schema": "https://json.schemastore.org/web-manifest.json",
 	"name": "Resound",
 	"short_name": "Resound",
-	"start_url": ".",
-	"scope": "/",
+	"start_url": "package.html",
+	"scope": ".",
 	"display": "standalone",
+	"orientation": "portrait",
 	"theme_color": "#000000",
-	"icons": [{ "src": "img/icon.png", "type": "image/png", "sizes": "192x192" }]
+	"icons": [{ "src": "img/icon.png", "type": "image/png", "sizes": "192x192" }],
+	"prefer_related_applications": false
 }
