@@ -1,6 +1,5 @@
 const version = "resound-003";
 const assets = [
-	"/",
 	"package.html",
 	"img/icon.png",
 	"img/sphere-down.png",
