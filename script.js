@@ -1006,7 +1006,6 @@ function getSlideId() {
         id = getSlideIdByIndex(splide.index);   
     }
     catch(e) {}
-    console.log('getSlideId', id);
     return(id);
 }
 
