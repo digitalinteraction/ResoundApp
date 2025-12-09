@@ -167,16 +167,12 @@ async function initSphere() {
     setInterval(() => { onTick(); }, 10000);
     console.log('getConfiguration');
     await getConfiguration();
-     console.log('getConfiguration - done');
+    console.log('getConfiguration - done');
 
     document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
     document.getElementById('sphereversion').innerText = config?.version ?? '';
 
     manageWebSocket(() => onStart());
-
-    peers.push(...await fetchPeers());
-    //onPeersChanged();
-    makePeers(document.getElementById('room_container'), config.peers, true);
 
     updateSlide(true);
 }
@@ -376,17 +372,21 @@ function onWebSocketConnected(v = true) {
     }
 }
 
-function onOnline() {
+async function onOnline() {
     console.log("onOnline");
     rebootTimeoutId = undefined;
     document.querySelector('#sphereImage').style.filter = 'none';
     //allowInteraction(true); //TODO: should wait for the web socket to reconnect
     
+    peers.push(...await fetchPeers());
+    //onPeersChanged();
+    makePeers(document.getElementById('room_container'), config.peers, true);
+
     //return to last active page:
     showSlideIndex(lastSplideIndex);
 }
 
-function onOffline() {
+async function onOffline() {
     console.log("onOffline");
     onWebSocketConnected(false);
     showSlideID('landing');
