@@ -1454,7 +1454,10 @@ function playTone(frequency, durationMs, volume) {
     oscillator.stop(endTime); // Stop after the specified duration
   }
 
-init();
+//init();
+document.addEventListener( 'DOMContentLoaded', async function () {
+    console.log('HELLO');
+});
 
 async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
