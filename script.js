@@ -149,6 +149,7 @@ function configureUIEvents() {
 }
 
 async function onContentLoaded() {
+    console.log('onContentLoaded');
     //registerServiceWorker();
         
     splide = new Splide('#carousel', {
