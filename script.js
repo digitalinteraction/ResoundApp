@@ -993,7 +993,12 @@ function getSlideIndexByID(id) {
 }
 
 function getSlideId() {
-    return(getSlideIdByIndex(splide.index));
+    let id = null;
+    try {
+        id = getSlideIdByIndex(splide.index);   
+    }
+    catch(e) {}
+    return(id);
 }
 
 function getSlideIdByIndex(index) {
