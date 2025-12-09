@@ -1,37 +1,60 @@
-const version = "resound-003";
+const version = "resound-004";
+// paths resolved relative to the service worker file location
 const assets = [
-	"package.html",
-	"img/icon.png",
-	"img/sphere-down.png",
-	"img/sphere-up.png"
-];
+  'package.html',
+  'img/icon.png',
+  'img/sphere-down.png',
+  'img/sphere-up.png'
+].map(p => new URL(p, self.location).toString());
 
-self.addEventListener("install", (e) => e.waitUntil(install()));
-self.addEventListener("activate", (e) => e.waitUntil(activate()));
-self.addEventListener("fetch", (e) => e.respondWith(performFetch(e.request)));
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    console.log('@install');
+    const cache = await caches.open(version);
+    try {
+      await cache.addAll(assets);
+      console.log('cached assets', assets);
+    } catch (err) {
+      console.warn('cache.addAll failed (some assets may be missing)', err);
+      // continue install even if some assets fail
+    }
+    await self.skipWaiting();
+  })());
+});
 
-// Cache assets on install (no-cors allows external assets to be cached)
-async function install() {
-	console.log("@install");
-	const cache = await caches.open(version);
-	await cache.addAll(assets);
-}
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    console.log('@activate');
+    const keys = await caches.keys();
+    await Promise.all(keys.map(key => key !== version ? caches.delete(key) : Promise.resolve()));
+    await self.clients.claim();
+  })());
+});
 
-// Uncache old assets when opened
-async function activate() {
-	console.log("@activate");
-	for (const key of await caches.keys()) {
-		if (key !== version) await caches.delete(key);
-	}
-}
+self.addEventListener('fetch', event => {
+  event.respondWith(performFetch(event));
+});
 
-/** @param {Request} request */
-async function performFetch(request) {
-	console.log("@fetch", request.url);
+async function performFetch(event) {
+  const request = event.request;
+  try {
+    const cached = await caches.match(request);
+    if (cached) return cached;
 
-	let response = await caches.match(request);
-	if (response) response;
-
-	// TODO: could also cache these requests?
-	return fetch(request);
+    const networkResponse = await fetch(request);
+    // optionally cache GET responses so next time we can serve from cache
+    if (request.method === 'GET' && networkResponse && networkResponse.ok) {
+      const c = await caches.open(version);
+      c.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (err) {
+    // navigation fallback: return cached package.html if available
+    if (request.mode === 'navigate') {
+      const fallback = await caches.match(new URL('package.html', self.location).toString());
+      if (fallback) return fallback;
+    }
+    // rethrow so devtools show the error
+    throw err;
+  }
 }
