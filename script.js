@@ -80,6 +80,8 @@ async function init() {
     // });
 
     document.addEventListener( 'DOMContentLoaded', async function () {
+        registerServiceWorker();
+        
         splide = new Splide('#carousel', {
             type: 'slide',  //don't use loop it duplicates the content and screws up the forms
             perPage: 1,
@@ -1458,8 +1460,3 @@ async function registerServiceWorker() {
         console.error('service worker registration failed', err);
     }
 }
-
-// ensure registration runs once DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    registerServiceWorker();
-});
