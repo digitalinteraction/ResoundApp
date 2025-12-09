@@ -146,6 +146,10 @@ function configureUIEvents() {
     });
 }
 
+function hasConfiguration() {
+    return(typeof config === 'object' && Object.keys(config).length > 0);
+}
+
 async function initSphere() {
     console.log('initSphere');
     //registerServiceWorker();
@@ -163,18 +167,20 @@ async function initSphere() {
     configureUIEvents();
     console.log('configureUIEvents - done');
 
-    setInterval(() => { loop(); }, 1000/frameRate);
-    setInterval(() => { onTick(); }, 10000);
     console.log('getConfiguration');
-    await getConfiguration();
-    console.log('getConfiguration - done');
+    if(await getConfiguration()) {
+        console.log('getConfiguration - done');
+        document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
+        document.getElementById('sphereversion').innerText = config?.version ?? '';
 
-    document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
-    document.getElementById('sphereversion').innerText = config?.version ?? '';
+        setInterval(() => { loop(); }, 1000/frameRate);
+        setInterval(() => { onTick(); }, 10000);
 
-    manageWebSocket(() => onStart());
+        manageWebSocket(() => onStart());
 
-    updateSlide(true);
+        updateSlide(true);
+    }
+    else console.log('getConfiguration - error');
 }
 
 function onKeyPressed(key, on) {
@@ -373,7 +379,7 @@ function onWebSocketConnected(v = true) {
 }
 
 async function onOnline() {
-    console.log("onOnline");
+    console.log("onOnline", config);
     rebootTimeoutId = undefined;
     document.querySelector('#sphereImage').style.filter = 'none';
     //allowInteraction(true); //TODO: should wait for the web socket to reconnect
@@ -414,7 +420,7 @@ async function getConfiguration(timeoutMs = 5000, attempts = 5) {
                 }
                 updateCount();
                 setConfiguration(json, false);
-                return; //success - break out
+                return true; //success - break out
             }
             else onStatus(0x00); // offline
         }
@@ -423,6 +429,8 @@ async function getConfiguration(timeoutMs = 5000, attempts = 5) {
         }
         await new Promise(res => setTimeout(res, 1000));
     }
+
+    return false;
 }
 
 async function setConfiguration(json, post = true, rebootDelayMs = -1) {
