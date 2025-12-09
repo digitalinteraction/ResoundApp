@@ -1,6 +1,7 @@
 const version = "resound-004";
 // paths resolved relative to the service worker file location
 const assets = [
+  '/',
   'package.html',
   'img/icon.png',
   'img/sphere-down.png',
