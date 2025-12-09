@@ -72,10 +72,6 @@ async function init() {
         console.warn('image preload failed', e);
     }
 
-    document.addEventListener( 'DOMContentLoaded', async function () {
-        onContentLoaded();
-    });
-
     document.addEventListener("keydown", (event) => {
         if(!event.repeat) onKeyPressed(event.key, true);
     });
@@ -83,6 +79,8 @@ async function init() {
     document.addEventListener("keyup", (event) => {
         onKeyPressed(event.key, false);
     });
+
+    initSphere()
 }
 
 function configureUIEvents() {
@@ -148,8 +146,8 @@ function configureUIEvents() {
     });
 }
 
-async function onContentLoaded() {
-    console.log('onContentLoaded');
+async function initSphere() {
+    console.log('initSphere');
     //registerServiceWorker();
         
     splide = new Splide('#carousel', {
@@ -1454,9 +1452,8 @@ function playTone(frequency, durationMs, volume) {
     oscillator.stop(endTime); // Stop after the specified duration
   }
 
-//init();
 document.addEventListener( 'DOMContentLoaded', async function () {
-    console.log('HELLO');
+    init();
 });
 
 async function registerServiceWorker() {
