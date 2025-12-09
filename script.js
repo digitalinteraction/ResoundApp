@@ -180,7 +180,11 @@ async function initSphere() {
 
         updateSlide(true);
     }
-    else console.log('getConfiguration - error');
+    else {
+        console.log('getConfiguration - error');
+        const rows = getSlideByID(getSlideId()).querySelectorAll('.slide-content .row');
+        rows[0].innerHTML = 'error';
+    }
 }
 
 function onKeyPressed(key, on) {
