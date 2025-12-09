@@ -72,101 +72,9 @@ async function init() {
         console.warn('image preload failed', e);
     }
 
-    // Typical PWA install prompt trigger
-    // window.addEventListener('beforeinstallprompt', (e) => {
-    //     console.log('-= beforeinstallprompt =-', e);
-    //     e.preventDefault();
-    //     deferredInstallPrompt = e;
-    // });
-
     document.addEventListener( 'DOMContentLoaded', async function () {
-        //registerServiceWorker();
-        
-        splide = new Splide('#carousel', {
-            type: 'slide',  //don't use loop it duplicates the content and screws up the forms
-            perPage: 1,
-            drag: false,    //also swipe
-        }).mount();
-        showCarousel(false);
-        positionSphereImage();
-        allowInteraction(false);
-
-        if(enableSwipe) {
-            //stop form interactions starting a swipe gesture
-            document.addEventListener('focusin', function(event) {
-                if(event.target?.closest && event.target.closest('.yo-yo-form')) {
-                    allowSwipe(false);
-                }
-            }, true);
-
-            // focusout allows swipe again unless focus goes to another element inside the same form
-            document.addEventListener('focusout', function(event) {
-                const fromForm = event.target?.closest && event.target.closest('.yo-yo-form');
-                const toInsideSameForm = event.relatedTarget && event.relatedTarget.closest && event.relatedTarget.closest('.yo-yo-form') === event.target.closest('.yo-yo-form');
-                if(fromForm && !toInsideSameForm) {
-                    allowSwipe(true);
-                }
-            }, true);
-        }
-
-        window.addEventListener('resize', debounce(() => {
-            positionSphereImage();
-            updateSlide();
-        }, 300));
-
-        const serverForm = document.getElementById('server_form');
-        serverForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            onServerSaveEvent(new FormData(serverForm));
-        });
-
-        const wifiForm = document.getElementById('wifi_form');
-        wifiForm.addEventListener('submit', function(event) {
-            console.log("wifiForm.addEventListener()");
-            event.preventDefault();
-            onWiFiSaveEvent(new FormData(wifiForm));
-        });
-
-        const determinationText = document.getElementById('determination_individual');
-        const determinationListener = debounce((event) => {
-            console.log('determinationListener');
-            const json = { server: { ...(config.server ?? {}) }};          
-            json.server.room = { ...(json.server.room ?? {}) };
-            json.server.room.determination = event.target.value;
-              
-            setConfiguration(json);
-        }, 2000);
-        determinationText.addEventListener('input', determinationListener);
-
-        splide.on('moved', (slideIndex) => {
-            if(onMovedOneTime) {
-                onMovedOneTime();
-                onMovedOneTime = undefined;
-            }
-        });
-
-        lastSplideIndex = splide.index;
-        splide.on('active', (slideElement) => {
-            //prevent splide.refresh() calls causing updateSlide() events:
-            if(lastSplideIndex !== splide.index) updateSlide(true);
-            if(sphereIsOnline()) lastSplideIndex = splide.index;
-        });
-
-        setInterval(() => { loop(); }, 1000/frameRate);
-        setInterval(() => { onTick(); }, 10000);
-        await getConfiguration();
-
-        document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
-        document.getElementById('sphereversion').innerText = config?.version ?? '';
-
-        manageWebSocket(() => onStart());
-
-        peers.push(...await fetchPeers());
-        //onPeersChanged();
-        makePeers(document.getElementById('room_container'), config.peers, true);
-
-        updateSlide(true);
-    } );
+        onContentLoaded();
+    });
 
     document.addEventListener("keydown", (event) => {
         if(!event.repeat) onKeyPressed(event.key, true);
@@ -175,6 +83,103 @@ async function init() {
     document.addEventListener("keyup", (event) => {
         onKeyPressed(event.key, false);
     });
+}
+
+function configureUIEvents() {
+    if(enableSwipe) {
+        //stop form interactions starting a swipe gesture
+        document.addEventListener('focusin', function(event) {
+            if(event.target?.closest && event.target.closest('.yo-yo-form')) {
+                allowSwipe(false);
+            }
+        }, true);
+
+        // focusout allows swipe again unless focus goes to another element inside the same form
+        document.addEventListener('focusout', function(event) {
+            const fromForm = event.target?.closest && event.target.closest('.yo-yo-form');
+            const toInsideSameForm = event.relatedTarget && event.relatedTarget.closest && event.relatedTarget.closest('.yo-yo-form') === event.target.closest('.yo-yo-form');
+            if(fromForm && !toInsideSameForm) {
+                allowSwipe(true);
+            }
+        }, true);
+    }
+
+    window.addEventListener('resize', debounce(() => {
+        positionSphereImage();
+        updateSlide();
+    }, 300));
+
+    const serverForm = document.getElementById('server_form');
+    serverForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        onServerSaveEvent(new FormData(serverForm));
+    });
+
+    const wifiForm = document.getElementById('wifi_form');
+    wifiForm.addEventListener('submit', function(event) {
+        console.log("wifiForm.addEventListener()");
+        event.preventDefault();
+        onWiFiSaveEvent(new FormData(wifiForm));
+    });
+
+    const determinationText = document.getElementById('determination_individual');
+    const determinationListener = debounce((event) => {
+        console.log('determinationListener');
+        const json = { server: { ...(config.server ?? {}) }};          
+        json.server.room = { ...(json.server.room ?? {}) };
+        json.server.room.determination = event.target.value;
+            
+        setConfiguration(json);
+    }, 2000);
+    determinationText.addEventListener('input', determinationListener);
+
+    splide.on('moved', (slideIndex) => {
+        if(onMovedOneTime) {
+            onMovedOneTime();
+            onMovedOneTime = undefined;
+        }
+    });
+
+    lastSplideIndex = splide.index;
+    splide.on('active', (slideElement) => {
+        //prevent splide.refresh() calls causing updateSlide() events:
+        if(lastSplideIndex !== splide.index) updateSlide(true);
+        if(sphereIsOnline()) lastSplideIndex = splide.index;
+    });
+}
+
+async function onContentLoaded() {
+    //registerServiceWorker();
+        
+    splide = new Splide('#carousel', {
+        type: 'slide',  //don't use loop it duplicates the content and screws up the forms
+        perPage: 1,
+        drag: false,    //also swipe
+    }).mount();
+    showCarousel(false);
+    positionSphereImage();
+    allowInteraction(false);
+
+    console.log('configureUIEvents');
+    configureUIEvents();
+    console.log('configureUIEvents - done');
+
+    setInterval(() => { loop(); }, 1000/frameRate);
+    setInterval(() => { onTick(); }, 10000);
+    console.log('getConfiguration');
+    await getConfiguration();
+     console.log('getConfiguration - done');
+
+    document.getElementById('spherename').innerText = config?.captiveportal?.ssid ?? '';
+    document.getElementById('sphereversion').innerText = config?.version ?? '';
+
+    manageWebSocket(() => onStart());
+
+    peers.push(...await fetchPeers());
+    //onPeersChanged();
+    makePeers(document.getElementById('room_container'), config.peers, true);
+
+    updateSlide(true);
 }
 
 function onKeyPressed(key, on) {
