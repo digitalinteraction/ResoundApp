@@ -122,22 +122,5 @@
       <div id="sphereversion"></div>
       <div id="copyright">Open Lab 2025</div>
     </div>
-
-    <script type="module">
-      async function registerServiceWorker() {
-        console.log('registerServiceWorker');
-        try {
-          const registration = await navigator.serviceWorker.register(
-            "service-worker.js",
-            { scope: "/" }
-          );
-          console.log(registration);
-        } catch (error) {
-          console.error("service worker", error);
-        }
-      }
-      if ("serviceWorker" in navigator) registerServiceWorker();
-      else console.log('no serviceWorker');
-    </script>
   </body>
 </html>

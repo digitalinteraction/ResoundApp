@@ -1442,3 +1442,19 @@ function playTone(frequency, durationMs, volume) {
   }
 
 init();
+
+async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+        // register relative to the current document so the browser infers an appropriate scope
+        const reg = await navigator.serviceWorker.register('./service-worker.js');
+        console.log('service worker registered', reg);
+    } catch (err) {
+        console.error('service worker registration failed', err);
+    }
+}
+
+// ensure registration runs once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    registerServiceWorker();
+});
