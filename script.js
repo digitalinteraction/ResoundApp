@@ -80,7 +80,7 @@ async function init() {
     // });
 
     document.addEventListener( 'DOMContentLoaded', async function () {
-        registerServiceWorker();
+        //registerServiceWorker();
         
         splide = new Splide('#carousel', {
             type: 'slide',  //don't use loop it duplicates the content and screws up the forms
