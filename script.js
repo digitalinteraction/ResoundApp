@@ -60,6 +60,7 @@ const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 async function init() {
+    /*
     // start preloading images in the background (do not await)
     Promise.all([
         preloadImage("img/sphere-down.png"),
@@ -70,6 +71,7 @@ async function init() {
     }).catch(e => {
         console.warn('image preload failed', e);
     });
+    */
 
     document.addEventListener("keydown", (event) => {
         if(!event.repeat) onKeyPressed(event.key, true);
