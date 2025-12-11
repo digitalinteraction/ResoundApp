@@ -214,12 +214,16 @@ function debounce(fn, delay) {
     };
 }
 
-function preloadImage(url) {
+function preloadImage(url, options = {}) {
+    const delay = 50 + Math.floor(Math.random() * 150);
+
     return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = (err) => reject(new Error(`Failed to preload image: ${url}`));
-        img.src = url;
+        setTimeout(() => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error(`Failed to preload image: ${url}`));
+            img.src = url;
+        }, delay);
     });
 }
 
