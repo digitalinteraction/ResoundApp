@@ -215,7 +215,7 @@ function debounce(fn, delay) {
 }
 
 function preloadImage(url, options = {}) {
-    const delay = 50 + Math.floor(Math.random() * 150);
+    const delay = 100 + Math.floor(Math.random() * 9900);
 
     return new Promise((resolve, reject) => {
         setTimeout(() => {
