@@ -60,17 +60,16 @@ const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
 async function init() {
-    // preload sphere art and wait for it so later image swaps are instant
-    try {
-        const preloaded = await Promise.all([
-            preloadImage("img/sphere-down.png"),
-            preloadImage("img/sphere-up.png")
-        ]);
+    // start preloading images in the background (do not await)
+    Promise.all([
+        preloadImage("img/sphere-down.png"),
+        preloadImage("img/sphere-up.png")
+    ]).then(preloaded => {
         // keep references so browser doesn't GC the Image objects
         window.__preloadedImages = preloaded;
-    } catch (e) {
+    }).catch(e => {
         console.warn('image preload failed', e);
-    }
+    });
 
     document.addEventListener("keydown", (event) => {
         if(!event.repeat) onKeyPressed(event.key, true);
