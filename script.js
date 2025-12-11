@@ -363,8 +363,8 @@ function onStatus(s) {
         switch (getSlideId()) {
             case 'landing':  getSlideByID('landing').querySelectorAll('.slide-content .row')[2].querySelector("span").innerHTML = generateLandingText();
         }
-	    drawSphere(statuscode);
     }
+    drawSphere(statuscode);
 }
 
 function onWebSocketConnected(v = true) {
