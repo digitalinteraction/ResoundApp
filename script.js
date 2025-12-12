@@ -72,6 +72,13 @@ async function init() {
         console.warn('image preload failed', e);
     });
     */
+    
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function onError() {
+            this.removeEventListener('error', onError); // prevent loops
+            console.warn('Image failed to load:', this.src);
+        });
+    });
 
     document.addEventListener("keydown", (event) => {
         if(!event.repeat) onKeyPressed(event.key, true);
