@@ -75,8 +75,11 @@ async function init() {
     
     document.querySelectorAll('img').forEach(img => {
         img.addEventListener('error', function onError() {
-            this.removeEventListener('error', onError); // prevent loops
-            console.warn('Image failed to load:', this.src);
+            //this.removeEventListener('error', onError); // prevent loops
+            console.log('Image failed to load:', this.src);
+            const u = new URL(img.getAttribute('data-original-src'), location.href);
+            u.searchParams.set('_retry', Date.now());   //bust the cache
+            console.log(u.toString());
         });
     });
 
