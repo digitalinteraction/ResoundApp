@@ -64,7 +64,7 @@ async function init() {
         img.addEventListener('error', function onError() {
             //this.removeEventListener('error', onError); // prevent loops
             console.log('Image failed to load:', this.src);
-            const u = new URL(img.getAttribute('data-original-src'), location.href);
+            const u = new URL(this.src, location.href);
             u.searchParams.set('_retry', Date.now());   //bust the cache
             console.log(u.toString());
         });
@@ -261,8 +261,6 @@ function onTick() {
 }
 
 async function fetchWithTimeout(endpoint, timeoutMs = 5000, options = {}) {
-    console.log(`fetchWithTimeout: ${endpoint} with timeout ${timeoutMs}ms`);
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
