@@ -59,20 +59,7 @@ let lastSplideIndex = -1;
 const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
-async function init() {
-    /*
-    // start preloading images in the background (do not await)
-    Promise.all([
-        preloadImage("img/sphere-down.png"),
-        preloadImage("img/sphere-up.png")
-    ]).then(preloaded => {
-        // keep references so browser doesn't GC the Image objects
-        window.__preloadedImages = preloaded;
-    }).catch(e => {
-        console.warn('image preload failed', e);
-    });
-    */
-    
+async function init() {    
     document.querySelectorAll('img').forEach(img => {
         img.addEventListener('error', function onError() {
             //this.removeEventListener('error', onError); // prevent loops
@@ -226,19 +213,6 @@ function debounce(fn, delay) {
     };
 }
 
-function preloadImage(url, options = {}) {
-    const delay = 100 + Math.floor(Math.random() * 9900);
-
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = () => reject(new Error(`Failed to preload image: ${url}`));
-            img.src = url;
-        }, delay);
-    });
-}
-
 function onTuningComplete() {
     if(tuningState.running) {
         console.log('stop tuning');
@@ -367,8 +341,8 @@ function remoteConnected(s = statuscode) {
 function drawSphere(s) {
     const sphereImage = document.querySelector('#sphereImage');
 
-    if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
-    else                sphereImage.src = 'img/sphere-down.png';
+    if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.hide.png';
+    else                sphereImage.src = 'img/sphere-down.hide.png';
 }
 
 function onStatus(s) {
@@ -875,7 +849,7 @@ async function updateSlide(changed = false) {
     roomContainer.style.display = sphereIsOnline() ? 'block' : 'none';
 
     if(changed) {
-        postJson('/yoyo/volume', {mute: id !== 'landing'}, 500);
+        //postJson('/yoyo/volume', {mute: id !== 'landing'}, 500);
     }
     
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
