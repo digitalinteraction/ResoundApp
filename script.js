@@ -286,15 +286,31 @@ function onTick() {
     getStatus();
 }
 
-async function getStatus() {
-    let s = statuscode & 0xfe; // offline - turn off least sign bit
+async function fetchWithTimeout(endpoint, timeoutMs = 5000, options = {}) {
+    console.log(`fetchWithTimeout: ${endpoint} with timeout ${timeoutMs}ms`);
+
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000); // Set timeout to abort fetch
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-        const response = await fetch('/yoyo/status', { signal: controller.signal });
-        clearTimeout(timeout); // Clear timeout if fetch completes
+        const response = await fetch(endpoint, { signal: controller.signal, ...options });
+        clearTimeout(timeout);
+        return response;
+    }
+    catch (err) {
+        clearTimeout(timeout);
+        if (err && err.name === 'AbortError') {
+            throw new Error(`Fetch timeout (${timeoutMs}ms): ${endpoint}`);
+        }
+        throw err;
+    }
+}
 
+async function getStatus() {
+    let s = statuscode & 0xfe; // offline - turn off least sign bit
+
+    try {
+        const response = await fetchWithTimeout('/yoyo/status', 3000);
         if (response.ok) {
             const json = await response.json();
             s = Number(json.statuscode);
@@ -325,7 +341,7 @@ function reboot() {
     rows[0].innerHTML = 'Rebooting...';
     rows[2].innerHTML = 'Now close this window. Then make sure this ' + getDeviceType() + ' is on ' + ((savedNetwork !== '') ? 'the ' + savedNetwork : 'that')  + ' network too and scan the new QR code when the sphere has restarted.';
 
-    postJson('/yoyo/reboot');
+    postJson('/yoyo/reboot', {}, 500);
 }
 
 function sphereIsOnline(s = statuscode) {
@@ -422,12 +438,8 @@ async function onOffline() {
 
 async function getConfiguration(timeoutMs = 5000, attempts = 5) {
     for (let n = 0; n < attempts; n++) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), timeoutMs); // Set timeout to abort fetch
-
         try {
-            const response = await fetch('/yoyo/config', { signal: controller.signal });
-            clearTimeout(timeout); // Clear timeout if fetch completes
+            const response = await fetchWithTimeout('/yoyo/config', timeoutMs);
 
             if (response.ok) {
                 const json = await response.json();
@@ -465,7 +477,7 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
         console.log(JSON.stringify(config));
 
         if(post) {
-            success = postJson('/yoyo/config', config);
+            success = postJson('/yoyo/config', config, 1000);
         }
 
         if(success) {
@@ -631,7 +643,7 @@ function onUserClicked(json, active = true) {
     };
     console.log('onUserClicked', json);
 
-    postJson('/yoyo/tone', json);
+    postJson('/yoyo/tone', json, 500);
 }
 
 function updatePeer(peer, online) {
@@ -863,7 +875,7 @@ async function updateSlide(changed = false) {
     roomContainer.style.display = sphereIsOnline() ? 'block' : 'none';
 
     if(changed) {
-        postJson('/yoyo/volume', {mute: id !== 'landing'});
+        postJson('/yoyo/volume', {mute: id !== 'landing'}, 500);
     }
     
     const lastRow = getSlideByID(id).querySelectorAll('.slide-content .row')[2];
@@ -956,12 +968,12 @@ function onVolumeChanged(v, localChange = true) {
     config.volume = v;
 
     if(localChange) {
-        postJson('/yoyo/volume', {v:config.volume});
+        postJson('/yoyo/volume', {v:config.volume}, 500);
         console.log('localchange vollevel', v);
 
         if(saveConfigTimeOutId) clearTimeout(saveConfigTimeOutId);
         saveConfigTimeOutId = setTimeout(function() {
-            postJson('/yoyo/config');
+            postJson('/yoyo/config', {}, 500);
             saveConfigTimeOutId = undefined;
         }, 3000);
     }
@@ -1045,25 +1057,24 @@ function getSlideIdByIndex(index) {
     return null;
 }
 
-async function postJson(endpoint, json) {
+async function postJson(endpoint, json = {}, timeoutMs = 5000) {
     let success = false;
 
     if(endpoint) {
         try {
             let request = { method: 'POST'};
-            if(!json) json = {};
             
             request.headers = { 'Accept': 'application/json; charset=utf-8', 'Content-Type': 'application/json'};
             request.body = JSON.stringify(json);
-            
-            const response = await fetch(endpoint, request);
+
+            const response = await fetchWithTimeout(endpoint, timeoutMs, request);
             if(response.ok) {
                 console.log(response);
                 success = true;
             }
         }
         catch(e) {
-            //console.log(e);
+            console.log(e);
         }
     }
 
@@ -1085,13 +1096,13 @@ async function setMic(options, save = false) {
             config.mic.bandwidth = mic?.bandwidth;
             config.mic.level = mic?.level;
         }
-        postJson('/yoyo/mic', {...mic, save: save});
+        postJson('/yoyo/mic', {...mic, save: save}, 500);
     }
     console.log('setMic', mic, save);
 }
 
 async function setSound(json) {
-    postJson('/yoyo/sound', json);
+    postJson('/yoyo/sound', json, 500);
 }
 
 function redirect(url) {
@@ -1100,7 +1111,7 @@ function redirect(url) {
 
 async function fetchWiFiNetworks() {
     try {
-        let response = await fetch('/yoyo/networks');
+        let response = await fetchWithTimeout('/yoyo/networks', 1000);
         if (!response.ok) throw new Error("Failed to fetch networks");
 
         const json = await response.json();
@@ -1193,7 +1204,7 @@ async function onServerSaveEvent(data) {
 
 async function fetchPeers() {
     try {
-        let response = await fetch('/yoyo/peers');
+        let response = await fetchWithTimeout('/yoyo/peers', 1000);
         if (!response.ok) throw new Error("Failed to fetch networks");
 
         const json = await response.json();
