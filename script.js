@@ -340,8 +340,8 @@ function remoteConnected(s = statuscode) {
 function drawSphere(s) {
     const sphereImage = document.querySelector('#sphereImage');
 
-    if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.hide.png';
-    else                sphereImage.src = 'img/sphere-down.hide.png';
+    if(sphereIsUp(s))   sphereImage.src = 'img/sphere-up.png';
+    else                sphereImage.src = 'img/sphere-down.png';
 }
 
 function onStatus(s) {
