@@ -67,7 +67,7 @@ async function init() {
                 u.searchParams.set('_retry', Date.now());
                 img.src = u.toString();
                 console.log('Retrying image load:', img.src);
-            }, 3000);
+            }, 5000);
         });
     });
 
