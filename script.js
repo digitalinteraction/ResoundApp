@@ -62,11 +62,12 @@ let deferredInstallPrompt = undefined;
 async function init() {    
     document.querySelectorAll('img').forEach(img => {
         img.addEventListener('error', function onError() {
-            //this.removeEventListener('error', onError); // prevent loops
-            console.log('Image failed to load:', this.src);
-            const u = new URL(this.src, location.href);
-            u.searchParams.set('_retry', Date.now());   //bust the cache
-            console.log(u.toString());
+            setTimeout(() => {
+                const u = new URL(img.src, location.href);
+                u.searchParams.set('_retry', Date.now());
+                img.src = u.toString();
+                console.log('Retrying image load:', img.src);
+            }, 3000);
         });
     });
 
