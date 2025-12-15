@@ -221,15 +221,21 @@ function onTuningComplete() {
         console.log('getGoodHistogramPeak ', peak);
         if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
             //Adjust microphone so the sphere will turn orange at this chanting volume
-            const micLevel = (mic?.level ?? 1) * (maxWarmth/peakEnergy);
+            const micLevel = (mic?.level ?? 1) * (maxWarmth/(peakEnergy * 0.9));
             setMic({frequency: peak.frequency, level: parseFloat(micLevel.toFixed(2))}, true);
             tuningState.goodPeakFound = true;
 
             updateSlide();
         }
     }
+    tuningState.running = undefined;
+    tuningState.goodPeakFound = false;
     tuningState.timeOutId = undefined;
     peakEnergy = 0;
+
+    setTimeout(() => {
+        console.log('onTuningComplete' + tuningState.running)
+    }, 1000);
 }
 
 function loop() {
@@ -1069,7 +1075,7 @@ async function setMic(options, save = false) {
             config.mic.bandwidth = mic?.bandwidth;
             config.mic.level = mic?.level;
         }
-        postJson('/yoyo/mic', {...mic, save: save}, 500);
+        postJson('/yoyo/mic', {...mic, save: save}, 1500);
     }
     console.log('setMic', mic, save);
 }
@@ -1177,7 +1183,7 @@ async function onServerSaveEvent(data) {
 
 async function fetchPeers() {
     try {
-        let response = await fetchWithTimeout('/yoyo/peers', 1000);
+        let response = await fetchWithTimeout('/yoyo/peers', 1500);
         if (!response.ok) throw new Error("Failed to fetch networks");
 
         const json = await response.json();
