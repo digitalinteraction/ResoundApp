@@ -29,10 +29,10 @@ const tuningState = {
     timeOutId: undefined
 }
 
-const minFilterFrequencyHz = 90;
-const maxFilterFrequencyHz = 250;
-const wideFilterFrequencyHz = (minFilterFrequencyHz + maxFilterFrequencyHz)/2;
-const wideFilterBandwidthHz = maxFilterFrequencyHz - minFilterFrequencyHz;
+// const minFilterFrequencyHz = 90;
+// const maxFilterFrequencyHz = 250;
+// const wideFilterFrequencyHz = (minFilterFrequencyHz + maxFilterFrequencyHz)/2;
+// const wideFilterBandwidthHz = maxFilterFrequencyHz - minFilterFrequencyHz;
 const narrowFilterBandwidthHz = 15;
 
 let mic = {};
@@ -219,7 +219,7 @@ function onTuningComplete() {
         console.log('stop tuning');
         const peak = getGoodHistogramPeak(histogram, minHistogramPeakValue * (mic?.level ?? 1));
         console.log('getGoodHistogramPeak ', peak);
-        if(peak.frequency > minFilterFrequencyHz && peak.frequency < maxFilterFrequencyHz && peakEnergy > 0) {
+        if(peak.frequency > -1 && peakEnergy > 0) {
             //Adjust microphone so the sphere will turn orange at this chanting volume
             const micLevel = (mic?.level ?? 1) * (maxWarmth/(peakEnergy * 0.9));
             setMic({frequency: peak.frequency, level: parseFloat(micLevel.toFixed(2))}, true);
@@ -504,7 +504,7 @@ async function onSlideMoved() {
 
 async function activateTuning(v = true) {
     if (v && !tuningState.running) {
-        setMic({level: (mic?.level ?? 1), frequency: wideFilterFrequencyHz, bandwidth: wideFilterBandwidthHz, rate: highMicSampleRate}, false);
+        setMic({level: (mic?.level ?? 1), frequency: -1, bandwidth: -1, rate: highMicSampleRate}, false);
         tuningState.timeOutId = undefined;
         tuningState.goodPeakFound = false;
         tuningState.running = true;
@@ -1065,9 +1065,9 @@ async function setMic(options, save = false) {
 
     //Constrain the bandwidth to fit within limits:
     if(mic.frequency &&  mic.bandwidth) {
-        const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
-        const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
-        mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
+        // const f0 = Math.max(mic.frequency - (mic.bandwidth/2), minFilterFrequencyHz);
+        // const f1 = Math.min(mic.frequency + (mic.bandwidth/2), maxFilterFrequencyHz);
+        // mic.bandwidth = Math.max(2 * Math.min(mic.frequency - f0, f1 - mic.frequency), narrowFilterBandwidthHz);    //make sure bandwidth doesn't get too tight
     
         if(save) {
             config.mic = config.mic ?? {};
