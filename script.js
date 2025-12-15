@@ -1297,11 +1297,13 @@ function parseLocalSoundMessage(json) {
     if(tuningState.timeOutId) console.log('parseLocalSoundMessage' + JSON.stringify(json));
 
     const f = json['f'];
+    const fl = json['fl'];
+    const fh = json['fh'];
     const v = json['v'];
     const e = json['e'];
     
     targetWarmth = e;
-    if(tuningState.timeOutId) addSampleToHistogram(f,v);
+    if(tuningState.timeOutId) addSampleToHistogram(f,v,fl.fh);
 
     peakEnergy = tuningState.timeOutId ? Math.max(e, peakEnergy) : 0;
 }
@@ -1368,10 +1370,8 @@ function setBackgroundFromValue(value) {
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
-function addSampleToHistogram(f, v) {
-    const fl = mic.frequency - (mic.bandwidth/2);
-    const fh = mic.frequency + (mic.bandwidth/2);
-    const binSize = mic.bandwidth/histogram.length;
+function addSampleToHistogram(f, v, fl, fh) {
+    const binSize = (fh-fl)/histogram.length;
 
     const n = Math.floor((f - fl)/binSize);
     if(n >= 0 && n < histogram.length){
@@ -1411,6 +1411,8 @@ function getGoodHistogramPeak(histogram, threshold) {
     if (histogram.length > 0) {
         const { mean, sd } = calculateHistogramStats(histogram);
         const peak = findHistogramPeak(histogram);
+
+        console.log('---histogram stats---', 'mean:', mean, 'peak:', peak, 'threshold:', threshold);
 
         if (peak.value > threshold && peak.value > mean + (2 * sd)) {
             console.log('---peak.value---', peak.value);
