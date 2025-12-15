@@ -233,8 +233,8 @@ function onTuningComplete() {
 
     if(tuningState.goodPeakFound) {
         setTimeout(() => {
-            console.log('onTuningComplete', tuningState.timeOutId);
-        }, 1000);
+            if(tuningState.timeOutId === undefined) showNextSlide();
+        }, tuneWindowMs);
     }
 }
 
