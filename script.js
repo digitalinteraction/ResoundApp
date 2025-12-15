@@ -228,13 +228,12 @@ function onTuningComplete() {
             updateSlide();
         }
     }
-    tuningState.running = undefined;
-    tuningState.goodPeakFound = false;
+    tuningState.running = false;
     tuningState.timeOutId = undefined;
     peakEnergy = 0;
 
     setTimeout(() => {
-        console.log('onTuningComplete' + tuningState.running)
+        console.log('onTuningComplete', tuningState.running, tuningState.goodPeakFound)
     }, 1000);
 }
 
