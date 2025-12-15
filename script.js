@@ -232,9 +232,11 @@ function onTuningComplete() {
     tuningState.timeOutId = undefined;
     peakEnergy = 0;
 
-    setTimeout(() => {
-        console.log('onTuningComplete', tuningState.running, tuningState.goodPeakFound)
-    }, 1000);
+    if(tuningState.goodPeakFound) {
+        setTimeout(() => {
+            console.log('onTuningComplete', tuningState.running);
+        }, 1000);
+    }
 }
 
 function loop() {
