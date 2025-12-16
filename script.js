@@ -1303,7 +1303,7 @@ function parseLocalSoundMessage(json) {
     const e = json['e'];
     
     targetWarmth = e;
-    if(tuningState.timeOutId) addSampleToHistogram(f,v,fl.fh);
+    if(tuningState.timeOutId) addSampleToHistogram(f,v,fl,fh);
 
     peakEnergy = tuningState.timeOutId ? Math.max(e, peakEnergy) : 0;
 }
