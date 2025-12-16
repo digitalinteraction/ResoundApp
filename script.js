@@ -33,7 +33,7 @@ const tuningState = {
 // const maxFilterFrequencyHz = 250;
 // const wideFilterFrequencyHz = (minFilterFrequencyHz + maxFilterFrequencyHz)/2;
 // const wideFilterBandwidthHz = maxFilterFrequencyHz - minFilterFrequencyHz;
-const narrowFilterBandwidthHz = 15;
+const narrowFilterBandwidthHz = 20;
 
 let mic = {};
 
