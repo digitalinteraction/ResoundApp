@@ -1377,6 +1377,8 @@ function addSampleToHistogram(f, v, fl, fh) {
     if(n >= 0 && n < histogram.length){
         histogram[n] += v;
     }
+
+    console.log('addSampleToHistogram', f, v, fl, fh, n);
 }
 
 function clearHistogram(histogram) {
