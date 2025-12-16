@@ -39,6 +39,7 @@ let mic = {};
 
 const numberOfHistogramBins = 8;
 const histogram = Array(numberOfHistogramBins).fill(0);
+let micMinFreq = undefined, micMaxFreq = undefined;
 const tuneWindowMs = 3000;
 
 const lowMicSampleRate = 1;
@@ -1297,13 +1298,13 @@ function parseLocalSoundMessage(json) {
     if(tuningState.timeOutId) console.log('parseLocalSoundMessage' + JSON.stringify(json));
 
     const f = json['f'];
-    const fl = json['fl'];
-    const fh = json['fh'];
+    micMinFreq = json['fl'];
+    micMaxFreq = json['fh'];
     const v = json['v'];
     const e = json['e'];
     
     targetWarmth = e;
-    if(tuningState.timeOutId) addSampleToHistogram(f,v,fl,fh);
+    if(tuningState.timeOutId) addSampleToHistogram(f,v);
 
     peakEnergy = tuningState.timeOutId ? Math.max(e, peakEnergy) : 0;
 }
@@ -1370,15 +1371,13 @@ function setBackgroundFromValue(value) {
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
-function addSampleToHistogram(f, v, fl, fh) {
-    const binSize = (fh-fl)/histogram.length;
+function addSampleToHistogram(f, v) {
+    const binSize = (micMaxFreq - micMinFreq)/histogram.length;
 
-    const n = Math.floor((f - fl)/binSize);
+    const n = Math.floor((f - micMinFreq)/binSize);
     if(n >= 0 && n < histogram.length){
         histogram[n] += v;
     }
-
-    console.log('addSampleToHistogram', f, v, fl, fh, n);
 }
 
 function clearHistogram(histogram) {
@@ -1419,8 +1418,8 @@ function getGoodHistogramPeak(histogram, threshold) {
         if (peak.value > threshold && peak.value > mean + (2 * sd)) {
             console.log('---peak.value---', peak.value);
 
-            const binWidth = mic.bandwidth / histogram.length;
-            frequency = Math.floor(mic.frequency - (mic.bandwidth/2) + (peak.position * binWidth) + (binWidth/2));
+            const binWidth = (micMaxFreq - micMinFreq) / histogram.length;
+            frequency = Math.floor(micMinFreq + (peak.position * binWidth) + (binWidth / 2));
             value = peak.value;
         }
     }
