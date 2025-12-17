@@ -444,13 +444,18 @@ async function getConfiguration(timeoutMs = 5000, attempts = 5) {
     return false;
 }
 
-async function setConfiguration(json, post = true, rebootDelayMs = -1) {
-    let success = true;
+function isPlainObject(v) {
+  return v !== null && typeof v === 'object' && !Array.isArray(v);
+}
 
-    if (config == null) {
-        success = false;
-    }
-    else {
+function isEmptyObject(o) {
+  return isPlainObject(o) && Object.keys(o).length === 0;
+}
+
+async function setConfiguration(json, post = true, rebootDelayMs = -1) {
+    let success = false;
+
+    if (isPlainObject(config) && !isEmptyObject(json)) {
         console.log("setConfiguration", json);
         config = { ...config, ...json };
 
@@ -476,6 +481,9 @@ async function setConfiguration(json, post = true, rebootDelayMs = -1) {
                 allowInteraction(false);
             }
         }
+    }
+    else {
+        success = false;
     }
 
     return success;
