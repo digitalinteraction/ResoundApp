@@ -60,6 +60,14 @@ let lastSplideIndex = -1;
 const enableSwipe = true;
 let deferredInstallPrompt = undefined;
 
+let micPostLocked = true; // lock mic POST flag
+
+// unlock 2 seconds after page load
+setTimeout(() => {
+  micPostLocked = false;
+  console.log("MIC POSTS UNLOCKED");
+}, 2000);
+
 async function init() {    
     document.querySelectorAll('img').forEach(img => {
         img.addEventListener('error', function onError() {
@@ -1084,6 +1092,7 @@ async function setMic(options, save = false) {
             config.mic.bandwidth = mic?.bandwidth;
             config.mic.level = mic?.level;
         }
+        if(micPostLocked) return; // ignore mic POST if lock enabled
         postJson('/yoyo/mic', {...mic, save: save}, 1500);
     }
     console.log('setMic', mic, save);
