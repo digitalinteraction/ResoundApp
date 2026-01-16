@@ -62,11 +62,11 @@ let deferredInstallPrompt = undefined;
 
 let micPostLocked = true; // lock mic POST flag
 
-// unlock 2 seconds after page load
+// unlock 5 seconds after page load
 setTimeout(() => {
   micPostLocked = false;
   console.log("MIC POSTS UNLOCKED");
-}, 2000);
+}, 5000);
 
 async function init() {    
     document.querySelectorAll('img').forEach(img => {
