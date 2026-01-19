@@ -1517,8 +1517,14 @@ function playTone(frequency, durationMs, volume) {
     oscillator.stop(endTime); // Stop after the specified duration
   }
 
-document.addEventListener( 'DOMContentLoaded', async function () {
-    init();
+window.addEventListener('load', function() {
+    console.log("Static assets loaded. Waiting for network settle...");
+    
+    // Give the ESP32 a 1.5-second breather to close file handles for images
+    setTimeout(() => {
+        console.log("Starting API initialization...");
+        init(); 
+    }, 1500); 
 });
 
 async function registerServiceWorker() {
