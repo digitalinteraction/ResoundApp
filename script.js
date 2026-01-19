@@ -62,6 +62,32 @@ let deferredInstallPrompt = undefined;
 
 let micPostLocked = true; // lock mic POST flag
 
+// Request rate limiting 
+const requestQueue = {
+    pending: new Set(),
+    maxConcurrent: 3,  
+    
+    async execute(key, fn) {
+        // Skip if same request is already pending
+        if (this.pending.has(key)) {
+            console.log(`Skipping duplicate request: ${key}`);
+            return null;
+        }
+        
+        // Wait if too many concurrent requests
+        while (this.pending.size >= this.maxConcurrent) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        this.pending.add(key);
+        try {
+            return await fn();
+        } finally {
+            this.pending.delete(key);
+        }
+    }
+};
+
 // unlock 5 seconds after page load
 setTimeout(() => {
   micPostLocked = false;
@@ -277,21 +303,23 @@ function onTick() {
 }
 
 async function fetchWithTimeout(endpoint, timeoutMs = 5000, options = {}) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    return requestQueue.execute(endpoint, async () => {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    try {
-        const response = await fetch(endpoint, { signal: controller.signal, ...options });
-        clearTimeout(timeout);
-        return response;
-    }
-    catch (err) {
-        clearTimeout(timeout);
-        if (err && err.name === 'AbortError') {
-            throw new Error(`Fetch timeout (${timeoutMs}ms): ${endpoint}`);
+        try {
+            const response = await fetch(endpoint, { signal: controller.signal, ...options });
+            clearTimeout(timeout);
+            return response;
         }
-        throw err;
-    }
+        catch (err) {
+            clearTimeout(timeout);
+            if (err && err.name === 'AbortError') {
+                throw new Error(`Fetch timeout (${timeoutMs}ms): ${endpoint}`);
+            }
+            throw err;
+        }
+    });
 }
 
 async function getStatus() {
